@@ -39,7 +39,7 @@ public class LogInActivity extends AppCompatActivity  implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_log_in);
+        setContentView(R.layout.activity_login);
 
         // Views
         mEmailField = (EditText) findViewById(R.id.edit_text_email);
