@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     TextView message;  // This will reference our repo list text box.
     RequestQueue requestQueue;  // This is our requests queue to process our HTTP requests.
 
-    String url = "http://192.168.1.47:5000/api/post";  // This is the API base URL (GitHub API)
+    String url = "http://0.0.0.0:5000/api/post";  // This is the API base URL (GitHub API)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
