@@ -24,7 +24,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LogInActivity extends AppCompatActivity  implements
+public class LoginActivity extends AppCompatActivity  implements
         View.OnClickListener {
 
     private static final String TAG = "EmailPassword";
@@ -83,8 +83,8 @@ public class LogInActivity extends AppCompatActivity  implements
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            Log.d(TAG, "change activity to UserInfoActivity");
-            startActivity(new Intent(this, UserInfoActivity.class));
+            Log.d(TAG, "change activity to MapsActivity");
+            startActivity(new Intent(this, MapsActivity.class));
 
         }
 
@@ -98,8 +98,8 @@ public class LogInActivity extends AppCompatActivity  implements
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
+    private void login(String email, String password) {
+        Log.d(TAG, "login:" + email);
         if (!validateForm()) {
             return;
         }
@@ -115,13 +115,13 @@ public class LogInActivity extends AppCompatActivity  implements
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "change activity to UserInfoActivity");
-                                startActivity(new Intent(LogInActivity.this, UserInfoActivity.class));
+                                Log.d(TAG, "change activity to MapsActivity");
+                                startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                             }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Sign In failed.",
+                            Toast.makeText(LoginActivity.this, "Sign In failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
 
@@ -147,13 +147,13 @@ public class LogInActivity extends AppCompatActivity  implements
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "change activity to UserInfoActivity");
-                                startActivity(new Intent(LogInActivity.this, UserInfoActivity.class));
+                                Log.d(TAG, "change activity to MapsActivity");
+                                startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                             }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Create User With Email failed.",
+                            Toast.makeText(LoginActivity.this, "Create User With Email failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
 
@@ -175,14 +175,14 @@ public class LogInActivity extends AppCompatActivity  implements
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "change activity to UserInfoActivity");
-                                startActivity(new Intent(LogInActivity.this, UserInfoActivity.class));
+                                Log.d(TAG, "change activity to MapsActivity");
+                                startActivity(new Intent(LoginActivity.this, MapsActivity.class));
 
                             }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LogInActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -226,7 +226,7 @@ public class LogInActivity extends AppCompatActivity  implements
             findViewById(R.id.button_email_login).setVisibility(View.VISIBLE);
             findViewById(R.id.button_register).setVisibility(View.GONE);
         } else if (i == R.id.button_email_login) {
-            signIn(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
+            login(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
         }
         else if (i == R.id.button_register) {
             createAccount(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
