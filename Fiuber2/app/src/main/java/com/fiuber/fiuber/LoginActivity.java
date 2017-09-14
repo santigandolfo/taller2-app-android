@@ -191,6 +191,7 @@ public class LoginActivity extends AppCompatActivity  implements
 
 
     private boolean validateForm() {
+        Log.d(TAG, "validateForm");
         boolean valid = true;
 
         String email = mEmailField.getText().toString().trim();
@@ -216,19 +217,23 @@ public class LoginActivity extends AppCompatActivity  implements
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.text_register) {
+            Log.d(TAG, "clicked register text");
             findViewById(R.id.text_register).setVisibility(View.GONE);
             findViewById(R.id.text_email_login).setVisibility(View.VISIBLE);
             findViewById(R.id.button_email_login).setVisibility(View.GONE);
             findViewById(R.id.button_register).setVisibility(View.VISIBLE);
         } else if (i == R.id.text_email_login) {
+            Log.d(TAG, "clicked login text");
             findViewById(R.id.text_register).setVisibility(View.VISIBLE);
             findViewById(R.id.text_email_login).setVisibility(View.GONE);
             findViewById(R.id.button_email_login).setVisibility(View.VISIBLE);
             findViewById(R.id.button_register).setVisibility(View.GONE);
         } else if (i == R.id.button_email_login) {
+            Log.d(TAG, "clicked login button");
             login(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
         }
         else if (i == R.id.button_register) {
+            Log.d(TAG, "clicked register button");
             createAccount(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
         }
     }
