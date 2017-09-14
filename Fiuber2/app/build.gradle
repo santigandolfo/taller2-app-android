@@ -31,6 +31,7 @@ dependencies {
     compile 'com.google.firebase:firebase-auth:11.2.0'
     compile 'com.android.support:design:26.+'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.google.android.gms:play-services:11.2.0'
     compile 'com.google.android.gms:play-services-maps:11.2.0'
     testCompile 'junit:junit:4.12'
 }

@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class LoginActivity extends AppCompatActivity  implements
         View.OnClickListener {
@@ -117,6 +118,7 @@ public class LoginActivity extends AppCompatActivity  implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
+                            Toast.makeText(LoginActivity.this, "Log In Successful", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 Log.d(TAG, "change activity to MapsActivity");
@@ -149,6 +151,7 @@ public class LoginActivity extends AppCompatActivity  implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
+                            Toast.makeText(LoginActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 Log.d(TAG, "change activity to MapsActivity");
@@ -157,7 +160,7 @@ public class LoginActivity extends AppCompatActivity  implements
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Create User With Email failed.",
+                            Toast.makeText(LoginActivity.this, "Registration failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
 
