@@ -29,6 +29,8 @@ public class LoginActivity extends AppCompatActivity  implements
 
     private static final String TAG = "EmailPassword";
 
+    private EditText mNameField;
+    private EditText mSurnameField;
     private EditText mEmailField;
     private EditText mPasswordField;
 
@@ -42,6 +44,8 @@ public class LoginActivity extends AppCompatActivity  implements
         setContentView(R.layout.activity_login);
 
         // Views
+        mNameField = (EditText) findViewById(R.id.edit_text_name);
+        mSurnameField = (EditText) findViewById(R.id.edit_text_surname);
         mEmailField = (EditText) findViewById(R.id.edit_text_email);
         mPasswordField = (EditText) findViewById(R.id.edit_text_password);
 
@@ -132,7 +136,7 @@ public class LoginActivity extends AppCompatActivity  implements
 
     private void createAccount(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
-        if (!validateForm()) {
+        if (!validateEmailForm()) {
             return;
         }
 
@@ -213,6 +217,45 @@ public class LoginActivity extends AppCompatActivity  implements
         return valid;
     }
 
+    private boolean validateEmailForm() {
+        Log.d(TAG, "validateEmailForm");
+        boolean valid = true;
+
+        String name = mNameField.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            mNameField.setError("Required.");
+            valid = false;
+        } else {
+            mNameField.setError(null);
+        }
+
+        String surname = mSurnameField.getText().toString().trim();
+        if (TextUtils.isEmpty(surname)) {
+            mSurnameField.setError("Required.");
+            valid = false;
+        } else {
+            mSurnameField.setError(null);
+        }
+
+        String email = mEmailField.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            mEmailField.setError("Required.");
+            valid = false;
+        } else {
+            mEmailField.setError(null);
+        }
+
+        String password = mPasswordField.getText().toString().trim();
+        if (TextUtils.isEmpty(password)) {
+            mPasswordField.setError("Required.");
+            valid = false;
+        } else {
+            mPasswordField.setError(null);
+        }
+
+        return valid;
+    }
+
     @Override
     public void onClick(View v) {
         int i = v.getId();
@@ -222,12 +265,16 @@ public class LoginActivity extends AppCompatActivity  implements
             findViewById(R.id.text_email_login).setVisibility(View.VISIBLE);
             findViewById(R.id.button_email_login).setVisibility(View.GONE);
             findViewById(R.id.button_register).setVisibility(View.VISIBLE);
+            findViewById(R.id.edit_text_name).setVisibility(View.VISIBLE);
+            findViewById(R.id.edit_text_surname).setVisibility(View.VISIBLE);
         } else if (i == R.id.text_email_login) {
             Log.d(TAG, "clicked login text");
             findViewById(R.id.text_register).setVisibility(View.VISIBLE);
             findViewById(R.id.text_email_login).setVisibility(View.GONE);
             findViewById(R.id.button_email_login).setVisibility(View.VISIBLE);
             findViewById(R.id.button_register).setVisibility(View.GONE);
+            findViewById(R.id.edit_text_name).setVisibility(View.GONE);
+            findViewById(R.id.edit_text_surname).setVisibility(View.GONE);
         } else if (i == R.id.button_email_login) {
             Log.d(TAG, "clicked login button");
             login(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
