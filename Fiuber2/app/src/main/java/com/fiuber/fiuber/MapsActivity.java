@@ -1,23 +1,20 @@
 package com.fiuber.fiuber;
 
-import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
+import android.content.res.Resources;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,32 +25,40 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arlib.floatingsearchview.FloatingSearchView;
+import com.arlib.floatingsearchview.suggestions.SearchSuggestionsAdapter;
+import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.facebook.login.LoginManager;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.jar.*;
-
 public class MapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener {
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
@@ -64,6 +69,13 @@ public class MapsActivity extends AppCompatActivity
     protected Location lastLocation;
     LatLng lastKnownLocation;
     Marker marker;
+
+    FloatingSearchView mSearchView;
+
+    private static final int REQUEST_CODE_AUTOCOMPLETE = 1;
+    private TextView mPlaceDetailsText;
+
+    private TextView mPlaceAttribution;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +88,12 @@ public class MapsActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+       // findViewById(R.id.button_seatch).setOnClickListener(this);
+        mPlaceDetailsText = (TextView) findViewById(R.id.place_details);
+        mPlaceAttribution = (TextView) findViewById(R.id.place_attribution);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         mAuth = FirebaseAuth.getInstance();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -105,6 +120,26 @@ public class MapsActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+ /*       mSearchView = findViewById(R.id.floating_search_view);
+        mSearchView.attachNavigationDrawerToMenuButton(drawer);
+
+        mSearchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
+            @Override
+            public void onSearchTextChanged(String oldQuery, final String newQuery) {
+                openAutocompleteActivity();
+            }
+        });*/
+
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        // Register a listener to receive callbacks when a place has been selected or an error has
+        // occurred.
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+
+
     }
 
     @Override
@@ -130,7 +165,9 @@ public class MapsActivity extends AppCompatActivity
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
                             if (marker == null)
-                                marker = mMap.addMarker(new MarkerOptions().position(lastKnownLocation).title("Current Position"));
+                                marker = mMap.addMarker(new MarkerOptions()
+                                        .position(lastKnownLocation)
+                                        .title("Current Position"));
                             marker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
                         } else {
@@ -212,6 +249,8 @@ public class MapsActivity extends AppCompatActivity
         } else if (id == R.id.history) {
 
         } else if (id == R.id.settings) {
+            Log.d(TAG, "change activity to SettingsActivity");
+            startActivity(new Intent(this, SettingsActivity.class));
 
         }
 
@@ -237,4 +276,44 @@ public class MapsActivity extends AppCompatActivity
         getLastLocation();
 
     }
+
+    @Override
+    public void onPlaceSelected(Place place) {
+        Log.i(TAG, "Place Selected: " + place.getName());
+
+        // Format the returned place's details and display them in the TextView.
+        mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(), place.getId(),
+                place.getAddress(), place.getPhoneNumber(), place.getWebsiteUri()));
+
+        CharSequence attributions = place.getAttributions();
+        if (!TextUtils.isEmpty(attributions)) {
+            mPlaceAttribution.setText(Html.fromHtml(attributions.toString()));
+        } else {
+            mPlaceAttribution.setText("");
+        }
+    }
+
+    /**
+     * Callback invoked when PlaceAutocompleteFragment encounters an error.
+     */
+    @Override
+    public void onError(Status status) {
+        Log.e(TAG, "onError: Status = " + status.toString());
+
+        Toast.makeText(this, "Place selection failed: " + status.getStatusMessage(),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Helper method to format information about a place nicely.
+     */
+    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
+                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
+        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
+                websiteUri));
+        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
+                websiteUri));
+
+    }
+
 }
