@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.example.google.playservices.placecomplete;
+package com.fiuber.fiuber;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -26,12 +26,12 @@ import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import com.example.android.common.logger.Log;
 
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 public class PlaceAutocompleteAdapter
         extends ArrayAdapter<AutocompletePrediction> implements Filterable {
 
-    private static final String TAG = "PlaceAutocompleteAdapter";
+    private static final String TAG = "PlaceAutocomplete";
     private static final CharacterStyle STYLE_BOLD = new StyleSpan(Typeface.BOLD);
     /**
      * Current results returned by this adapter.
@@ -229,7 +229,7 @@ public class PlaceAutocompleteAdapter
                 return null;
             }
 
-            Log.i(TAG, "Query completed. Received " + autocompletePredictions.getCount()
+            Log.i(TAG, "Query completed. Received" + autocompletePredictions.getCount()
                     + " predictions.");
 
             // Freeze the results immutable representation that can be stored safely.
