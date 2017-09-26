@@ -23,9 +23,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class LoginActivity extends AppCompatActivity  implements
+public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener {
 
     private static final String TAG = "EmailPassword";
@@ -45,10 +44,10 @@ public class LoginActivity extends AppCompatActivity  implements
         setContentView(R.layout.activity_login);
 
         // Views
-        mNameField = (EditText) findViewById(R.id.edit_text_name);
-        mSurnameField = (EditText) findViewById(R.id.edit_text_surname);
-        mEmailField = (EditText) findViewById(R.id.edit_text_email);
-        mPasswordField = (EditText) findViewById(R.id.edit_text_password);
+        mNameField = findViewById(R.id.edit_text_name);
+        mSurnameField = findViewById(R.id.edit_text_surname);
+        mEmailField = findViewById(R.id.edit_text_email);
+        mPasswordField = findViewById(R.id.edit_text_password);
 
         // Buttons
         findViewById(R.id.button_email_login).setOnClickListener(this);
@@ -60,7 +59,7 @@ public class LoginActivity extends AppCompatActivity  implements
         mAuth = FirebaseAuth.getInstance();
 
         mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = (LoginButton) findViewById(R.id.button_facebook_login);
+        LoginButton loginButton = findViewById(R.id.button_facebook_login);
         loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -281,8 +280,7 @@ public class LoginActivity extends AppCompatActivity  implements
         } else if (i == R.id.button_email_login) {
             Log.d(TAG, "clicked login button");
             login(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
-        }
-        else if (i == R.id.button_register) {
+        } else if (i == R.id.button_register) {
             Log.d(TAG, "clicked register button");
             createAccount(mEmailField.getText().toString().trim(), mPasswordField.getText().toString().trim());
         }

@@ -6,4 +6,9 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="search_view_inset">16dp</dimen>
+    <dimen name="search_view_padding_start">38dp</dimen>
+    <dimen name="search_view_padding_end">8dp</dimen>
+    <dimen name="margin_medium">16dp</dimen>
+
+
 </resources>
