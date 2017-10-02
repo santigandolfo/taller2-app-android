@@ -36,6 +36,6 @@ dependencies {
     compile 'com.github.arimorty:floatingsearchview:2.1.1'
     compile 'com.android.support:support-v4:26.+'
     testCompile 'junit:junit:4.12'
-
+    compile 'com.akexorcist:googledirectionlibrary:1.0.5'
 }
 apply plugin: 'com.google.gms.google-services'

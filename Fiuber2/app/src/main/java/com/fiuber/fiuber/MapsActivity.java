@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,6 +30,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.constant.RequestResult;
+import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.util.DirectionConverter;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -35,17 +44,39 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener {
@@ -58,12 +89,17 @@ public class MapsActivity extends AppCompatActivity
 
     protected Location lastLocation;
     LatLng lastKnownLocation;
-    Marker marker;
+    Marker current_location_marker;
+    Marker destination_location_marker;
 
     private TextView mPlaceDetailsText;
     private TextView mPlaceAttribution;
 
     private DrawerLayout mDrawer;
+    PolylineOptions mLineOptions;
+    Polyline mPolyline;
+
+    String GOOGLE_API_KEY = "AIzaSyAWcT3cBWZ75CxCgC5vq51iJmoZSUKnqyA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,11 +183,11 @@ public class MapsActivity extends AppCompatActivity
                             Log.d(TAG, "getLastLocation:all OK!");
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                            if (marker == null)
-                                marker = mMap.addMarker(new MarkerOptions()
+                            if (current_location_marker == null)
+                                current_location_marker = mMap.addMarker(new MarkerOptions()
                                         .position(lastKnownLocation)
                                         .title("Current Position"));
-                            marker.setPosition(lastKnownLocation);
+                            current_location_marker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
@@ -235,6 +271,8 @@ public class MapsActivity extends AppCompatActivity
             Log.d(TAG, "change activity to SettingsActivity");
             startActivity(new Intent(this, SettingsActivity.class));
 
+        } else if (id == R.id.action_logout) {
+            logout();
         }
 
         mDrawer = findViewById(R.id.drawer_layout);
@@ -267,8 +305,62 @@ public class MapsActivity extends AppCompatActivity
     public void onPlaceSelected(Place place) {
         Log.i(TAG, "Place Selected: " + place.getName());
 
+        if (mPolyline != null)
+            mPolyline.remove();
+
+        if (current_location_marker == null)
+            current_location_marker = mMap.addMarker(new MarkerOptions()
+                    .position(lastKnownLocation)
+                    .title("Current Position"));
+        current_location_marker.setPosition(lastKnownLocation);
+
+        if (destination_location_marker == null)
+            destination_location_marker = mMap.addMarker(new MarkerOptions()
+                    .position(place.getLatLng())
+                    .title(place.getName().toString()));
+        destination_location_marker.setPosition(place.getLatLng());
+        destination_location_marker.setTitle(place.getName().toString());
+
+        Log.d(TAG, "Generating Polyline");
+
+        final LatLng destination = place.getLatLng();
+        if (lastKnownLocation != null && destination != null) {
+            GoogleDirection.withServerKey(GOOGLE_API_KEY)
+                    .from(lastKnownLocation)
+                    .to(destination)
+                    .execute(new DirectionCallback() {
+                        @Override
+                        public void onDirectionSuccess(Direction direction, String rawBody) {
+                            Log.d(TAG, "IM FUCKING IN HERE");
+                            Log.d(TAG, direction.getStatus());
+
+                            Route route = direction.getRouteList().get(0);
+                            Leg leg = route.getLegList().get(0);
+                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                            mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
+                            if (mPolyline != null)
+                                mPolyline.remove();
+                            mPolyline = mMap.addPolyline(mLineOptions);
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                builder.include(lastKnownLocation);
+                            builder.include(destination);
+                            LatLngBounds bounds = builder.build();
+                            int padding = 150; // offset from edges of the map in pixels
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            mMap.animateCamera(cu);
+                        }
+
+                        @Override
+                        public void onDirectionFailure(Throwable t) {
+                            Log.d(TAG, "Result Direction Failure");
+                        }
+                    });
+        }
+        Log.d(TAG, "Finished generating Polyline");
+
+        // mPolyline = mMap.addPolyline(new PolylineOptions().add(lastKnownLocation,place.getLatLng()).color(Color.BLUE));
         // Format the returned place's details and display them in the TextView.
-        mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(), place.getId(),
+/*        mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(), place.getId(),
                 place.getAddress(), place.getPhoneNumber(), place.getWebsiteUri()));
 
         CharSequence attributions = place.getAttributions();
@@ -276,7 +368,7 @@ public class MapsActivity extends AppCompatActivity
             mPlaceAttribution.setText(Html.fromHtml(attributions.toString()));
         } else {
             mPlaceAttribution.setText("");
-        }
+        }*/
     }
 
     /**
