@@ -198,11 +198,43 @@ public class MapsActivity extends AppCompatActivity
                 });
     }
 
+    @SuppressWarnings("MissingPermission")
+    private void moveInitialCamera() {
+        Log.d(TAG, "getLastLocation");
+        mFusedLocationClient.getLastLocation()
+                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            Log.d(TAG, "getLastLocation:all OK!");
+                            lastLocation = task.getResult();
+                            lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                            if (current_location_marker == null)
+                                current_location_marker = mMap.addMarker(new MarkerOptions()
+                                        .position(lastKnownLocation)
+                                        .title("Current Position"));
+                            current_location_marker.setPosition(lastKnownLocation);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+                        } else {
+                            Log.w(TAG, "getLastLocation:exception", task.getException());
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(intent);
+                        }
+                    }
+                });
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        int size = navigationView.getMenu().size();
+        for (int i = 0; i < size; i++) {
+            navigationView.getMenu().getItem(i).setChecked(false);
+        }
 
         if (currentUser == null) {
             Log.d(TAG, "change activity to LoginActivity");
@@ -262,11 +294,14 @@ public class MapsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.profile) {
-            // Handle the camera action
+            Log.d(TAG, "change activity to ProfileActivity");
+            startActivity(new Intent(this, ProfileActivity.class));
         } else if (id == R.id.payment) {
-
+            Log.d(TAG, "change activity to PaymentActivity");
+            startActivity(new Intent(this, PaymentActivity.class));
         } else if (id == R.id.history) {
-
+            Log.d(TAG, "change activity to HistoryActivity");
+            startActivity(new Intent(this, HistoryActivity.class));
         } else if (id == R.id.settings) {
             Log.d(TAG, "change activity to SettingsActivity");
             startActivity(new Intent(this, SettingsActivity.class));
@@ -294,7 +329,7 @@ public class MapsActivity extends AppCompatActivity
             return;
         }
 
-        getLastLocation();
+        moveInitialCamera();
 
     }
 
@@ -331,23 +366,26 @@ public class MapsActivity extends AppCompatActivity
                     .execute(new DirectionCallback() {
                         @Override
                         public void onDirectionSuccess(Direction direction, String rawBody) {
-                            Log.d(TAG, "IM FUCKING IN HERE");
-                            Log.d(TAG, direction.getStatus());
-
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
-                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                            if (mPolyline != null)
-                                mPolyline.remove();
-                            mPolyline = mMap.addPolyline(mLineOptions);
-                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            String status = direction.getStatus();
+                            if(status.equals(RequestResult.OK)) {
+                                Route route = direction.getRouteList().get(0);
+                                Leg leg = route.getLegList().get(0);
+                                ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                                mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
+                                if (mPolyline != null)
+                                    mPolyline.remove();
+                                mPolyline = mMap.addPolyline(mLineOptions);
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                 builder.include(lastKnownLocation);
-                            builder.include(destination);
-                            LatLngBounds bounds = builder.build();
-                            int padding = 150; // offset from edges of the map in pixels
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                            mMap.animateCamera(cu);
+                                builder.include(destination);
+                                LatLngBounds bounds = builder.build();
+                                int padding = 150; // offset from edges of the map in pixels
+                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                                mMap.animateCamera(cu);
+                            } else {
+                                Toast.makeText(MapsActivity.this, "Couldn't find a route",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
 
                         @Override
