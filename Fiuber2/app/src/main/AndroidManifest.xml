@@ -78,12 +78,13 @@
                 android:value="com.fiuber.fiuber.MapsActivity" />
         </activity>
         <activity
-            android:name=".ProfileActivity"
+            android:name=".ProfileModificationActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".MapsActivity">
+            android:theme="@style/AppThemeNoAc"
+            android:parentActivityName=".ProfileActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />
+                android:value="com.fiuber.fiuber.ProfileActivity" />
         </activity>
         <activity
             android:name=".PaymentActivity"
@@ -92,14 +93,24 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.MapsActivity" />
-        </activity><activity
-        android:name=".HistoryActivity"
-        android:label="@string/title_activity_history"
-        android:parentActivityName=".MapsActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.fiuber.fiuber.MapsActivity" />
-    </activity>
+        </activity>
+        <activity
+            android:name=".HistoryActivity"
+            android:label="@string/title_activity_history"
+            android:parentActivityName=".MapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.MapsActivity" />
+        </activity>
+        <activity
+            android:name=".ProfileActivity"
+            android:label="@string/title_activity_profile"
+            android:theme="@style/AppThemeNoAc"
+            android:parentActivityName=".MapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.MapsActivity" />/>
+        </activity>
     </application>
 
 </manifest>

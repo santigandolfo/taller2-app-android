@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "com.fiuber.fiuber"
         minSdkVersion 21
@@ -36,6 +37,8 @@ dependencies {
     compile 'com.github.arimorty:floatingsearchview:2.1.1'
     compile 'com.android.support:support-v4:26.+'
     compile 'com.akexorcist:googledirectionlibrary:1.0.5'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

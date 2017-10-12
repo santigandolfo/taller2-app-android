@@ -1,13 +1,13 @@
 package com.fiuber.fiuber;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +36,9 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -62,21 +64,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener {
@@ -101,10 +89,20 @@ public class MapsActivity extends AppCompatActivity
 
     String GOOGLE_API_KEY = "AIzaSyAWcT3cBWZ75CxCgC5vq51iJmoZSUKnqyA";
 
+    private ServerHandler mServerHandler;
+    SharedPreferences mPreferences;
+    SharedPreferences.Editor mEditorPreferences;
+
+    String MY_PREFERENCES = "MyPreferences";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mServerHandler = new ServerHandler(this.getApplicationContext());
+        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mEditorPreferences = mPreferences.edit();
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
@@ -244,12 +242,42 @@ public class MapsActivity extends AppCompatActivity
 
     }
 
+
+    Response.ErrorListener logoutServerUserResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "Response error: "+error.toString());
+            NetworkResponse response = error.networkResponse;
+            if(response != null && response.data != null){
+                switch(response.statusCode){
+                    case 401:
+                        Log.e(TAG, "Logout Successfull: "+response.data.toString());
+                        Toast.makeText(getApplicationContext(), "Logout Successfull: (expired_token)", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Change activity to LoginActivity");
+                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                        break;
+                }
+            }
+
+        }
+    };
+
+    Response.Listener<JSONObject> logoutServerUserResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.i(TAG, "Logout Successfull. Response: "+response.toString());
+            Toast.makeText(getApplicationContext(),  "Logout Successfull", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Change activity to LoginActivity");
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        }
+    };
+
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
         LoginManager.getInstance().logOut();
-        Log.d(TAG, "change activity to LoginActivity");
-        startActivity(new Intent(this, LoginActivity.class));
+        mServerHandler.logoutServerUserJson(mPreferences.getString("auth_token", ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
+
     }
 
     @Override

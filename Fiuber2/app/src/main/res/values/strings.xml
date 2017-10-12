@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Fiuber</string>
+    <string name="saved_data">persistantFile</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -23,8 +24,8 @@
     <string name="action_log_in_short">Log in</string>
     <string name="action_register">Register</string>
     <string name="action_text_register">Don\'t have an account? Register here</string>
-    <string name="action_text_email_login">Already registered? Log In here</string>
-    <string name="action_email_login">Log in</string>
+    <string name="action_text_login">Already registered? Log In here</string>
+    <string name="action_login">Log in</string>
     text_register
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -46,8 +47,8 @@
     <string name="place_details">&lt;b&gt;%1$s&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Place Id: %2$s&lt;/i&gt;&lt;br/&gt;Address: %3$s&lt;br/&gt;Phone: %4$s&lt;br/&gt;Website: %5$s</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_profile">Profile</string>
-    <string name="title_activity_payment">Profile</string>
-    <string name="title_activity_history">Profile</string>
+    <string name="title_activity_payment">Payment</string>
+    <string name="title_activity_history">History</string>
 
     <!-- Strings related to Settings -->
 
@@ -120,5 +121,7 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="action_save">Save</string>
+    <string name="prompt_username">Username</string>
 
 </resources>

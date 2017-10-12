@@ -14,11 +14,13 @@ public class HistoryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();    //Call the back button's method
-            return true;
-        }
+        switch (item.getItemId()) {
+            case R.id.home:
+                onBackPressed();    //Call the back button's method
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
 
-        return super.onOptionsItemSelected(item);
+        }
     }
 }
