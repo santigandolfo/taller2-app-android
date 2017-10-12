@@ -133,7 +133,7 @@ public class LoginActivity extends AppCompatActivity implements
     Response.ErrorListener loginServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: "+error.toString());
+            Log.e(TAG, "Response error: " + error.toString());
             Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
         }
     };
@@ -141,12 +141,12 @@ public class LoginActivity extends AppCompatActivity implements
     Response.Listener<JSONObject> loginServerUserResponseListenerJSONObject = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "Login Successfull. Response: "+response.toString());
+            Log.i(TAG, "Login Successfull. Response: " + response.toString());
             Toast.makeText(getApplicationContext(), "Login Successfull", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Change activity to MapsActivity");
             try {
                 mEditorPreferences.putString("auth_token", response.getString("auth_token")).apply();
-                Log.i(TAG, "mPreferences Token: "+mPreferences.getString("auth_token", ""));
+                Log.i(TAG, "mPreferences Token: " + mPreferences.getString("auth_token", ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -160,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements
             return;
         }
         Log.d(TAG, "validation OK:" + username);
-        final String email = username+"@email.com";
+        final String email = username + "@email.com";
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -190,17 +190,16 @@ public class LoginActivity extends AppCompatActivity implements
     Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: "+error.toString());
+            Log.e(TAG, "Response error: " + error.toString());
             Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
         }
     };
 
 
-
     Response.Listener<JSONObject> createServerUserResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "Creating User Successfull. Response: "+response.toString());
+            Log.i(TAG, "Creating User Successfull. Response: " + response.toString());
             Toast.makeText(getApplicationContext(), "Creating User Successfull", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Change activity to MapsActivity");
             try {
@@ -219,7 +218,7 @@ public class LoginActivity extends AppCompatActivity implements
             return;
         }
 
-        final String email = username+"@email.com";
+        final String email = username + "@email.com";
         // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

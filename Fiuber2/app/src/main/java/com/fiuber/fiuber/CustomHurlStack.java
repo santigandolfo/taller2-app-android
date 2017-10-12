@@ -1,30 +1,30 @@
 package com.fiuber.fiuber;
 
-        import com.android.volley.AuthFailureError;
-        import com.android.volley.Request;
-        import com.android.volley.toolbox.HttpStack;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.toolbox.HttpStack;
 
-        import org.apache.http.Header;
-        import org.apache.http.HttpEntity;
-        import org.apache.http.HttpResponse;
-        import org.apache.http.ProtocolVersion;
-        import org.apache.http.StatusLine;
-        import org.apache.http.entity.BasicHttpEntity;
-        import org.apache.http.message.BasicHeader;
-        import org.apache.http.message.BasicHttpResponse;
-        import org.apache.http.message.BasicStatusLine;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 
-        import java.io.DataOutputStream;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.net.HttpURLConnection;
-        import java.net.URL;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-        import javax.net.ssl.HttpsURLConnection;
-        import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 public class CustomHurlStack implements HttpStack {
 
@@ -56,7 +56,7 @@ public class CustomHurlStack implements HttpStack {
     }
 
     /**
-     * @param urlRewriter Rewriter to use for request URLs
+     * @param urlRewriter      Rewriter to use for request URLs
      * @param sslSocketFactory SSL factory to use for HTTPS connections
      */
     public CustomHurlStack(UrlRewriter urlRewriter, SSLSocketFactory sslSocketFactory) {
@@ -107,6 +107,7 @@ public class CustomHurlStack implements HttpStack {
 
     /**
      * Initializes an {@link HttpEntity} from the given {@link HttpURLConnection}.
+     *
      * @param connection
      * @return an HttpEntity populated with data from <code>connection</code>.
      */
@@ -134,6 +135,7 @@ public class CustomHurlStack implements HttpStack {
 
     /**
      * Opens an {@link HttpURLConnection} with parameters.
+     *
      * @param url
      * @return an open connection
      * @throws IOException
@@ -149,7 +151,7 @@ public class CustomHurlStack implements HttpStack {
 
         // use caller-provided custom SslSocketFactory, if any, for HTTPS
         if ("https".equals(url.getProtocol()) && mSslSocketFactory != null) {
-            ((HttpsURLConnection)connection).setSSLSocketFactory(mSslSocketFactory);
+            ((HttpsURLConnection) connection).setSSLSocketFactory(mSslSocketFactory);
         }
 
         return connection;

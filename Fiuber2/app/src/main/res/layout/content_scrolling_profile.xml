@@ -140,9 +140,6 @@
         </RelativeLayout>
 
 
-
-
-
         <include layout="@layout/item_divider" />
 
 

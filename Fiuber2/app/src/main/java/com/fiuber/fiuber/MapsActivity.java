@@ -246,7 +246,7 @@ public class MapsActivity extends AppCompatActivity
     Response.ErrorListener logoutServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: "+error.toString());
+            Log.e(TAG, "Response error: " + error.toString());
 /*
             NetworkResponse response = error.networkResponse;
             if(response != null && response.data != null){
@@ -270,8 +270,8 @@ public class MapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> logoutServerUserResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "Logout Successfull. Response: "+response.toString());
-            Toast.makeText(getApplicationContext(),  "Logout Successfull", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Logout Successfull. Response: " + response.toString());
+            Toast.makeText(getApplicationContext(), "Logout Successfull", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
@@ -400,7 +400,7 @@ public class MapsActivity extends AppCompatActivity
                         @Override
                         public void onDirectionSuccess(Direction direction, String rawBody) {
                             String status = direction.getStatus();
-                            if(status.equals(RequestResult.OK)) {
+                            if (status.equals(RequestResult.OK)) {
                                 Route route = direction.getRouteList().get(0);
                                 Leg leg = route.getLegList().get(0);
                                 ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();

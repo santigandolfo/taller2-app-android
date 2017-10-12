@@ -81,10 +81,10 @@ public class ServerHandler {
         params.put(KEY_COUNTRY, country);
         params.put(KEY_BIRTHDATE, birthdate);*/
 
-        Log.d(TAG, "creating JsonObjectRequest" );
+        Log.d(TAG, "creating JsonObjectRequest");
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener);
 
-        Log.d(TAG, "Adding req to mRequestQueue: "+req.toString());
+        Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
         this.addToRequestQueue(req);
 
     }
@@ -98,10 +98,10 @@ public class ServerHandler {
         params.put(KEY_EMAIL, email);
         params.put(KEY_PASSWORD, password);
 
-        Log.d(TAG, "creating JsonObjectRequest" );
+        Log.d(TAG, "creating JsonObjectRequest");
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener);
 
-        Log.d(TAG, "Adding req to mRequestQueue: "+req.toString());
+        Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
         this.addToRequestQueue(req);
 
     }
@@ -110,13 +110,13 @@ public class ServerHandler {
         Log.d(TAG, "logoutServerUserJson:");
 
         String FINAL_URL = URL + LOGIN_USER;
-        Log.d(TAG, "creating JsonObjectRequest" );
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.DELETE, FINAL_URL, null, responseListener, responseErrorListener){
+        Log.d(TAG, "creating JsonObjectRequest");
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.DELETE, FINAL_URL, null, responseListener, responseErrorListener) {
 
 
             @Override
-            protected VolleyError parseNetworkError(VolleyError volleyError){
-                if(volleyError.networkResponse != null && volleyError.networkResponse.data != null){
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
                     volleyError = new VolleyError(new String(volleyError.networkResponse.data));
                 }
 
@@ -126,13 +126,13 @@ public class ServerHandler {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<String, String>();
-                headers.put(KEY_AUTHORIZATION, "Bearer " +token);
+                headers.put(KEY_AUTHORIZATION, "Bearer " + token);
                 return headers;
             }
 
         };
 
-        Log.d(TAG, "Adding req to mRequestQueue: "+req.toString());
+        Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
         this.addToRequestQueue(req);
 
     }
@@ -150,10 +150,10 @@ public class ServerHandler {
         params.put(KEY_USERNAME, username);
         params.put(KEY_EMAIL, email);
 
-        Log.d(TAG, "creating JsonObjectRequest" );
+        Log.d(TAG, "creating JsonObjectRequest");
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener);
 
-        Log.d(TAG, "Adding req to mRequestQueue: "+req.toString());
+        Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
         this.addToRequestQueue(req);
 
     }
