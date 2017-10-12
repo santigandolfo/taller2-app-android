@@ -247,6 +247,7 @@ public class MapsActivity extends AppCompatActivity
         @Override
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "Response error: "+error.toString());
+/*
             NetworkResponse response = error.networkResponse;
             if(response != null && response.data != null){
                 switch(response.statusCode){
@@ -258,6 +259,10 @@ public class MapsActivity extends AppCompatActivity
                         break;
                 }
             }
+
+*/
+            Log.d(TAG, "Change activity to LoginActivity");
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
         }
     };

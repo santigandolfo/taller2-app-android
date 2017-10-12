@@ -11,10 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
@@ -24,8 +21,6 @@ import org.json.JSONObject;
 public class ProfileModificationActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileModificationAct";
-
-    private RequestQueue mRequestQueue;
 
     private ServerHandler mServerHandler;
 
@@ -63,8 +58,8 @@ public class ProfileModificationActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setupActionBar();
 
-        mFirstnameField = findViewById(R.id.text_name);
-        mLastnameField = findViewById(R.id.text_surname);
+        mFirstnameField = findViewById(R.id.text_firstname);
+        mLastnameField = findViewById(R.id.text_lastname);
         mUsernameField = findViewById(R.id.text_username);
         mEmailField = findViewById(R.id.text_email);
 
@@ -94,7 +89,7 @@ public class ProfileModificationActivity extends AppCompatActivity {
     Response.ErrorListener modifyUserProfileResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "modifyUserProfileResponseErrorListener ErrorResponse. Response error: "+error.toString());
+            Log.e(TAG, "modifyUserProfileResponseErrorListener ErrorResponse. Response error: " + error.toString());
         }
     };
 
@@ -109,6 +104,7 @@ public class ProfileModificationActivity extends AppCompatActivity {
                 String username = mUsernameField.getText().toString().trim();
                 String email = mEmailField.getText().toString().trim();
                 //mServerHandler.saveModificationsUser(auth_token,firstname, lastname, username, email, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+                modifyProfileMock(firstname, lastname, username, email);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -124,7 +120,7 @@ public class ProfileModificationActivity extends AppCompatActivity {
             case R.id.action_save:
                 String currentUsername = mPreferences.getString(KEY_USERNAME, "");
                 String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
-                //loginServerUserJson(currentUsername, currentPassword, modifyUserProfileResponseListener, modifyUserProfileResponseErrorListener)
+                mServerHandler.loginServerUserJson(currentUsername, currentPassword, modifyUserProfileResponseListener, modifyUserProfileResponseErrorListener);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -132,6 +128,15 @@ public class ProfileModificationActivity extends AppCompatActivity {
         }
     }
 
+    public void modifyProfileMock(String firstname, String lastname, String username, String email) {
+        Log.e(TAG, "modifyProfileMock Response");
+        mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
+        mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
+        mEditorPreferences.putString(KEY_USERNAME, username).apply();
+        mEditorPreferences.putString(KEY_EMAIL, email).apply();
+        Log.d(TAG, "change activity to ProfileActivity");
+        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+    }
 }
 
 /*    Response.ErrorListener saveModificationsUserResponseErrorListener = new Response.ErrorListener() {

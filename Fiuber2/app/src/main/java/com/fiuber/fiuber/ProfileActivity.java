@@ -9,10 +9,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gms.vision.text.Text;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -31,12 +28,13 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("");
-        setSupportActionBar(toolbar);
 
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(mPreferences.getString(KEY_FIRSTNAME, "") + " " + mPreferences.getString(KEY_LASTNAME, ""));
+        toolbar.setSubtitle("");
+        setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -48,8 +46,8 @@ public class ProfileActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView mNameField = findViewById(R.id.text_name);
-        TextView mSurnameField = findViewById(R.id.text_surname);
+        TextView mNameField = findViewById(R.id.text_firstname);
+        TextView mSurnameField = findViewById(R.id.text_lastname);
         TextView mUsernameField = findViewById(R.id.text_username);
         TextView mEmailField = findViewById(R.id.text_email);
 
@@ -58,8 +56,5 @@ public class ProfileActivity extends AppCompatActivity {
         mSurnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
         mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
-
-
-
     }
 }

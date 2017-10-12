@@ -15,14 +15,14 @@ public class MyRequestQueue {
     private static Context mCtx;
     private static HttpStack mHttpStack;
 
-    private MyRequestQueue(Context context, HttpStack httpStack) {
+    private MyRequestQueue(Context context/*, HttpStack httpStack*/) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
     }
 
-    public static synchronized MyRequestQueue getInstance(Context context, HttpStack httpStack) {
+    public static synchronized MyRequestQueue getInstance(Context context/*, HttpStack httpStack*/) {
         if (mInstance == null) {
-            mInstance = new MyRequestQueue(context, mHttpStack);
+            mInstance = new MyRequestQueue(context/*, mHttpStack*/);
         }
         return mInstance;
     }

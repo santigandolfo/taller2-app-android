@@ -55,7 +55,7 @@ public class ServerHandler {
     public ServerHandler(Context aplicationContext) {
         HttpStack httpStack;
         httpStack = new CustomHurlStack();
-        mRequestQueue = MyRequestQueue.getInstance(aplicationContext, httpStack).getRequestQueue();
+        mRequestQueue = MyRequestQueue.getInstance(aplicationContext/*, httpStack*/).getRequestQueue();
     }
 
     public <T> void addToRequestQueue(Request<T> req) {
