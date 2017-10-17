@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.AccessToken;
@@ -34,15 +35,11 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener {
 
-    private static final String TAG = "EmailPassword";
-
-    private static final String URL = "https://taller2-fiuber-app-server.herokuapp.com";
-    private static final String URL2 = "https://fiuberappserver.herokuapp.com";
-
-    private static final String CREATE_USER = "/users";
+    private static final String TAG = "LoginActivity";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
+    private EditText mEmailField;
     private EditText mUsernameField;
     private EditText mPasswordField;
 
@@ -74,6 +71,7 @@ public class LoginActivity extends AppCompatActivity implements
         // Views
         mFirstnameField = findViewById(R.id.edit_text_firstname);
         mLastnameField = findViewById(R.id.edit_text_lastname);
+        mEmailField = findViewById(R.id.edit_text_email);
         mUsernameField = findViewById(R.id.edit_text_username);
         mPasswordField = findViewById(R.id.edit_text_password);
 
@@ -113,12 +111,16 @@ public class LoginActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if("true".equals(mPreferences.getString("login", "false"))){
+            Log.d(TAG, "change activity to MapsActivity");
+            startActivity(new Intent(this, MapsActivity.class));
+        }
+/*        FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             Log.d(TAG, "change activity to MapsActivity");
             startActivity(new Intent(this, MapsActivity.class));
 
-        }
+        }*/
 
     }
 
@@ -134,7 +136,12 @@ public class LoginActivity extends AppCompatActivity implements
         @Override
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "Response error: " + error.toString());
-            Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
+            NetworkResponse response = error.networkResponse;
+            if(response != null && response.data != null){
+                Log.e(TAG, "Response statusCode: "+response.statusCode);
+                Log.e(TAG, "Response data: "+response.data.toString());
+            }
+            Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -150,6 +157,7 @@ public class LoginActivity extends AppCompatActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            mEditorPreferences.putString("login", "true").apply();
             startActivity(new Intent(LoginActivity.this, MapsActivity.class));
         }
     };
@@ -159,9 +167,8 @@ public class LoginActivity extends AppCompatActivity implements
         if (!validateLoginForm()) {
             return;
         }
-        Log.d(TAG, "validation OK:" + username);
-        final String email = username + "@email.com";
-        // [START sign_in_with_email]
+        mServerHandler.loginServerUserJson(username, password, loginServerUserResponseListenerJSONObject, loginServerUserResponseErrorListener);
+/*        // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -184,7 +191,7 @@ public class LoginActivity extends AppCompatActivity implements
 
                     }
                 });
-        // [END sign_in_with_email]
+        // [END sign_in_with_email]*/
     }
 
     Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
@@ -207,19 +214,26 @@ public class LoginActivity extends AppCompatActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+            mEditorPreferences.putString("login", "true").apply();
             startActivity(new Intent(LoginActivity.this, MapsActivity.class));
         }
     };
 
 
-    private void createAccount(final String username, final String password, final String firstname, final String lastname) {
+    private void createAccount(final String firstname, final String lastname, final String email, final String username,final String password) {
         Log.d(TAG, "createAccount:" + username);
         if (!validateCreateAccountForm()) {
             return;
         }
+        mServerHandler.createServerUser("rider", firstname, lastname, "Argentina", "23-10-2017", email, username, password, createServerUserResponseListener, createServerUserResponseErrorListener);
 
-        final String email = username + "@email.com";
-        // [START create_user_with_email]
+/*        // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -240,7 +254,7 @@ public class LoginActivity extends AppCompatActivity implements
                                 mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
 
 
-                                mServerHandler.createServerUser(username, password, createServerUserResponseListener, createServerUserResponseErrorListener);
+                                mServerHandler.createServerUser("rider", username, firstname, lastname, "Argentina", email, password, "23-10-2017", createServerUserResponseListener, createServerUserResponseErrorListener);
                             }
                         } else {
                             // If sign in fails, display a message to the user.
@@ -251,7 +265,7 @@ public class LoginActivity extends AppCompatActivity implements
 
                     }
                 });
-        // [END create_user_with_email]
+        // [END create_user_with_email]*/
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -325,6 +339,14 @@ public class LoginActivity extends AppCompatActivity implements
             mLastnameField.setError(null);
         }
 
+        String email = mEmailField.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            mUsernameField.setError("Required.");
+            valid = false;
+        } else {
+            mUsernameField.setError(null);
+        }
+
         String username = mUsernameField.getText().toString().trim();
         if (TextUtils.isEmpty(username)) {
             mUsernameField.setError("Required.");
@@ -355,6 +377,7 @@ public class LoginActivity extends AppCompatActivity implements
             findViewById(R.id.button_register).setVisibility(View.VISIBLE);
             findViewById(R.id.edit_text_firstname).setVisibility(View.VISIBLE);
             findViewById(R.id.edit_text_lastname).setVisibility(View.VISIBLE);
+            findViewById(R.id.edit_text_email).setVisibility(View.VISIBLE);
         } else if (i == R.id.text_login) {
             Log.d(TAG, "clicked login text");
             findViewById(R.id.text_register).setVisibility(View.VISIBLE);
@@ -363,12 +386,14 @@ public class LoginActivity extends AppCompatActivity implements
             findViewById(R.id.button_register).setVisibility(View.GONE);
             findViewById(R.id.edit_text_firstname).setVisibility(View.GONE);
             findViewById(R.id.edit_text_lastname).setVisibility(View.GONE);
+            findViewById(R.id.edit_text_email).setVisibility(View.GONE);
         } else if (i == R.id.button_login) {
             Log.d(TAG, "clicked login button");
             login(mUsernameField.getText().toString().trim(), mPasswordField.getText().toString().trim());
         } else if (i == R.id.button_register) {
             Log.d(TAG, "clicked register button");
-            createAccount(mUsernameField.getText().toString().trim(), mPasswordField.getText().toString().trim(), mFirstnameField.getText().toString().trim(), mLastnameField.getText().toString().trim());
+            createAccount(mFirstnameField.getText().toString().trim(), mLastnameField.getText().toString().trim(), mEmailField.getText().toString().trim(), mUsernameField.getText().toString().trim(),mPasswordField.getText().toString().trim());
+
         }
     }
 }

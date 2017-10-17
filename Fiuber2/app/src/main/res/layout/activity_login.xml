@@ -65,11 +65,26 @@
                 android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
+                    android:id="@+id/edit_text_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_email"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:visibility="gone" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
                     android:id="@+id/edit_text_username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_username"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textAutoComplete"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>

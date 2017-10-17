@@ -226,7 +226,7 @@ public class MapsActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+/*        FirebaseUser currentUser = mAuth.getCurrentUser();*/
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         int size = navigationView.getMenu().size();
@@ -234,11 +234,16 @@ public class MapsActivity extends AppCompatActivity
             navigationView.getMenu().getItem(i).setChecked(false);
         }
 
-        if (currentUser == null) {
+        if("false".equals(mPreferences.getString("login", "false"))){
+            Log.d(TAG, "change activity to LoginActivity");
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+
+/*        if (currentUser == null) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
 
-        }
+        }*/
 
     }
 
@@ -279,7 +284,8 @@ public class MapsActivity extends AppCompatActivity
 
     private void logout() {
         Log.d(TAG, "logout");
-        mAuth.signOut();
+/*        mAuth.signOut();*/
+        mEditorPreferences.putString("login", "false").apply();
         LoginManager.getInstance().logOut();
         mServerHandler.logoutServerUserJson(mPreferences.getString("auth_token", ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
 
