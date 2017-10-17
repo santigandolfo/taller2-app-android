@@ -7,11 +7,14 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
@@ -32,11 +35,14 @@ public class ProfileModificationActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private static final String KEY_AUTH_TOKEN = "auth_token";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
+
+
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
-
+    private static final String KEY_COUNTRY = "country";
+    private static final String KEY_BIRTHDATE = "birthdate";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
 
     private EditText mFirstnameField;
@@ -86,6 +92,35 @@ public class ProfileModificationActivity extends AppCompatActivity {
         return true;
     }
 
+    Response.ErrorListener saveModificationsUserResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "saveModificationsUserResponseErrorListener ErrorResponse. Response error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if(response != null && response.data != null){
+                Log.e(TAG, "Response statusCode: "+response.statusCode);
+                Log.e(TAG, "Response data: "+response.data.toString());
+            }
+            Toast.makeText(getApplicationContext(), "Modification of Profile Failed", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> saveModificationsUserResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.e(TAG, "saveModificationsUserResponseListener Response");
+            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_COUNTRY, "Argentina").apply();
+            mEditorPreferences.putString(KEY_BIRTHDATE, "23-10-2017").apply();
+            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+
+            Log.d(TAG, "change activity to ProfileActivity");
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        }
+    };
+
     Response.ErrorListener modifyUserProfileResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -101,9 +136,13 @@ public class ProfileModificationActivity extends AppCompatActivity {
                 String auth_token = response.getString(KEY_AUTH_TOKEN);
                 String firstname = mFirstnameField.getText().toString().trim();
                 String lastname = mLastnameField.getText().toString().trim();
-                String username = mUsernameField.getText().toString().trim();
+                String country = "Argentina";
+                String birthdate = "23-10-2017";
                 String email = mEmailField.getText().toString().trim();
-                //mServerHandler.saveModificationsUser(auth_token,firstname, lastname, username, email, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+                String username = mUsernameField.getText().toString().trim();
+                String password = mPreferences.getString(KEY_PASSWORD, "");
+
+                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, country, birthdate, email, username, password, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
                 modifyProfileMock(firstname, lastname, username, email);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -118,9 +157,11 @@ public class ProfileModificationActivity extends AppCompatActivity {
                 onBackPressed();    //Call the back button's method
                 return true;
             case R.id.action_save:
-                String currentUsername = mPreferences.getString(KEY_USERNAME, "");
-                String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
-                mServerHandler.loginServerUserJson(currentUsername, currentPassword, modifyUserProfileResponseListener, modifyUserProfileResponseErrorListener);
+                if (validateFullForm()) {
+                    String currentUsername = mPreferences.getString(KEY_USERNAME, "");
+                    String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
+                    mServerHandler.loginServerUser(currentUsername, currentPassword, modifyUserProfileResponseListener, modifyUserProfileResponseErrorListener);
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -137,25 +178,49 @@ public class ProfileModificationActivity extends AppCompatActivity {
         Log.d(TAG, "change activity to ProfileActivity");
         startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
     }
+
+    private boolean validateFullForm() {
+        Log.d(TAG, "validateCreateAccountForm");
+        boolean valid = true;
+
+        String name = mFirstnameField.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            mFirstnameField.setError("Required.");
+            valid = false;
+        } else {
+            mFirstnameField.setError(null);
+        }
+
+        String lastname = mLastnameField.getText().toString().trim();
+        if (TextUtils.isEmpty(lastname)) {
+            mLastnameField.setError("Required.");
+            valid = false;
+        } else {
+            mLastnameField.setError(null);
+        }
+
+        String email = mEmailField.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            mEmailField.setError("Required.");
+            valid = false;
+        } else {
+            mEmailField.setError(null);
+        }
+
+        String username = mUsernameField.getText().toString().trim();
+        if (TextUtils.isEmpty(username)) {
+            mUsernameField.setError("Required.");
+            valid = false;
+        } else {
+            mUsernameField.setError(null);
+        }
+
+        return valid;
+    }
+
 }
 
-/*    Response.ErrorListener saveModificationsUserResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "saveModificationsUserResponseErrorListener ErrorResponse. Response error: "+error.toString());
-        }
-    };
 
-    Response.Listener<JSONObject> saveModificationsUserResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-                    Log.e(TAG, "saveModificationsUserResponseListener Response");
-                                mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
-                                mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
-                                mEditorPreferences.putString(KEY_USERNAME, username).apply();
-                                mEditorPreferences.putString(KEY_EMAIL, email).apply();
-            Log.d(TAG, "change activity to ProfileActivity");
-            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-        }
-    };
-    */
+
+
+

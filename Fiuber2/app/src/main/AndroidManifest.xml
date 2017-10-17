@@ -25,7 +25,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity">
+        <activity
+            android:name=".LoginActivity"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -80,8 +82,8 @@
         <activity
             android:name=".ProfileModificationActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppThemeNoAc"
-            android:parentActivityName=".ProfileActivity">
+            android:parentActivityName=".ProfileActivity"
+            android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.ProfileActivity" />
@@ -105,12 +107,22 @@
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppThemeNoAc"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".MapsActivity"
+            android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />/>
+                android:value="com.fiuber.fiuber.MapsActivity" />
+            />
         </activity>
+        <activity
+            android:name=".RegisterDriverActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".DriverMapsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".RegisterUserActivity"
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

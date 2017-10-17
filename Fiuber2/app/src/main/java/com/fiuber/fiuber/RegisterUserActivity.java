@@ -3,9 +3,9 @@ package com.fiuber.fiuber;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +32,7 @@ import com.google.firebase.auth.FirebaseUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LoginActivity extends AppCompatActivity implements
+public class RegisterUserActivity extends AppCompatActivity implements
         View.OnClickListener {
 
     private static final String TAG = "LoginActivity";
@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register_user);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
@@ -76,8 +76,8 @@ public class LoginActivity extends AppCompatActivity implements
         mPasswordField = findViewById(R.id.edit_text_password);
 
         // Buttons
-        findViewById(R.id.button_login).setOnClickListener(this);
-        findViewById(R.id.text_register).setOnClickListener(this);
+        findViewById(R.id.text_login).setOnClickListener(this);
+        findViewById(R.id.button_register).setOnClickListener(this);
         findViewById(R.id.text_change_to_driver).setOnClickListener(this);
 
         //Firebase Authenticator
@@ -114,13 +114,6 @@ public class LoginActivity extends AppCompatActivity implements
             Log.d(TAG, "change activity to MapsActivity");
             startActivity(new Intent(this, MapsActivity.class));
         }
-/*        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            Log.d(TAG, "change activity to MapsActivity");
-            startActivity(new Intent(this, MapsActivity.class));
-
-        }*/
-
     }
 
     @Override
@@ -131,72 +124,88 @@ public class LoginActivity extends AppCompatActivity implements
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    Response.ErrorListener loginServerUserResponseErrorListener = new Response.ErrorListener() {
+    Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "Response error: " + error.toString());
-            NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                Log.e(TAG, "Response statusCode: "+response.statusCode);
-                Log.e(TAG, "Response data: "+response.data.toString());
-            }
-            Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
         }
     };
 
-    Response.Listener<JSONObject> loginServerUserResponseListenerJSONObject = new Response.Listener<JSONObject>() {
+
+    Response.Listener<JSONObject> createServerUserResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            //TODO: Difetentiate between driver and rider here
-            Log.d(TAG, "Login Successfull. Response: " + response.toString());
-            Toast.makeText(getApplicationContext(), "Login Successfull", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Creating User Successfull. Response: " + response.toString());
+            Toast.makeText(getApplicationContext(), "Creating User Successfull", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Change activity to MapsActivity");
             try {
                 mEditorPreferences.putString("auth_token", response.getString("auth_token")).apply();
-                Log.d(TAG, "mPreferences Token: " + mPreferences.getString("auth_token", ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             mEditorPreferences.putString("login", "true").apply();
-            startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
+            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
         }
     };
 
-    private void login() {
-        Log.d(TAG, "login");
 
-        if (!validateLoginForm()) {
+    private void createAccount() {
+        Log.d(TAG, "createAccount" );
+        if (!validateCreateAccountForm()) {
             return;
         }
 
+        String type = "driver";
+        String firstname = mFirstnameField.getText().toString().trim();
+        String lastname = mLastnameField.getText().toString().trim();
+        String country = "Argentina";
+        String birthdate = "23-10-2017";
+        String email = mEmailField.getText().toString().trim();
         String username = mUsernameField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
 
-        mServerHandler.loginServerUser(username, password, loginServerUserResponseListenerJSONObject, loginServerUserResponseErrorListener);
-/*        // [START sign_in_with_email]
-        mAuth.signInWithEmailAndPassword(email, password)
+        mServerHandler.createServerUser(type, firstname, lastname, country, birthdate, email, username, password, createServerUserResponseListener, createServerUserResponseErrorListener);
+
+/*        // [START create_user_with_email]
+        mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            //Toast.makeText(LoginActivity.this, "Log In Successful", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "createUserWithEmail:success");
+                            //Toast.makeText(LoginActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
-                                Log.d(TAG, "loginServerUser");
-                                mServerHandler.loginServerUser(username, password, loginServerUserResponseListenerJSONObject, loginServerUserResponseErrorListener);
+                                Log.d(TAG, "createServerUser");
+
+                                //TODO: Pasar esto al serverHandler y a su response:
+                                mEditorPreferences.putString(KEY_USERNAME, username).apply();
+                                mEditorPreferences.putString(KEY_PASSWORD, password).apply();
+                                mEditorPreferences.putString(KEY_EMAIL, email).apply();
+                                mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
+                                mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
+
+
+                                mServerHandler.createServerUser("rider", username, firstname, lastname, "Argentina", email, password, "23-10-2017", createServerUserResponseListener, createServerUserResponseErrorListener);
                             }
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Login Failed.",
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Registration failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
 
                     }
                 });
-        // [END sign_in_with_email]*/
+        // [END create_user_with_email]*/
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -213,42 +222,19 @@ public class LoginActivity extends AppCompatActivity implements
                             FirebaseUser user = mAuth.getCurrentUser();
                             if (user != null) {
                                 Log.d(TAG, "change activity to MapsActivity");
-                                startActivity(new Intent(LoginActivity.this, MapsActivity.class));
+                                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
 
                             }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-
-    private boolean validateLoginForm() {
-        Log.d(TAG, "validateLoginForm");
-        boolean valid = true;
-
-        String username = mUsernameField.getText().toString().trim();
-        if (TextUtils.isEmpty(username)) {
-            mUsernameField.setError("Required.");
-            valid = false;
-        } else {
-            mUsernameField.setError(null);
-        }
-
-        String password = mPasswordField.getText().toString().trim();
-        if (TextUtils.isEmpty(password)) {
-            mPasswordField.setError("Required.");
-            valid = false;
-        } else {
-            mPasswordField.setError(null);
-        }
-
-        return valid;
-    }
 
     private boolean validateCreateAccountForm() {
         Log.d(TAG, "validateCreateAccountForm");
@@ -300,90 +286,15 @@ public class LoginActivity extends AppCompatActivity implements
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.button_login) {
-            Log.d(TAG, "clicked login button");
-            login();
-        } else if (i == R.id.text_register) {
-            Log.d(TAG, "change activity to RegisterUserActivity");
-            startActivity(new Intent(this, RegisterUserActivity.class));
+        if (i == R.id.button_register) {
+            Log.d(TAG, "clicked register button");
+            createAccount();
+        } else if (i == R.id.text_login) {
+            Log.d(TAG, "change activity to LoginActivity");
+            startActivity(new Intent(this, LoginActivity.class));
         } else if (i == R.id.text_change_to_driver) {
             Log.d(TAG, "change activity to RegisterDriverActivity");
             startActivity(new Intent(this, RegisterDriverActivity.class));
         }
     }
 }
-
-
-
-/*
-    //TODO: MODIFY WHEN POSSIBLE!!
-    public void createUserTEST2(String email, String password) throws JSONException {
-        Log.d(TAG, "createUser:" + email);
-
-        String FINAL_URL = URL + CREATE_USER;
-
-        JSONObject jsonBody = new JSONObject();
-        jsonBody.put(KEY_EMAIL, email);
-        jsonBody.put(KEY_PASSWORD, password);
-
-            //TODO: DELETE THIS:
-            jsonBody.put("type", "passenger");
-            jsonBody.put("username", "c");
-            jsonBody.put("password", "c");
-            jsonBody.put("fb","c");
-            jsonBody.put("firstName", "C");
-            jsonBody.put("lastName", "C");
-            jsonBody.put("country", "Argentina");
-            jsonBody.put("email", "c@c.com");
-            jsonBody.put("birthdate", "01/01/2001");
-
-
-    final String mRequestBody = jsonBody.toString();
-
-    Response.Listener<String> responseListener = new Response.Listener<String>() {
-        @Override
-        public void onResponse(String response) {
-            Log.i(TAG, response);
-            Toast.makeText(LoginActivity.this, "Registration with server successfull!", Toast.LENGTH_SHORT).show();
-
-        }
-    };
-    Response.ErrorListener responseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, error.toString());
-            Toast.makeText(LoginActivity.this, "Error while trying to Register with server.", Toast.LENGTH_SHORT).show();
-
-        }
-    };
-
-    StringRequest stringRequest = new StringRequest(Request.Method.POST, FINAL_URL, responseListener, responseErrorListener) {
-        @Override
-        public String getBodyContentType() {
-            return "application/json";
-        }
-
-        @Override
-        public byte[] getBody() throws AuthFailureError {
-            try {
-                return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
-            } catch (UnsupportedEncodingException uee) {
-                VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, "utf-8");
-                return null;
-            }
-        }
-
-        @Override
-        protected Response<String> parseNetworkResponse(NetworkResponse response) {
-            String responseString = "";
-
-            responseString = String.valueOf(response.statusCode);
-
-            return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-        }
-    };
-        Log.d(TAG, "Adding stringRequest to requestQueue");
-                mRequestQueue.add(stringRequest);
-
-                }
-*/

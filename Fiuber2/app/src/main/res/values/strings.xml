@@ -123,5 +123,7 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="action_save">Save</string>
     <string name="prompt_username">Username</string>
+    <string name="action_text_change_to_driver">Do you want to register as a Driver? Click here!</string>
+    <string name="action_text_change_to_rider">Don\'t want to register as a Driver? Click Here!</string>
 
 </resources>

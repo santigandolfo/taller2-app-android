@@ -36,7 +36,6 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
@@ -60,7 +59,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONObject;
 
@@ -285,9 +283,10 @@ public class MapsActivity extends AppCompatActivity
     private void logout() {
         Log.d(TAG, "logout");
 /*        mAuth.signOut();*/
+        mEditorPreferences.clear().apply();
         mEditorPreferences.putString("login", "false").apply();
         LoginManager.getInstance().logOut();
-        mServerHandler.logoutServerUserJson(mPreferences.getString("auth_token", ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
+        mServerHandler.logoutServerUser(mPreferences.getString("auth_token", ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
 
     }
 

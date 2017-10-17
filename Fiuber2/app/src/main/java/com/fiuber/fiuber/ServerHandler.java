@@ -37,7 +37,7 @@ public class ServerHandler {
     private static final String CREATE_USER = "/users";
     private static final String LOGIN_USER = "/security";
 
-    private static final String MODIFY_USER = "/security";
+    private static final String MODIFY_USER = "/users";
 
 
     private static final String KEY_TYPE = "type";
@@ -98,7 +98,7 @@ public class ServerHandler {
 
     }
 
-    public void loginServerUserJson(String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
+    public void loginServerUser(String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "createServerUser:" + username);
 
         String FINAL_URL = URL + LOGIN_USER;
@@ -126,8 +126,8 @@ public class ServerHandler {
 
     }
 
-    public void logoutServerUserJson(final String token, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
-        Log.d(TAG, "logoutServerUserJson:");
+    public void logoutServerUser(final String token, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
+        Log.d(TAG, "logoutServerUser:");
 
         String FINAL_URL = URL + LOGIN_USER;
         Log.d(TAG, "creating JsonObjectRequest");
@@ -157,8 +157,7 @@ public class ServerHandler {
 
     }
 
-
-    public void saveModificationsUser(String auth_token, String firstname, String lastname, String username, String email, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
+    public void saveModificationsUser(String auth_token, String firstname, String lastname, String country, String birthdate, String email, String username, String password, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "createServerUser:" + email);
 
         String FINAL_URL = URL + MODIFY_USER;
@@ -167,11 +166,24 @@ public class ServerHandler {
         params.put(KEY_AUTH_TOKEN, auth_token);
         params.put(KEY_FIRSTNAME, firstname);
         params.put(KEY_LASTNAME, lastname);
-        params.put(KEY_USERNAME, username);
+        params.put(KEY_COUNTRY, country);
+        params.put(KEY_BIRTHDATE, birthdate);
         params.put(KEY_EMAIL, email);
+        params.put(KEY_USERNAME, username);
+        params.put(KEY_PASSWORD, password);
 
         Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener);
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener){
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                    volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                }
+
+                return volleyError;
+            }
+        };
 
         Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
         this.addToRequestQueue(req);
