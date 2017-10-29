@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -78,8 +79,7 @@ public class MapsActivity extends AppCompatActivity
     Marker current_location_marker;
     Marker destination_location_marker;
 
-    private TextView mPlaceDetailsText;
-    private TextView mPlaceAttribution;
+    private BottomSheetBehavior mBottomSheetBehavior;
 
     private DrawerLayout mDrawer;
     PolylineOptions mLineOptions;
@@ -98,9 +98,13 @@ public class MapsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        View bottomSheet = findViewById( R.id.bottom_sheet );
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         mEditorPreferences = mPreferences.edit();
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mBottomSheetBehavior.setPeekHeight(0);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
@@ -146,15 +150,36 @@ public class MapsActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+        final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
 
         autocompleteFragment.setOnPlaceSelectedListener(this);
         autocompleteFragment.setHint("Where do you want to go?");
 
-        mPlaceDetailsText = findViewById(R.id.place_details);
-        mPlaceAttribution = findViewById(R.id.place_attribution);
+        autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // example : way to access view from PlaceAutoCompleteFragment
+                        // ((EditText) autocompleteFragment.getView()
+                        // .findViewById(R.id.place_autocomplete_search_input)).setText("");
+                        autocompleteFragment.setText("");
+                        view.setVisibility(View.GONE);
+                        mBottomSheetBehavior.setPeekHeight(0);
+                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+                        if (mPolyline != null)
+                            mPolyline.remove();
+
+                        if (destination_location_marker != null)
+                            destination_location_marker.remove();
+
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+
+                    }
+                });
+
     }
 
     @Override
@@ -225,6 +250,9 @@ public class MapsActivity extends AppCompatActivity
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
 /*        FirebaseUser currentUser = mAuth.getCurrentUser();*/
+
+        mBottomSheetBehavior.setPeekHeight(0);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         int size = navigationView.getMenu().size();
@@ -420,6 +448,8 @@ public class MapsActivity extends AppCompatActivity
                                 int padding = 150; // offset from edges of the map in pixels
                                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                 mMap.animateCamera(cu);
+                                mBottomSheetBehavior.setPeekHeight(300);
+                                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                             } else {
                                 Toast.makeText(MapsActivity.this, "Couldn't find a route",
                                         Toast.LENGTH_SHORT).show();
@@ -447,6 +477,7 @@ public class MapsActivity extends AppCompatActivity
         }*/
     }
 
+
     /**
      * Callback invoked when PlaceAutocompleteFragment encounters an error.
      */
@@ -456,17 +487,5 @@ public class MapsActivity extends AppCompatActivity
 
         Toast.makeText(this, "Place selection failed: " + status.getStatusMessage(),
                 Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Helper method to format information about a place nicely.
-     */
-    private static Spanned formatPlaceDetails(Resources res, CharSequence name, String id,
-                                              CharSequence address, CharSequence phoneNumber, Uri websiteUri) {
-        Log.e(TAG, res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-        return Html.fromHtml(res.getString(R.string.place_details, name, id, address, phoneNumber,
-                websiteUri));
-
     }
 }
