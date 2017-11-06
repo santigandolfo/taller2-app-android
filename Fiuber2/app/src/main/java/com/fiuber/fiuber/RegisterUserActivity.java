@@ -43,10 +43,6 @@ public class RegisterUserActivity extends AppCompatActivity implements
     private EditText mUsernameField;
     private EditText mPasswordField;
 
-    private FirebaseAuth mAuth;
-
-    private CallbackManager mCallbackManager;
-
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
     SharedPreferences.Editor mEditorPreferences;
@@ -79,31 +75,6 @@ public class RegisterUserActivity extends AppCompatActivity implements
         findViewById(R.id.text_login).setOnClickListener(this);
         findViewById(R.id.button_register).setOnClickListener(this);
         findViewById(R.id.text_change_to_driver).setOnClickListener(this);
-
-        //Firebase Authenticator
-        mAuth = FirebaseAuth.getInstance();
-
-        mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = findViewById(R.id.button_facebook_login);
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-            }
-        });
-        // [END initialize_fblogin]
     }
 
     @Override
@@ -114,14 +85,6 @@ public class RegisterUserActivity extends AppCompatActivity implements
             Log.d(TAG, "change activity to MapsActivity");
             startActivity(new Intent(this, MapsActivity.class));
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Pass the activity result back to the Facebook SDK
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
@@ -172,69 +135,7 @@ public class RegisterUserActivity extends AppCompatActivity implements
         String password = mPasswordField.getText().toString().trim();
 
         mServerHandler.createServerUser(type, firstname, lastname, country, birthdate, email, username, password, createServerUserResponseListener, createServerUserResponseErrorListener);
-
-/*        // [START create_user_with_email]
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            //Toast.makeText(LoginActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            if (user != null) {
-                                Log.d(TAG, "createServerUser");
-
-                                //TODO: Pasar esto al serverHandler y a su response:
-                                mEditorPreferences.putString(KEY_USERNAME, username).apply();
-                                mEditorPreferences.putString(KEY_PASSWORD, password).apply();
-                                mEditorPreferences.putString(KEY_EMAIL, email).apply();
-                                mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
-                                mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
-
-
-                                mServerHandler.createServerUser("rider", username, firstname, lastname, "Argentina", email, password, "23-10-2017", createServerUserResponseListener, createServerUserResponseErrorListener);
-                            }
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Registration failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-        // [END create_user_with_email]*/
     }
-
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            if (user != null) {
-                                Log.d(TAG, "change activity to MapsActivity");
-                                startActivity(new Intent(getApplicationContext(), MapsActivity.class));
-
-                            }
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
 
     private boolean validateCreateAccountForm() {
         Log.d(TAG, "validateCreateAccountForm");

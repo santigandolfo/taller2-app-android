@@ -1,12 +1,16 @@
 package com.fiuber.fiuber;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +20,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -66,7 +71,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
 
     private static final String TAG = "MapsActivity";
     private GoogleMap mMap;
@@ -99,12 +104,20 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         View bottomSheet = findViewById( R.id.bottom_sheet );
+
+        // Buttons
+        findViewById(R.id.button_cancel).setOnClickListener(this);
+        findViewById(R.id.button_accept_ride).setOnClickListener(this);
+        findViewById(R.id.button_pay_ride).setOnClickListener(this);
+        findViewById(R.id.button_chat).setOnClickListener(this);
+        findViewById(R.id.button_view_profile).setOnClickListener(this);
+
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         mEditorPreferences = mPreferences.edit();
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        mBottomSheetBehavior.setPeekHeight(0);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        updateUI();
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
@@ -129,14 +142,8 @@ public class MapsActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(new String[]{
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                        }, 10);
-                    }
-                    return;
-                }
+                checkLocationPermition();
+                sendNotification(getCurrentFocus());
                 getLastLocation();
             }
         });
@@ -166,8 +173,8 @@ public class MapsActivity extends AppCompatActivity
                         // .findViewById(R.id.place_autocomplete_search_input)).setText("");
                         autocompleteFragment.setText("");
                         view.setVisibility(View.GONE);
-                        mBottomSheetBehavior.setPeekHeight(0);
-                        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        mEditorPreferences.putString("bottom_sheet", "false").apply();
+                        updateUI();
 
                         if (mPolyline != null)
                             mPolyline.remove();
@@ -180,6 +187,39 @@ public class MapsActivity extends AppCompatActivity
                     }
                 });
 
+    }
+
+    public void sendNotification(View view) {
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this);
+
+//Create the intent that’ll fire when the user taps the notification//
+
+        Intent intent = new Intent(this, MapsActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        mBuilder.setContentIntent(pendingIntent);
+
+        mBuilder.setSmallIcon(R.drawable.notification_icon);
+        mBuilder.setContentTitle("My notification");
+        mBuilder.setContentText("Hello World!");
+
+        NotificationManager mNotificationManager =
+
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(001, mBuilder.build());
+    }
+
+    private void updateUI() {
+        if("false".equals(mPreferences.getString("bottom_sheet", "false"))){
+            mBottomSheetBehavior.setPeekHeight(0);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        } else if("true".equals(mPreferences.getString("bottom_sheet", "false"))){
+            mBottomSheetBehavior.setPeekHeight(50);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
     }
 
     @Override
@@ -248,11 +288,8 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-/*        FirebaseUser currentUser = mAuth.getCurrentUser();*/
 
-        mBottomSheetBehavior.setPeekHeight(0);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        updateUI();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         int size = navigationView.getMenu().size();
@@ -264,13 +301,6 @@ public class MapsActivity extends AppCompatActivity
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }
-
-/*        if (currentUser == null) {
-            Log.d(TAG, "change activity to LoginActivity");
-            startActivity(new Intent(this, LoginActivity.class));
-
-        }*/
-
     }
 
 
@@ -310,7 +340,7 @@ public class MapsActivity extends AppCompatActivity
 
     private void logout() {
         Log.d(TAG, "logout");
-/*        mAuth.signOut();*/
+        mAuth.signOut();
         mEditorPreferences.clear().apply();
         mEditorPreferences.putString("login", "false").apply();
         LoginManager.getInstance().logOut();
@@ -448,8 +478,7 @@ public class MapsActivity extends AppCompatActivity
                                 int padding = 150; // offset from edges of the map in pixels
                                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                 mMap.animateCamera(cu);
-                                mBottomSheetBehavior.setPeekHeight(300);
-                                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                                showBottomSheet();
                             } else {
                                 Toast.makeText(MapsActivity.this, "Couldn't find a route",
                                         Toast.LENGTH_SHORT).show();
@@ -477,6 +506,16 @@ public class MapsActivity extends AppCompatActivity
         }*/
     }
 
+    private void showBottomSheet() {
+        mEditorPreferences.putString("bottom_sheet", "true").apply();
+        findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_accept_ride).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_chat).setVisibility(View.GONE);
+        findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+        updateUI();
+    }
+
 
     /**
      * Callback invoked when PlaceAutocompleteFragment encounters an error.
@@ -487,5 +526,116 @@ public class MapsActivity extends AppCompatActivity
 
         Toast.makeText(this, "Place selection failed: " + status.getStatusMessage(),
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int i = v.getId();
+        if (i == R.id.button_cancel) {
+            Log.d(TAG, "clicked cancel button");
+            cancelRide();
+        } else if (i == R.id.button_accept_ride) {
+            Log.d(TAG, "clicked cancel button");
+            acceptRide();
+        } else if (i == R.id.button_pay_ride) {
+            Log.d(TAG, "clicked cancel button");
+            payRide();
+        } else if (i == R.id.button_chat) {
+            Log.d(TAG, "clicked cancel button");
+            chat();
+        } else if (i == R.id.button_view_profile) {
+            Log.d(TAG, "clicked cancel button");
+            viewDriversProfile();
+        }
+    }
+
+    private void acceptRide() {
+        mEditorPreferences.putString("bottom_sheet", "true").apply();
+        findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
+        updateUI();
+    }
+
+    private void cancelRide() {
+        mEditorPreferences.putString("bottom_sheet", "false").apply();
+        findViewById(R.id.button_cancel).setVisibility(View.GONE);
+        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_chat).setVisibility(View.GONE);
+        findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+        updateUI();
+    }
+
+    private void payRide() {
+        mEditorPreferences.putString("bottom_sheet", "false").apply();
+        findViewById(R.id.button_cancel).setVisibility(View.GONE);
+        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_chat).setVisibility(View.GONE);
+        findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+        updateUI();
+    }
+
+    private void chat() {
+        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+    }
+
+    private void viewDriversProfile() {
+    }
+
+    private void checkLocationPermition() {
+        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                }, 10);
+            }
+            return;
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d(TAG, "getLastLocation");
+        checkLocationPermition();
+        mFusedLocationClient.getLastLocation()
+                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            Log.d(TAG, "getLastLocation:all OK!");
+                            lastLocation = task.getResult();
+                            lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                            if (current_location_marker == null)
+                                current_location_marker = mMap.addMarker(new MarkerOptions()
+                                        .position(lastKnownLocation)
+                                        .title("Current Position"));
+                            current_location_marker.setPosition(lastKnownLocation);
+                        } else {
+                            Log.w(TAG, "getLastLocation:exception", task.getException());
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(intent);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

@@ -55,7 +55,7 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="200dp"
         android:elevation="6dp"
         android:clipToPadding="true"
         android:layout_below="@id/fab"
@@ -82,11 +82,10 @@
                     android:id="@+id/text_waiting_for_driver"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:text="Waiting for driver ..."
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:visibility="visible"/>
+                    android:visibility="gone"/>
 
             </RelativeLayout>
 
@@ -105,7 +104,7 @@
                     android:layout_gravity="center"
                     android:text="@string/action_view_profile"
                     android:textStyle="bold"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/button_chat"
@@ -115,7 +114,7 @@
                     android:layout_gravity="center"
                     android:text="@string/action_chat"
                     android:textStyle="bold"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -128,7 +127,7 @@
                 android:layout_gravity="center"
                 android:text="@string/action_accept_ride"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_pay_ride"
@@ -139,7 +138,7 @@
                 android:layout_gravity="center"
                 android:text="@string/action_pay_ride"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_cancel"
@@ -150,7 +149,7 @@
                 android:layout_gravity="bottom|start"
                 android:text="@string/action_cancel"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
         </LinearLayout>
 
