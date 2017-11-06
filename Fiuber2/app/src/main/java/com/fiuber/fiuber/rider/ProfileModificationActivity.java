@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.rider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.server.ServerHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,8 +41,6 @@ public class ProfileModificationActivity extends AppCompatActivity {
 
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_COUNTRY = "country";
-    private static final String KEY_BIRTHDATE = "birthdate";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
@@ -111,8 +111,6 @@ public class ProfileModificationActivity extends AppCompatActivity {
             Log.e(TAG, "saveModificationsUserResponseListener Response");
             mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_COUNTRY, "Argentina").apply();
-            mEditorPreferences.putString(KEY_BIRTHDATE, "23-10-2017").apply();
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
 
@@ -136,13 +134,11 @@ public class ProfileModificationActivity extends AppCompatActivity {
                 String auth_token = response.getString(KEY_AUTH_TOKEN);
                 String firstname = mFirstnameField.getText().toString().trim();
                 String lastname = mLastnameField.getText().toString().trim();
-                String country = "Argentina";
-                String birthdate = "23-10-2017";
                 String email = mEmailField.getText().toString().trim();
                 String username = mUsernameField.getText().toString().trim();
                 String password = mPreferences.getString(KEY_PASSWORD, "");
 
-                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, country, birthdate, email, username, password, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, password, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
                 modifyProfileMock(firstname, lastname, username, email);
             } catch (JSONException e) {
                 e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.server;
 
 
 import android.content.Context;

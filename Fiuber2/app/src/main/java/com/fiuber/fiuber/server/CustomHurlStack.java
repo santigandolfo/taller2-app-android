@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.server;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;

@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.rider;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.fiuber.fiuber.R;
 
 public class ProfileActivity extends AppCompatActivity {
 

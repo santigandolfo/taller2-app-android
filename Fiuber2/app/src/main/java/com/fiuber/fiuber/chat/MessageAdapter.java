@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.chat;
 
 import android.text.format.DateFormat;
 import android.view.View;
@@ -6,6 +6,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.chat.ChatActivity;
+import com.fiuber.fiuber.chat.ChatMessage;
 import com.google.firebase.database.DatabaseReference;
 
 public class MessageAdapter extends FirebaseListAdapter<ChatMessage> {

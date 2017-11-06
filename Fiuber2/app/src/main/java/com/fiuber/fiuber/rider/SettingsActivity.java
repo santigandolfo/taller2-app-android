@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.rider;
 
 
 import android.annotation.TargetApi;
@@ -20,6 +20,9 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+
+import com.fiuber.fiuber.misc.AppCompatPreferenceActivity;
+import com.fiuber.fiuber.R;
 
 import java.util.List;
 

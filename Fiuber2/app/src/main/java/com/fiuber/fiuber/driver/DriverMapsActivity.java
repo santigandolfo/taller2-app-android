@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.driver;
 
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +33,13 @@ import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
+import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.rider.HistoryActivity;
+import com.fiuber.fiuber.rider.LoginActivity;
+import com.fiuber.fiuber.rider.PaymentActivity;
+import com.fiuber.fiuber.rider.ProfileActivity;
+import com.fiuber.fiuber.rider.SettingsActivity;
+import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;

@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.misc;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

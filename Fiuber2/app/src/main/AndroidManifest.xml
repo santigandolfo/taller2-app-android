@@ -27,7 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoginActivity"
+            android:name=".rider.LoginActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,61 +69,61 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".rider.MapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".rider.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".rider.MapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.MapsActivity" />
         </activity>
         <activity
-            android:name=".ProfileModificationActivity"
+            android:name=".rider.ProfileModificationActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".ProfileActivity"
+            android:parentActivityName=".rider.ProfileActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.ProfileActivity" />
+                android:value="com.fiuber.fiuber.rider.ProfileActivity" />
         </activity>
         <activity
-            android:name=".PaymentActivity"
+            android:name=".rider.PaymentActivity"
             android:label="@string/title_activity_payment"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".rider.MapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.MapsActivity" />
         </activity>
         <activity
-            android:name=".HistoryActivity"
+            android:name=".rider.HistoryActivity"
             android:label="@string/title_activity_history"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".rider.MapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.MapsActivity" />
         </activity>
         <activity
-            android:name=".ProfileActivity"
+            android:name=".rider.ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".MapsActivity"
+            android:parentActivityName=".rider.MapsActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.MapsActivity" />
         </activity>
         <activity
-            android:name=".RegisterDriverActivity"
+            android:name=".driver.RegisterDriverActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".DriverMapsActivity"
+            android:name=".driver.DriverMapsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".RegisterUserActivity"
+            android:name=".rider.RegisterUserActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".ChatActivity"/>
+        <activity android:name=".chat.ChatActivity"/>
     </application>
 
 </manifest>

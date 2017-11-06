@@ -1,4 +1,4 @@
-package com.fiuber.fiuber;
+package com.fiuber.fiuber.rider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -8,10 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -26,13 +24,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.akexorcist.googledirection.DirectionCallback;
@@ -45,6 +40,9 @@ import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
+import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.server.ServerHandler;
+import com.fiuber.fiuber.chat.ChatActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -173,7 +171,6 @@ public class MapsActivity extends AppCompatActivity
                         // .findViewById(R.id.place_autocomplete_search_input)).setText("");
                         autocompleteFragment.setText("");
                         view.setVisibility(View.GONE);
-                        mEditorPreferences.putString("bottom_sheet", "false").apply();
                         updateUI();
 
                         if (mPolyline != null)
@@ -212,15 +209,7 @@ public class MapsActivity extends AppCompatActivity
         mNotificationManager.notify(001, mBuilder.build());
     }
 
-    private void updateUI() {
-        if("false".equals(mPreferences.getString("bottom_sheet", "false"))){
-            mBottomSheetBehavior.setPeekHeight(0);
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        } else if("true".equals(mPreferences.getString("bottom_sheet", "false"))){
-            mBottomSheetBehavior.setPeekHeight(50);
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        }
-    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -507,15 +496,42 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void showBottomSheet() {
-        mEditorPreferences.putString("bottom_sheet", "true").apply();
+        mBottomSheetBehavior.setPeekHeight(50);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
         findViewById(R.id.button_accept_ride).setVisibility(View.VISIBLE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
         findViewById(R.id.button_chat).setVisibility(View.GONE);
         findViewById(R.id.button_view_profile).setVisibility(View.GONE);
-        updateUI();
     }
 
+    private void updateUI() {
+        if("false".equals(mPreferences.getString("on_ride", "false"))){
+            mBottomSheetBehavior.setPeekHeight(0);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        } else if("true".equals(mPreferences.getString("on_ride", "false"))){
+            mBottomSheetBehavior.setPeekHeight(50);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            verifyRideState();
+        }
+    }
+
+    private void verifyRideState() {
+        if("false".equals(mPreferences.getString("finished", "false"))){
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
+        }
+        if("true".equals(mPreferences.getString("finished", "false"))){
+            findViewById(R.id.button_cancel).setVisibility(View.GONE);
+            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_chat).setVisibility(View.GONE);
+            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+        }
+    }
 
     /**
      * Callback invoked when PlaceAutocompleteFragment encounters an error.
@@ -549,8 +565,10 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
+
+    //TODO: Change finished to true when location is equal to destination
     private void acceptRide() {
-        mEditorPreferences.putString("bottom_sheet", "true").apply();
+        mEditorPreferences.putString("on_ride", "true").apply();
         findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
         findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
@@ -560,7 +578,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void cancelRide() {
-        mEditorPreferences.putString("bottom_sheet", "false").apply();
+        mEditorPreferences.putString("on_ride", "false").apply();
         findViewById(R.id.button_cancel).setVisibility(View.GONE);
         findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
@@ -570,7 +588,8 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void payRide() {
-        mEditorPreferences.putString("bottom_sheet", "false").apply();
+        mEditorPreferences.putString("on_ride", "false").apply();
+        mEditorPreferences.putString("finished", "false").apply();
         findViewById(R.id.button_cancel).setVisibility(View.GONE);
         findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
