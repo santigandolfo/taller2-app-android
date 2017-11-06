@@ -13,9 +13,9 @@ import android.widget.TextView;
 
 import com.fiuber.fiuber.R;
 
-public class ProfileActivity extends AppCompatActivity {
+public class RiderProfileActivity extends AppCompatActivity {
 
-    private static final String TAG = "ProfileActivity";
+    private static final String TAG = "RiderProfileActivity";
 
     SharedPreferences mPreferences;
 
@@ -29,6 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
@@ -42,8 +43,8 @@ public class ProfileActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "change activity to MapsActivity");
-                startActivity(new Intent(getApplicationContext(), ProfileModificationActivity.class));
+                Log.d(TAG, "change activity to RiderMapsActivity");
+                startActivity(new Intent(getApplicationContext(), RiderProfileModificationActivity.class));
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

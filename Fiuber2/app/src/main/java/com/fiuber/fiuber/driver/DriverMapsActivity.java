@@ -34,10 +34,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.rider.HistoryActivity;
+import com.fiuber.fiuber.rider.RiderHistoryActivity;
 import com.fiuber.fiuber.rider.LoginActivity;
-import com.fiuber.fiuber.rider.PaymentActivity;
-import com.fiuber.fiuber.rider.ProfileActivity;
+import com.fiuber.fiuber.rider.RiderPaymentActivity;
+import com.fiuber.fiuber.rider.RiderProfileActivity;
 import com.fiuber.fiuber.rider.SettingsActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
@@ -323,14 +323,14 @@ public class DriverMapsActivity extends AppCompatActivity implements NavigationV
             int id = item.getItemId();
 
             if (id == R.id.profile) {
-                Log.d(TAG, "change activity to ProfileActivity");
-                startActivity(new Intent(this, ProfileActivity.class));
+                Log.d(TAG, "change activity to RiderProfileActivity");
+                startActivity(new Intent(this, RiderProfileActivity.class));
             } else if (id == R.id.payment) {
-                Log.d(TAG, "change activity to PaymentActivity");
-                startActivity(new Intent(this, PaymentActivity.class));
+                Log.d(TAG, "change activity to RiderPaymentActivity");
+                startActivity(new Intent(this, RiderPaymentActivity.class));
             } else if (id == R.id.history) {
-                Log.d(TAG, "change activity to HistoryActivity");
-                startActivity(new Intent(this, HistoryActivity.class));
+                Log.d(TAG, "change activity to RiderHistoryActivity");
+                startActivity(new Intent(this, RiderHistoryActivity.class));
             } else if (id == R.id.settings) {
                 Log.d(TAG, "change activity to SettingsActivity");
                 startActivity(new Intent(this, SettingsActivity.class));

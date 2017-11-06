@@ -33,7 +33,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        final String TAG = "MapsActivity";
+        final String TAG = "RiderMapsActivity";
         mAuth = FirebaseAuth.getInstance();
 
         //find views by Ids
@@ -95,7 +95,7 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_sign_out) {
             onBackPressed();
-//            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+//            startActivity(new Intent(getApplicationContext(), RiderMapsActivity.class));
         }
         return true;
     }

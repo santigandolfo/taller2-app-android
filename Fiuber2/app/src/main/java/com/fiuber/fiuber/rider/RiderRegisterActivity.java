@@ -20,10 +20,10 @@ import com.fiuber.fiuber.server.ServerHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RegisterUserActivity extends AppCompatActivity implements
+public class RiderRegisterActivity extends AppCompatActivity implements
         View.OnClickListener {
 
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "RiderRegisterActivity";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -37,15 +37,19 @@ public class RegisterUserActivity extends AppCompatActivity implements
 
     String MY_PREFERENCES = "MyPreferences";
 
+    private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
 
+    private static final String KEY_LOGIN = "login";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_register_user);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -68,17 +72,18 @@ public class RegisterUserActivity extends AppCompatActivity implements
     @Override
     public void onStart() {
         super.onStart();
+        Log.e(TAG, "onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
-        if("true".equals(mPreferences.getString("login", "false"))){
-            Log.d(TAG, "change activity to MapsActivity");
-            startActivity(new Intent(this, MapsActivity.class));
+        if("true".equals(mPreferences.getString(KEY_LOGIN, "false"))){
+            Log.d(TAG, "Change activity to RiderMapsActivity");
+            startActivity(new Intent(this, RiderMapsActivity.class));
         }
     }
 
     Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: " + error.toString());
+            Log.e(TAG, "Creating User Unsuccessfull. Response Error: " + error.toString());
             Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
         }
     };
@@ -88,10 +93,8 @@ public class RegisterUserActivity extends AppCompatActivity implements
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Creating User Successfull. Response: " + response.toString());
-            Toast.makeText(getApplicationContext(), "Creating User Successfull", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Change activity to MapsActivity");
             try {
-                mEditorPreferences.putString("auth_token", response.getString("auth_token")).apply();
+                mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -101,8 +104,12 @@ public class RegisterUserActivity extends AppCompatActivity implements
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
-            mEditorPreferences.putString("login", "true").apply();
-            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+
+            Toast.makeText(getApplicationContext(), "Creating User Successfull!", Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "Change activity to RiderMapsActivity");
+            startActivity(new Intent(getApplicationContext(), RiderMapsActivity.class));
         }
     };
 
@@ -113,7 +120,7 @@ public class RegisterUserActivity extends AppCompatActivity implements
             return;
         }
 
-        String type = "driver";
+        String type = "rider";
         String firstname = mFirstnameField.getText().toString().trim();
         String lastname = mLastnameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
@@ -177,10 +184,10 @@ public class RegisterUserActivity extends AppCompatActivity implements
             Log.d(TAG, "clicked register button");
             createAccount();
         } else if (i == R.id.text_login) {
-            Log.d(TAG, "change activity to LoginActivity");
+            Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         } else if (i == R.id.text_change_to_driver) {
-            Log.d(TAG, "change activity to RegisterDriverActivity");
+            Log.d(TAG, "Change activity to RegisterDriverActivity");
             startActivity(new Intent(this, RegisterDriverActivity.class));
         }
     }

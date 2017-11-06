@@ -41,8 +41,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.facebook.login.LoginManager;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.server.ServerHandler;
 import com.fiuber.fiuber.chat.ChatActivity;
+import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -68,10 +68,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends AppCompatActivity
+public class RiderMapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
 
-    private static final String TAG = "MapsActivity";
+    private static final String TAG = "RiderMapsActivity";
     private GoogleMap mMap;
     private FirebaseAuth mAuth;
 
@@ -96,12 +96,19 @@ public class MapsActivity extends AppCompatActivity
 
     String MY_PREFERENCES = "MyPreferences";
 
+    private static final String KEY_AUTH_TOKEN = "auth_token";
+
+    private static final String KEY_LOGIN = "login";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_main);
 
-        View bottomSheet = findViewById( R.id.bottom_sheet );
+        // BottomSheet
+        View bottomSheet = findViewById(R.id.bottom_sheet);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         // Buttons
         findViewById(R.id.button_cancel).setOnClickListener(this);
@@ -111,13 +118,14 @@ public class MapsActivity extends AppCompatActivity
         findViewById(R.id.button_view_profile).setOnClickListener(this);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
+        mAuth = FirebaseAuth.getInstance();
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
         mEditorPreferences = mPreferences.edit();
-        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mDrawer = findViewById(R.id.drawer_layout);
 
         updateUI();
 
-        mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,12 +137,8 @@ public class MapsActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mDrawer = findViewById(R.id.drawer_layout);
 
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -172,13 +176,6 @@ public class MapsActivity extends AppCompatActivity
                         autocompleteFragment.setText("");
                         view.setVisibility(View.GONE);
                         updateUI();
-
-                        if (mPolyline != null)
-                            mPolyline.remove();
-
-                        if (destination_location_marker != null)
-                            destination_location_marker.remove();
-
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
 
                     }
@@ -193,7 +190,7 @@ public class MapsActivity extends AppCompatActivity
 
 //Create the intent that’ll fire when the user taps the notification//
 
-        Intent intent = new Intent(this, MapsActivity.class);
+        Intent intent = new Intent(this, RiderMapsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         mBuilder.setContentIntent(pendingIntent);
@@ -211,7 +208,7 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-    @Override
+/*    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 10:
@@ -220,7 +217,7 @@ public class MapsActivity extends AppCompatActivity
 
                 }
         }
-    }
+    }*/
 
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
@@ -277,6 +274,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        Log.e(TAG, "onStart");
 
         updateUI();
 
@@ -286,7 +284,7 @@ public class MapsActivity extends AppCompatActivity
             navigationView.getMenu().getItem(i).setChecked(false);
         }
 
-        if("false".equals(mPreferences.getString("login", "false"))){
+        if ("false".equals(mPreferences.getString(KEY_LOGIN, "false"))) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }
@@ -296,7 +294,7 @@ public class MapsActivity extends AppCompatActivity
     Response.ErrorListener logoutServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: " + error.toString());
+            Log.e(TAG, "Logout Unsuccessfull. Response Error: " + error.toString());
 /*
             NetworkResponse response = error.networkResponse;
             if(response != null && response.data != null){
@@ -321,7 +319,9 @@ public class MapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.i(TAG, "Logout Successfull. Response: " + response.toString());
+
             Toast.makeText(getApplicationContext(), "Logout Successfull", Toast.LENGTH_SHORT).show();
+
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
@@ -331,9 +331,9 @@ public class MapsActivity extends AppCompatActivity
         Log.d(TAG, "logout");
         mAuth.signOut();
         mEditorPreferences.clear().apply();
-        mEditorPreferences.putString("login", "false").apply();
-        LoginManager.getInstance().logOut();
-        mServerHandler.logoutServerUser(mPreferences.getString("auth_token", ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
+/*        mEditorPreferences.putString(KEY_LOGIN, "false").apply();*/
+/*        LoginManager.getInstance().logOut();*/
+        mServerHandler.logoutServerUser(mPreferences.getString(KEY_AUTH_TOKEN, ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
 
     }
 
@@ -354,7 +354,7 @@ public class MapsActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
+/*    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -369,7 +369,7 @@ public class MapsActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -379,14 +379,14 @@ public class MapsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.profile) {
-            Log.d(TAG, "change activity to ProfileActivity");
-            startActivity(new Intent(this, ProfileActivity.class));
+            Log.d(TAG, "change activity to RiderProfileActivity");
+            startActivity(new Intent(this, RiderProfileActivity.class));
         } else if (id == R.id.payment) {
-            Log.d(TAG, "change activity to PaymentActivity");
-            startActivity(new Intent(this, PaymentActivity.class));
+            Log.d(TAG, "change activity to RiderPaymentActivity");
+            startActivity(new Intent(this, RiderPaymentActivity.class));
         } else if (id == R.id.history) {
-            Log.d(TAG, "change activity to HistoryActivity");
-            startActivity(new Intent(this, HistoryActivity.class));
+            Log.d(TAG, "change activity to RiderHistoryActivity");
+            startActivity(new Intent(this, RiderHistoryActivity.class));
         } else if (id == R.id.settings) {
             Log.d(TAG, "change activity to SettingsActivity");
             startActivity(new Intent(this, SettingsActivity.class));
@@ -405,17 +405,25 @@ public class MapsActivity extends AppCompatActivity
         Log.d(TAG, "onMapReady");
         mMap = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                }, 10);
-            }
-            return;
-        }
+        checkLocationPermition();
 
         moveInitialCamera();
 
+    }
+
+    private void clearRoute() {
+        if (mPolyline != null)
+            mPolyline.remove();
+        if (destination_location_marker != null)
+            destination_location_marker.remove();
+
+
+    }
+
+    private void clearMap() {
+        clearRoute();
+        if (current_location_marker != null)
+            current_location_marker.remove();
     }
 
     /**
@@ -425,23 +433,18 @@ public class MapsActivity extends AppCompatActivity
     public void onPlaceSelected(Place place) {
         Log.i(TAG, "Place Selected: " + place.getName());
 
-        if (mPolyline != null)
-            mPolyline.remove();
+        if ("true".equals(mPreferences.getString("on_ride", "false")))
+            return;
 
-        if (current_location_marker == null)
-            current_location_marker = mMap.addMarker(new MarkerOptions()
-                    .position(lastKnownLocation)
-                    .title("Current Position"));
-        current_location_marker.setPosition(lastKnownLocation);
+        clearMap();
 
-        if (destination_location_marker == null)
-            destination_location_marker = mMap.addMarker(new MarkerOptions()
-                    .position(place.getLatLng())
-                    .title(place.getName().toString()));
-        destination_location_marker.setPosition(place.getLatLng());
-        destination_location_marker.setTitle(place.getName().toString());
+        current_location_marker = mMap.addMarker(new MarkerOptions()
+                .position(lastKnownLocation)
+                .title("Current Position"));
 
-        Log.d(TAG, "Generating Polyline");
+        destination_location_marker = mMap.addMarker(new MarkerOptions()
+                .position(place.getLatLng())
+                .title(place.getName().toString()));
 
         final LatLng destination = place.getLatLng();
         if (lastKnownLocation != null && destination != null) {
@@ -457,8 +460,6 @@ public class MapsActivity extends AppCompatActivity
                                 Leg leg = route.getLegList().get(0);
                                 ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
                                 mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                                if (mPolyline != null)
-                                    mPolyline.remove();
                                 mPolyline = mMap.addPolyline(mLineOptions);
                                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                 builder.include(lastKnownLocation);
@@ -469,7 +470,7 @@ public class MapsActivity extends AppCompatActivity
                                 mMap.animateCamera(cu);
                                 showBottomSheet();
                             } else {
-                                Toast.makeText(MapsActivity.this, "Couldn't find a route",
+                                Toast.makeText(RiderMapsActivity.this, "Couldn't find a route",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -480,7 +481,6 @@ public class MapsActivity extends AppCompatActivity
                         }
                     });
         }
-        Log.d(TAG, "Finished generating Polyline");
 
         // mPolyline = mMap.addPolyline(new PolylineOptions().add(lastKnownLocation,place.getLatLng()).color(Color.BLUE));
         // Format the returned place's details and display them in the TextView.
@@ -506,25 +506,28 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void updateUI() {
-        if("false".equals(mPreferences.getString("on_ride", "false"))){
+        if ("false".equals(mPreferences.getString("on_ride", "false"))) {
             mBottomSheetBehavior.setPeekHeight(0);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        } else if("true".equals(mPreferences.getString("on_ride", "false"))){
+            clearRoute();
+        } else if ("true".equals(mPreferences.getString("on_ride", "false"))) {
             mBottomSheetBehavior.setPeekHeight(50);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             verifyRideState();
         }
+
+
     }
 
     private void verifyRideState() {
-        if("false".equals(mPreferences.getString("finished", "false"))){
+        if ("false".equals(mPreferences.getString("reached_destination", "false"))) {
             findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
             findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
         }
-        if("true".equals(mPreferences.getString("finished", "false"))){
+        if ("true".equals(mPreferences.getString("reached_destination", "false"))) {
             findViewById(R.id.button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
@@ -585,11 +588,18 @@ public class MapsActivity extends AppCompatActivity
         findViewById(R.id.button_chat).setVisibility(View.GONE);
         findViewById(R.id.button_view_profile).setVisibility(View.GONE);
         updateUI();
+        if (mPolyline != null)
+            mPolyline.remove();
+
+        if (destination_location_marker != null)
+            destination_location_marker.remove();
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
     private void payRide() {
         mEditorPreferences.putString("on_ride", "false").apply();
-        mEditorPreferences.putString("finished", "false").apply();
+        mEditorPreferences.putString("reached_destination", "false").apply();
         findViewById(R.id.button_cancel).setVisibility(View.GONE);
         findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
@@ -606,7 +616,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void checkLocationPermition() {
-        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(RiderMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION

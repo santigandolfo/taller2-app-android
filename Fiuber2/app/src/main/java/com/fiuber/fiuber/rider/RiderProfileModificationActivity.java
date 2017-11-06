@@ -23,7 +23,7 @@ import com.fiuber.fiuber.server.ServerHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ProfileModificationActivity extends AppCompatActivity {
+public class RiderProfileModificationActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileModificationAct";
 
@@ -37,12 +37,10 @@ public class ProfileModificationActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private static final String KEY_AUTH_TOKEN = "auth_token";
-
-
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_EMAIL = "email";
     private static final String KEY_USERNAME = "username";
+    private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
 
     private EditText mFirstnameField;
@@ -54,6 +52,7 @@ public class ProfileModificationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -114,8 +113,8 @@ public class ProfileModificationActivity extends AppCompatActivity {
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
 
-            Log.d(TAG, "change activity to ProfileActivity");
-            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+            Log.d(TAG, "change activity to RiderProfileActivity");
+            startActivity(new Intent(getApplicationContext(), RiderProfileActivity.class));
         }
     };
 
@@ -136,9 +135,8 @@ public class ProfileModificationActivity extends AppCompatActivity {
                 String lastname = mLastnameField.getText().toString().trim();
                 String email = mEmailField.getText().toString().trim();
                 String username = mUsernameField.getText().toString().trim();
-                String password = mPreferences.getString(KEY_PASSWORD, "");
 
-                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, password, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
                 modifyProfileMock(firstname, lastname, username, email);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -171,8 +169,8 @@ public class ProfileModificationActivity extends AppCompatActivity {
         mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
         mEditorPreferences.putString(KEY_USERNAME, username).apply();
         mEditorPreferences.putString(KEY_EMAIL, email).apply();
-        Log.d(TAG, "change activity to ProfileActivity");
-        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        Log.d(TAG, "change activity to RiderProfileActivity");
+        startActivity(new Intent(getApplicationContext(), RiderProfileActivity.class));
     }
 
     private boolean validateFullForm() {

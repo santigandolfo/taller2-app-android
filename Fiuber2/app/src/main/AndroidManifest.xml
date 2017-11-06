@@ -69,50 +69,50 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".rider.MapsActivity"
+            android:name=".rider.RiderMapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".rider.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".rider.MapsActivity">
+            android:parentActivityName=".rider.RiderMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.ProfileModificationActivity"
+            android:name=".rider.RiderProfileModificationActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".rider.ProfileActivity"
+            android:parentActivityName=".rider.RiderProfileActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.ProfileActivity" />
+                android:value="com.fiuber.fiuber.rider.RiderProfileActivity" />
         </activity>
         <activity
-            android:name=".rider.PaymentActivity"
+            android:name=".rider.RiderPaymentActivity"
             android:label="@string/title_activity_payment"
-            android:parentActivityName=".rider.MapsActivity">
+            android:parentActivityName=".rider.RiderMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.HistoryActivity"
+            android:name=".rider.RiderHistoryActivity"
             android:label="@string/title_activity_history"
-            android:parentActivityName=".rider.MapsActivity">
+            android:parentActivityName=".rider.RiderMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.ProfileActivity"
+            android:name=".rider.RiderProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".rider.MapsActivity"
+            android:parentActivityName=".rider.RiderMapsActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.MapsActivity" />
+                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
         </activity>
         <activity
             android:name=".driver.RegisterDriverActivity"
@@ -121,7 +121,7 @@
             android:name=".driver.DriverMapsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".rider.RegisterUserActivity"
+            android:name=".rider.RiderRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".chat.ChatActivity"/>
     </application>

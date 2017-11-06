@@ -7,7 +7,7 @@
     android:layout_marginTop="@dimen/activity_horizontal_margin"
     android:padding="@dimen/activity_horizontal_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.fiuber.fiuber.rider.ProfileActivity"
+    tools:context="com.fiuber.fiuber.rider.RiderProfileActivity"
     tools:showIn="@layout/activity_profile">
 
     <LinearLayout

@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.driver.DriverMapsActivity;
 import com.fiuber.fiuber.rider.LoginActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 
@@ -24,7 +23,7 @@ import org.json.JSONObject;
 public class RegisterDriverActivity extends AppCompatActivity implements
             View.OnClickListener {
 
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = "RegisterDriverActivity";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -69,7 +68,7 @@ public class RegisterDriverActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
         if ("true".equals(mPreferences.getString("login", "false"))) {
-            Log.d(TAG, "change activity to MapsActivity");
+            Log.d(TAG, "change activity to RiderMapsActivity");
             startActivity(new Intent(this, DriverMapsActivity.class));
         }
     }

@@ -36,9 +36,20 @@ public class LoginActivity extends AppCompatActivity implements
 
     String MY_PREFERENCES = "MyPreferences";
 
+    private static final String KEY_AUTH_TOKEN = "auth_token";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_FIRSTNAME = "firstname";
+    private static final String KEY_LASTNAME = "lastname";
+    private static final String KEY_TYPE = "type";
+
+    private static final String KEY_LOGIN = "login";
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_login);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -59,20 +70,20 @@ public class LoginActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        if("true".equals(mPreferences.getString("login", "false"))){
-            Log.d(TAG, "change activity to MapsActivity");
-            startActivity(new Intent(this, MapsActivity.class));
+        if ("true".equals(mPreferences.getString(KEY_LOGIN, "false"))) {
+            Log.d(TAG, "Change activity to RiderMapsActivity");
+            startActivity(new Intent(this, RiderMapsActivity.class));
         }
     }
 
     Response.ErrorListener loginServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: " + error.toString());
+            Log.e(TAG, "Login Unsuccessful. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                Log.e(TAG, "Response statusCode: "+response.statusCode);
-                Log.e(TAG, "Response data: "+response.data.toString());
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Login Unsuccessful. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Login Unsuccessful. Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
         }
@@ -81,20 +92,23 @@ public class LoginActivity extends AppCompatActivity implements
     Response.Listener<JSONObject> loginServerUserResponseListenerJSONObject = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            //TODO: Difetentiate between driver and rider here
-            Log.d(TAG, "Login Successfull. Response: " + response.toString());
-            Toast.makeText(getApplicationContext(), "Login Successfull", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Change activity to MapsActivity");
+            Log.d(TAG, "Login Successful. Response: " + response.toString());
             try {
-                mEditorPreferences.putString("auth_token", response.getString("auth_token")).apply();
-                Log.d(TAG, "mPreferences Token: " + mPreferences.getString("auth_token", ""));
+                mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mEditorPreferences.putString("login", "true").apply();
-            startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
+            Toast.makeText(getApplicationContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
+            //TODO: Uncoment this
+            //getUserInfo();
+
+            //TODO: Delete this
+            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+            Log.d(TAG, "Change activity to RiderRegisterActivity");
+            startActivity(new Intent(LoginActivity.this, RiderMapsActivity.class));
         }
     };
+
 
     private void login() {
         Log.d(TAG, "login");
@@ -107,6 +121,59 @@ public class LoginActivity extends AppCompatActivity implements
         String password = mPasswordField.getText().toString().trim();
 
         mServerHandler.loginServerUser(username, password, loginServerUserResponseListenerJSONObject, loginServerUserResponseErrorListener);
+    }
+
+    Response.ErrorListener getUserInformationResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "Getting user information Unsuccessful. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Getting user information Unsuccessful. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Getting user information Unsuccessful. Response data: " + response.data.toString());
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't get user information", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> getUserInformationResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "Getting user information Successful. Response: " + response.toString());
+            try {
+                mEditorPreferences.putString(KEY_FIRSTNAME, response.getString(KEY_FIRSTNAME)).apply();
+                mEditorPreferences.putString(KEY_LASTNAME, response.getString(KEY_LASTNAME)).apply();
+                mEditorPreferences.putString(KEY_USERNAME, response.getString(KEY_USERNAME)).apply();
+                mEditorPreferences.putString(KEY_EMAIL, response.getString(KEY_EMAIL)).apply();
+                mEditorPreferences.putString(KEY_TYPE, response.getString(KEY_TYPE)).apply();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+
+            Toast.makeText(getApplicationContext(), "Got user information!", Toast.LENGTH_SHORT).show();
+
+            startMapActivity(mPreferences.getString(KEY_TYPE, ""));
+        }
+    };
+
+    private void getUserInfo() {
+        Log.d(TAG, "getUserInfo");
+        String username = mUsernameField.getText().toString().trim();
+
+        mServerHandler.getUserInformation(username, getUserInformationResponseListener, getUserInformationResponseErrorListener);
+    }
+
+    private void startMapActivity(String type) {
+        Log.d(TAG, "startMapActivity");
+        if (type.equals("rider")) {
+            Log.d(TAG, "Change activity to RiderMapsActivity");
+            startActivity(new Intent(LoginActivity.this, RiderMapsActivity.class));
+        } else {
+            Log.d(TAG, "Change activity to DriverMapsActivity");
+            startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
+        }
     }
 
     private boolean validateLoginForm() {
@@ -139,10 +206,10 @@ public class LoginActivity extends AppCompatActivity implements
             Log.d(TAG, "clicked login button");
             login();
         } else if (i == R.id.text_register) {
-            Log.d(TAG, "change activity to RegisterUserActivity");
-            startActivity(new Intent(this, RegisterUserActivity.class));
+            Log.d(TAG, "Change activity to RiderRegisterActivity");
+            startActivity(new Intent(this, RiderRegisterActivity.class));
         } else if (i == R.id.text_change_to_driver) {
-            Log.d(TAG, "change activity to RegisterDriverActivity");
+            Log.d(TAG, "Change activity to RegisterDriverActivity");
             startActivity(new Intent(this, RegisterDriverActivity.class));
         }
     }
