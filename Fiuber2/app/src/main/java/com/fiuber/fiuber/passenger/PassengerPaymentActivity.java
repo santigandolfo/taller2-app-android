@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.passenger;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,9 +7,9 @@ import android.view.MenuItem;
 
 import com.fiuber.fiuber.R;
 
-public class RiderPaymentActivity extends AppCompatActivity {
+public class PassengerPaymentActivity extends AppCompatActivity {
 
-    private static final String TAG = "RiderPaymentActivity";
+    private static final String TAG = "PassengerPaymentAct";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

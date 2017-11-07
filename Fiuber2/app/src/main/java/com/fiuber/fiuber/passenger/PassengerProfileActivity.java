@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.passenger;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,9 +13,9 @@ import android.widget.TextView;
 
 import com.fiuber.fiuber.R;
 
-public class RiderProfileActivity extends AppCompatActivity {
+public class PassengerProfileActivity extends AppCompatActivity {
 
-    private static final String TAG = "RiderProfileActivity";
+    private static final String TAG = "PassengerProfileAct";
 
     SharedPreferences mPreferences;
 
@@ -43,8 +43,8 @@ public class RiderProfileActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "change activity to RiderMapsActivity");
-                startActivity(new Intent(getApplicationContext(), RiderProfileModificationActivity.class));
+                Log.d(TAG, "change activity to PassengerMapsActivity");
+                startActivity(new Intent(getApplicationContext(), PassengerProfileModificationActivity.class));
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

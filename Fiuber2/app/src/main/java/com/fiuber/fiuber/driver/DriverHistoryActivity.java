@@ -1,16 +1,17 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.driver;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
 import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.passenger.PassengerMapsActivity;
 
-public class RiderHistoryActivity extends AppCompatActivity {
+public class DriverHistoryActivity extends AppCompatActivity {
 
-    private static final String TAG = "RiderHistoryActivity";
+    private static final String TAG = "DriverHistoryActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class RiderHistoryActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.home:
                 //onBackPressed();
-                Intent intent = new Intent(this, RiderMapsActivity.class);
+                Intent intent = new Intent(this, PassengerMapsActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);//Call the back button's method
                 return true;

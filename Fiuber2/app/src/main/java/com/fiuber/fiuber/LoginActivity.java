@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,9 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.driver.DriverMapsActivity;
-import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.driver.RegisterDriverActivity;
+import com.fiuber.fiuber.driver.DriverRegisterActivity;
+import com.fiuber.fiuber.passenger.PassengerMapsActivity;
+import com.fiuber.fiuber.passenger.PassengerRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 
 import org.json.JSONException;
@@ -37,12 +38,15 @@ public class LoginActivity extends AppCompatActivity implements
     String MY_PREFERENCES = "MyPreferences";
 
     private static final String KEY_AUTH_TOKEN = "auth_token";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_TYPE = "type";
+    private static final String KEY_EMAIL = "email";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_PASSWORD = "password";
 
+
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_INFO= "info";
     private static final String KEY_LOGIN = "login";
 
 
@@ -71,19 +75,19 @@ public class LoginActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         if ("true".equals(mPreferences.getString(KEY_LOGIN, "false"))) {
-            Log.d(TAG, "Change activity to RiderMapsActivity");
-            startActivity(new Intent(this, RiderMapsActivity.class));
+            Log.d(TAG, "Change activity to PassengerMapsActivity");
+            startActivity(new Intent(this, PassengerMapsActivity.class));
         }
     }
 
     Response.ErrorListener loginServerUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Login Unsuccessful. Response Error: " + error.toString());
+            Log.e(TAG, "Login Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
-                Log.e(TAG, "Login Unsuccessful. Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Login Unsuccessful. Response data: " + response.data.toString());
+                Log.e(TAG, "Login Failed. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Login Failed. Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
         }
@@ -95,17 +99,18 @@ public class LoginActivity extends AppCompatActivity implements
             Log.d(TAG, "Login Successful. Response: " + response.toString());
             try {
                 mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
+                mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             Toast.makeText(getApplicationContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
             //TODO: Uncoment this
-            //getUserInfo();
+            getUserInfo();
 
-            //TODO: Delete this
-            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
-            Log.d(TAG, "Change activity to RiderRegisterActivity");
-            startActivity(new Intent(LoginActivity.this, RiderMapsActivity.class));
+/*            //TODO: Delete this
+
+            Log.d(TAG, "Change activity to PassengerRegisterActivity");
+            startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));*/
         }
     };
 
@@ -126,11 +131,11 @@ public class LoginActivity extends AppCompatActivity implements
     Response.ErrorListener getUserInformationResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Getting user information Unsuccessful. Response Error: " + error.toString());
+            Log.e(TAG, "Getting user information Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
-                Log.e(TAG, "Getting user information Unsuccessful. Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Getting user information Unsuccessful. Response data: " + response.data.toString());
+                Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Getting user information Failed. Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Couldn't get user information", Toast.LENGTH_SHORT).show();
         }
@@ -141,11 +146,16 @@ public class LoginActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Getting user information Successful. Response: " + response.toString());
             try {
-                mEditorPreferences.putString(KEY_FIRSTNAME, response.getString(KEY_FIRSTNAME)).apply();
-                mEditorPreferences.putString(KEY_LASTNAME, response.getString(KEY_LASTNAME)).apply();
-                mEditorPreferences.putString(KEY_USERNAME, response.getString(KEY_USERNAME)).apply();
-                mEditorPreferences.putString(KEY_EMAIL, response.getString(KEY_EMAIL)).apply();
-                mEditorPreferences.putString(KEY_TYPE, response.getString(KEY_TYPE)).apply();
+                Log.d(TAG, KEY_FIRSTNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME));
+                Log.d(TAG, KEY_LASTNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME));
+                Log.d(TAG, KEY_USERNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_USERNAME));
+                Log.d(TAG, KEY_EMAIL+": "+response.getJSONObject(KEY_INFO).getString(KEY_EMAIL));
+                Log.d(TAG, KEY_TYPE+": "+response.getJSONObject(KEY_INFO).getString(KEY_TYPE));
+                mEditorPreferences.putString(KEY_FIRSTNAME, response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME)).apply();
+                mEditorPreferences.putString(KEY_LASTNAME, response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME)).apply();
+                mEditorPreferences.putString(KEY_USERNAME, response.getJSONObject(KEY_INFO).getString(KEY_USERNAME)).apply();
+                mEditorPreferences.putString(KEY_EMAIL, response.getJSONObject(KEY_INFO).getString(KEY_EMAIL)).apply();
+                mEditorPreferences.putString(KEY_TYPE, response.getJSONObject(KEY_INFO).getString(KEY_TYPE)).apply();
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -167,10 +177,10 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void startMapActivity(String type) {
         Log.d(TAG, "startMapActivity");
-        if (type.equals("rider")) {
-            Log.d(TAG, "Change activity to RiderMapsActivity");
-            startActivity(new Intent(LoginActivity.this, RiderMapsActivity.class));
-        } else {
+        if (type.equals("passenger")) {
+            Log.d(TAG, "Change activity to PassengerMapsActivity");
+            startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
+        } else if(type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
             startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
         }
@@ -206,11 +216,11 @@ public class LoginActivity extends AppCompatActivity implements
             Log.d(TAG, "clicked login button");
             login();
         } else if (i == R.id.text_register) {
-            Log.d(TAG, "Change activity to RiderRegisterActivity");
-            startActivity(new Intent(this, RiderRegisterActivity.class));
+            Log.d(TAG, "Change activity to PassengerRegisterActivity");
+            startActivity(new Intent(this, PassengerRegisterActivity.class));
         } else if (i == R.id.text_change_to_driver) {
-            Log.d(TAG, "Change activity to RegisterDriverActivity");
-            startActivity(new Intent(this, RegisterDriverActivity.class));
+            Log.d(TAG, "Change activity to DriverRegisterActivity");
+            startActivity(new Intent(this, DriverRegisterActivity.class));
         }
     }
 }

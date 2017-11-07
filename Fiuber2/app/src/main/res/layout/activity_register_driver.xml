@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.fiuber.fiuber.driver.RegisterDriverActivity">
+    tools:context="com.fiuber.fiuber.driver.DriverRegisterActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -93,6 +93,62 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <AutoCompleteTextView
+                    android:id="@+id/edit_text_car_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_model"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/edit_text_car_color"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_color"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/edit_text_car_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_id"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/edit_text_car_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_year"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
                 <EditText
                     android:id="@+id/edit_text_password"
                     android:layout_width="match_parent"
@@ -117,13 +173,13 @@
     </ScrollView>
 
     <TextView
-        android:id="@+id/text_change_to_rider"
+        android:id="@+id/text_change_to_passenger"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_gravity="bottom"
-        android:text="@string/action_text_change_to_rider"
+        android:text="@string/action_text_change_to_passenger"
         android:textColor="@color/com_facebook_blue" />
 
 </RelativeLayout>

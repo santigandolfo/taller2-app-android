@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.passenger;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -39,7 +39,7 @@ import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.facebook.login.LoginManager;
+import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.chat.ChatActivity;
 import com.fiuber.fiuber.server.ServerHandler;
@@ -68,10 +68,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class RiderMapsActivity extends AppCompatActivity
+public class PassengerMapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
 
-    private static final String TAG = "RiderMapsActivity";
+    private static final String TAG = "PassengerMapsActivity";
     private GoogleMap mMap;
     private FirebaseAuth mAuth;
 
@@ -104,7 +104,7 @@ public class RiderMapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate");
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_passenger_map);
 
         // BottomSheet
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -190,7 +190,7 @@ public class RiderMapsActivity extends AppCompatActivity
 
 //Create the intent that’ll fire when the user taps the notification//
 
-        Intent intent = new Intent(this, RiderMapsActivity.class);
+        Intent intent = new Intent(this, PassengerMapsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         mBuilder.setContentIntent(pendingIntent);
@@ -379,17 +379,17 @@ public class RiderMapsActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.profile) {
-            Log.d(TAG, "change activity to RiderProfileActivity");
-            startActivity(new Intent(this, RiderProfileActivity.class));
+            Log.d(TAG, "change activity to PassengerProfileActivity");
+            startActivity(new Intent(this, PassengerProfileActivity.class));
         } else if (id == R.id.payment) {
-            Log.d(TAG, "change activity to RiderPaymentActivity");
-            startActivity(new Intent(this, RiderPaymentActivity.class));
+            Log.d(TAG, "change activity to PassengerPaymentActivity");
+            startActivity(new Intent(this, PassengerPaymentActivity.class));
         } else if (id == R.id.history) {
-            Log.d(TAG, "change activity to RiderHistoryActivity");
-            startActivity(new Intent(this, RiderHistoryActivity.class));
+            Log.d(TAG, "change activity to PassengerHistoryActivity");
+            startActivity(new Intent(this, PassengerHistoryActivity.class));
         } else if (id == R.id.settings) {
-            Log.d(TAG, "change activity to SettingsActivity");
-            startActivity(new Intent(this, SettingsActivity.class));
+            Log.d(TAG, "change activity to PassengerSettingsActivity");
+            startActivity(new Intent(this, PassengerSettingsActivity.class));
 
         } else if (id == R.id.action_logout) {
             logout();
@@ -470,7 +470,7 @@ public class RiderMapsActivity extends AppCompatActivity
                                 mMap.animateCamera(cu);
                                 showBottomSheet();
                             } else {
-                                Toast.makeText(RiderMapsActivity.this, "Couldn't find a route",
+                                Toast.makeText(PassengerMapsActivity.this, "Couldn't find a route",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -616,7 +616,7 @@ public class RiderMapsActivity extends AppCompatActivity
     }
 
     private void checkLocationPermition() {
-        if (ActivityCompat.checkSelfPermission(RiderMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(PassengerMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION

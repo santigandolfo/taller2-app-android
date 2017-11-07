@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.passenger;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +23,7 @@ import com.fiuber.fiuber.server.ServerHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RiderProfileModificationActivity extends AppCompatActivity {
+public class PassengerProfileModificationActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileModificationAct";
 
@@ -94,7 +94,7 @@ public class RiderProfileModificationActivity extends AppCompatActivity {
     Response.ErrorListener saveModificationsUserResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "saveModificationsUserResponseErrorListener ErrorResponse. Response error: " + error.toString());
+            Log.e(TAG, "saveModificationsUserResponseErrorListener Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
             if(response != null && response.data != null){
                 Log.e(TAG, "Response statusCode: "+response.statusCode);
@@ -107,28 +107,28 @@ public class RiderProfileModificationActivity extends AppCompatActivity {
     Response.Listener<JSONObject> saveModificationsUserResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveModificationsUserResponseListener Response");
+            Log.e(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
             mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
 
-            Log.d(TAG, "change activity to RiderProfileActivity");
-            startActivity(new Intent(getApplicationContext(), RiderProfileActivity.class));
+            Log.d(TAG, "change activity to PassengerProfileActivity");
+            startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
         }
     };
 
     Response.ErrorListener modifyUserProfileResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "modifyUserProfileResponseErrorListener ErrorResponse. Response error: " + error.toString());
+            Log.e(TAG, "modifyUserProfileResponseErrorListener Failed. Response Error: " + error.toString());
         }
     };
 
     Response.Listener<JSONObject> modifyUserProfileResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "modifyUserProfileResponseListener Response");
+            Log.i(TAG, "modifyUserProfileResponseListener Successful. Response: " + response.toString());
             try {
                 String auth_token = response.getString(KEY_AUTH_TOKEN);
                 String firstname = mFirstnameField.getText().toString().trim();
@@ -137,7 +137,7 @@ public class RiderProfileModificationActivity extends AppCompatActivity {
                 String username = mUsernameField.getText().toString().trim();
 
                 //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
-                modifyProfileMock(firstname, lastname, username, email);
+                //modifyProfileMock(firstname, lastname, username, email);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -154,7 +154,11 @@ public class RiderProfileModificationActivity extends AppCompatActivity {
                 if (validateFullForm()) {
                     String currentUsername = mPreferences.getString(KEY_USERNAME, "");
                     String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
-                    mServerHandler.loginServerUser(currentUsername, currentPassword, modifyUserProfileResponseListener, modifyUserProfileResponseErrorListener);
+                    String firstname = mFirstnameField.getText().toString().trim();
+                    String lastname = mLastnameField.getText().toString().trim();
+                    String email = mEmailField.getText().toString().trim();
+                    String username = mUsernameField.getText().toString().trim();
+                    mServerHandler.saveModificationsUser(currentUsername, currentPassword, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
                 }
                 return true;
             default:
@@ -169,8 +173,8 @@ public class RiderProfileModificationActivity extends AppCompatActivity {
         mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
         mEditorPreferences.putString(KEY_USERNAME, username).apply();
         mEditorPreferences.putString(KEY_EMAIL, email).apply();
-        Log.d(TAG, "change activity to RiderProfileActivity");
-        startActivity(new Intent(getApplicationContext(), RiderProfileActivity.class));
+        Log.d(TAG, "change activity to PassengerProfileActivity");
+        startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
     }
 
     private boolean validateFullForm() {

@@ -124,11 +124,15 @@
     <string name="action_save">Save</string>
     <string name="prompt_username">Username</string>
     <string name="action_text_change_to_driver">Do you want to register as a Driver? Click here!</string>
-    <string name="action_text_change_to_rider">Don\'t want to register as a Driver? Click Here!</string>
+    <string name="action_text_change_to_passenger">Don\'t want to register as a Driver? Click Here!</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_accept_ride">Accept Ride</string>
     <string name="action_pay_ride">Pay</string>
     <string name="action_view_profile">View Profile</string>
     <string name="action_chat">Chat</string>
+    <string name="prompt_car_model">Model</string>
+    <string name="prompt_car_color">Color</string>
+    <string name="prompt_car_id">Id</string>
+    <string name="prompt_car_year">Year</string>
 
 </resources>

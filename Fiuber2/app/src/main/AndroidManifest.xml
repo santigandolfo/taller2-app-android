@@ -27,7 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".rider.LoginActivity"
+            android:name=".LoginActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,59 +69,59 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".rider.RiderMapsActivity"
+            android:name=".passenger.PassengerMapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".rider.SettingsActivity"
+            android:name=".passenger.PassengerSettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".rider.RiderMapsActivity">
+            android:parentActivityName=".passenger.PassengerMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
+                android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.RiderProfileModificationActivity"
+            android:name=".passenger.PassengerProfileModificationActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".rider.RiderProfileActivity"
+            android:parentActivityName=".passenger.PassengerProfileActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.RiderProfileActivity" />
+                android:value="com.fiuber.fiuber.passenger.PassengerProfileActivity" />
         </activity>
         <activity
-            android:name=".rider.RiderPaymentActivity"
+            android:name=".passenger.PassengerPaymentActivity"
             android:label="@string/title_activity_payment"
-            android:parentActivityName=".rider.RiderMapsActivity">
+            android:parentActivityName=".passenger.PassengerMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
+                android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.RiderHistoryActivity"
+            android:name=".passenger.PassengerHistoryActivity"
             android:label="@string/title_activity_history"
-            android:parentActivityName=".rider.RiderMapsActivity">
+            android:parentActivityName=".passenger.PassengerMapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
+                android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
         <activity
-            android:name=".rider.RiderProfileActivity"
+            android:name=".passenger.PassengerProfileActivity"
             android:label="@string/title_activity_profile"
-            android:parentActivityName=".rider.RiderMapsActivity"
+            android:parentActivityName=".passenger.PassengerMapsActivity"
             android:theme="@style/AppThemeNoAc">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.rider.RiderMapsActivity" />
+                android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
         <activity
-            android:name=".driver.RegisterDriverActivity"
+            android:name=".driver.DriverRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".driver.DriverMapsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".rider.RiderRegisterActivity"
+            android:name=".passenger.PassengerRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".chat.ChatActivity"/>
     </application>

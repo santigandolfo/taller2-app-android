@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.fiuber.fiuber.rider.RiderMapsActivity">
+    tools:context="com.fiuber.fiuber.passenger.PassengerMapsActivity">
 
     <include
         android:id="@+id/include"
-        layout="@layout/content_main" />
+        layout="@layout/content_passenger_map" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/search_bar"

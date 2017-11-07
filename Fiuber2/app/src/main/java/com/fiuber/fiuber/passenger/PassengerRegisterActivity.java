@@ -1,4 +1,4 @@
-package com.fiuber.fiuber.rider;
+package com.fiuber.fiuber.passenger;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,17 +13,18 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.driver.RegisterDriverActivity;
+import com.fiuber.fiuber.driver.DriverRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RiderRegisterActivity extends AppCompatActivity implements
+public class PassengerRegisterActivity extends AppCompatActivity implements
         View.OnClickListener {
 
-    private static final String TAG = "RiderRegisterActivity";
+    private static final String TAG = "PassengerRegisterAct";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -37,11 +38,12 @@ public class RiderRegisterActivity extends AppCompatActivity implements
 
     String MY_PREFERENCES = "MyPreferences";
 
+    private static final String KEY_TYPE = "type";
     private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
 
     private static final String KEY_LOGIN = "login";
@@ -75,30 +77,31 @@ public class RiderRegisterActivity extends AppCompatActivity implements
         Log.e(TAG, "onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
         if("true".equals(mPreferences.getString(KEY_LOGIN, "false"))){
-            Log.d(TAG, "Change activity to RiderMapsActivity");
-            startActivity(new Intent(this, RiderMapsActivity.class));
+            Log.d(TAG, "Change activity to PassengerMapsActivity");
+            startActivity(new Intent(this, PassengerMapsActivity.class));
         }
     }
 
-    Response.ErrorListener createServerUserResponseErrorListener = new Response.ErrorListener() {
+    Response.ErrorListener createPassengerResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Creating User Unsuccessfull. Response Error: " + error.toString());
-            Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Creating Passenger Unsuccessfull. Response Error: " + error.toString());
+            Toast.makeText(getApplicationContext(), "Creating Passenger Failed", Toast.LENGTH_SHORT).show();
         }
     };
 
 
-    Response.Listener<JSONObject> createServerUserResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> createPassengerResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "Creating User Successfull. Response: " + response.toString());
+            Log.d(TAG, "Creating Passenger Successfull. Response: " + response.toString());
             try {
                 mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
+            mEditorPreferences.putString(KEY_TYPE, "passenger").apply();
             mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
@@ -106,10 +109,10 @@ public class RiderRegisterActivity extends AppCompatActivity implements
             mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_LOGIN, "true").apply();
 
-            Toast.makeText(getApplicationContext(), "Creating User Successfull!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Creating Passenger Successfull!", Toast.LENGTH_SHORT).show();
 
-            Log.d(TAG, "Change activity to RiderMapsActivity");
-            startActivity(new Intent(getApplicationContext(), RiderMapsActivity.class));
+            Log.d(TAG, "Change activity to PassengerMapsActivity");
+            startActivity(new Intent(getApplicationContext(), PassengerMapsActivity.class));
         }
     };
 
@@ -120,14 +123,14 @@ public class RiderRegisterActivity extends AppCompatActivity implements
             return;
         }
 
-        String type = "rider";
+        String type = "passenger";
         String firstname = mFirstnameField.getText().toString().trim();
         String lastname = mLastnameField.getText().toString().trim();
         String email = mEmailField.getText().toString().trim();
         String username = mUsernameField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
 
-        mServerHandler.createServerUser(type, firstname, lastname, email, username, password, createServerUserResponseListener, createServerUserResponseErrorListener);
+        mServerHandler.createServerUser(type, firstname, lastname, email, username, password, createPassengerResponseListener, createPassengerResponseErrorListener);
     }
 
     private boolean validateCreateAccountForm() {
@@ -187,8 +190,8 @@ public class RiderRegisterActivity extends AppCompatActivity implements
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         } else if (i == R.id.text_change_to_driver) {
-            Log.d(TAG, "Change activity to RegisterDriverActivity");
-            startActivity(new Intent(this, RegisterDriverActivity.class));
+            Log.d(TAG, "Change activity to DriverRegisterActivity");
+            startActivity(new Intent(this, DriverRegisterActivity.class));
         }
     }
 }

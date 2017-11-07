@@ -14,16 +14,16 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.rider.LoginActivity;
+import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RegisterDriverActivity extends AppCompatActivity implements
+public class DriverRegisterActivity extends AppCompatActivity implements
             View.OnClickListener {
 
-    private static final String TAG = "RegisterDriverActivity";
+    private static final String TAG = "DriverRegisterActivity";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -31,17 +31,32 @@ public class RegisterDriverActivity extends AppCompatActivity implements
     private EditText mUsernameField;
     private EditText mPasswordField;
 
+    private EditText  mCarModelField;
+    private EditText mCarColorField;
+    private EditText mCarIdField;
+    private EditText  mCarYearField;
+
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
     SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
+
+    //car
+    private static final String KEY_CAR_MODEL = "model";
+    private static final String KEY_CAR_COLOR = "color";
+    private static final String KEY_CAR_ID = "id";
+    private static final String KEY_CAR_YEAR = "year";
+
+    private static final String KEY_LOGIN = "login";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,49 +74,61 @@ public class RegisterDriverActivity extends AppCompatActivity implements
         mUsernameField = findViewById(R.id.edit_text_username);
         mPasswordField = findViewById(R.id.edit_text_password);
 
+        //Car Views
+        mCarModelField = findViewById(R.id.edit_text_car_model);
+        mCarColorField = findViewById(R.id.edit_text_car_color);
+        mCarIdField = findViewById(R.id.edit_text_car_id);
+        mCarYearField = findViewById(R.id.edit_text_car_year);
+
         // Buttons
         findViewById(R.id.button_register).setOnClickListener(this);
-        findViewById(R.id.text_change_to_rider).setOnClickListener(this);
+        findViewById(R.id.text_change_to_passenger).setOnClickListener(this);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         if ("true".equals(mPreferences.getString("login", "false"))) {
-            Log.d(TAG, "change activity to RiderMapsActivity");
+            Log.d(TAG, "change activity to PassengerMapsActivity");
             startActivity(new Intent(this, DriverMapsActivity.class));
         }
     }
 
 
-    Response.ErrorListener createServerDriverResponseErrorListener = new Response.ErrorListener() {
+    Response.ErrorListener createDriverResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Response error: " + error.toString());
-            Toast.makeText(getApplicationContext(), "Creating User Failed", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Creating Driver Unsuccessfull. Response Error: " + error.toString());
+            Toast.makeText(getApplicationContext(), "Creating Driver Failed", Toast.LENGTH_SHORT).show();
         }
     };
 
 
-    Response.Listener<JSONObject> createServerDriverResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> createDriverResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "Creating User Successfull. Response: " + response.toString());
-            Toast.makeText(getApplicationContext(), "Creating User Successfull", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Change activity to DriverMapsActivity");
+            Log.d(TAG, "Creating Driver Successfull. Response: " + response.toString());
             try {
-                mEditorPreferences.putString("auth_token", response.getString("auth_token")).apply();
+                mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
+            mEditorPreferences.putString(KEY_TYPE, "driver").apply();
             mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
-            mEditorPreferences.putString("login", "true").apply();
 
+            mEditorPreferences.putString(KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_CAR_ID, mCarIdField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
+            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+
+            Toast.makeText(getApplicationContext(), "Creating Driver Successfull!", Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "Change activity to PassengerMapsActivity");
             startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));
         }
     };
@@ -121,7 +148,12 @@ public class RegisterDriverActivity extends AppCompatActivity implements
         String username = mUsernameField.getText().toString().trim();
         String password = mPasswordField.getText().toString().trim();
 
-        mServerHandler.createServerUser(type, firstname, lastname, email, username, password, createServerDriverResponseListener, createServerDriverResponseErrorListener);
+        String carModel = mCarModelField.getText().toString().trim();
+        String carColor = mCarColorField.getText().toString().trim();
+        String carId = mCarIdField.getText().toString().trim();
+        String carYear = mCarYearField.getText().toString().trim();
+
+        mServerHandler.createDriver(type, firstname, lastname, email, username, password, carModel, carColor, carId, carYear, createDriverResponseListener, createDriverResponseErrorListener);
 
     }
 
@@ -178,7 +210,7 @@ public class RegisterDriverActivity extends AppCompatActivity implements
         if (i == R.id.button_register) {
             Log.d(TAG, "clicked register button");
             createAccount();
-        } else  if (i == R.id.text_change_to_rider) {
+        } else  if (i == R.id.text_change_to_passenger) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }
