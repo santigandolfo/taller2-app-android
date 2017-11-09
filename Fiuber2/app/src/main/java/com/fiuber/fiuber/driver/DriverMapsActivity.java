@@ -64,6 +64,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class DriverMapsActivity extends AppCompatActivity
 
     protected Location lastLocation;
     LatLng lastKnownLocation;
+    LatLng destination;
     Marker current_location_marker;
     Marker destination_location_marker;
 
@@ -92,13 +94,19 @@ public class DriverMapsActivity extends AppCompatActivity
 
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
-    SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
-    private static final String KEY_AUTH_TOKEN = "auth_token";
-
     private static final String KEY_LOGIN = "login";
+
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_LATITUDE = "latitude";
+    private static final String KEY_LONGITUDE = "longitude";
+
+    private static final String KEY_RIDE_ID = "ride_id";
+    private static final String KEY_INFO = "info";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,13 +114,16 @@ public class DriverMapsActivity extends AppCompatActivity
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_driver_map);
 
+        findViewById(R.id.search_bar).setVisibility(View.GONE);
+
         // BottomSheet
         View bottomSheet = findViewById(R.id.bottom_sheet);
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         // Buttons
         findViewById(R.id.button_cancel).setOnClickListener(this);
-        findViewById(R.id.button_accept_ride).setOnClickListener(this);
+        findViewById(R.id.button_refresh).setOnClickListener(this);
+        findViewById(R.id.button_request_ride).setOnClickListener(this);
         findViewById(R.id.button_pay_ride).setOnClickListener(this);
         findViewById(R.id.button_chat).setOnClickListener(this);
         findViewById(R.id.button_view_profile).setOnClickListener(this);
@@ -120,7 +131,6 @@ public class DriverMapsActivity extends AppCompatActivity
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        mEditorPreferences = mPreferences.edit();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -145,7 +155,6 @@ public class DriverMapsActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 checkLocationPermition();
-                sendNotification(getCurrentFocus());
                 getLastLocation();
             }
         });
@@ -183,21 +192,21 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
-    public void sendNotification(View view) {
+    public void sendNotification(View view, String title, String text, Class to) {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this);
 
 //Create the intent that’ll fire when the user taps the notification//
 
-        Intent intent = new Intent(this, DriverMapsActivity.class);
+        Intent intent = new Intent(this, to);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         mBuilder.setContentIntent(pendingIntent);
 
         mBuilder.setSmallIcon(R.drawable.notification_icon);
-        mBuilder.setContentTitle("My notification");
-        mBuilder.setContentText("Hello World!");
+        mBuilder.setContentTitle(title);
+        mBuilder.setContentText(text);
 
         NotificationManager mNotificationManager =
 
@@ -219,6 +228,15 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     }*/
 
+    Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.e(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
+            mPreferences.edit().putString(KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+        }
+    };
+
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
         Log.d(TAG, "getLastLocation");
@@ -236,6 +254,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                         .title("Current Position"));
                             current_location_marker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -262,6 +281,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                         .title("Current Position"));
                             current_location_marker.setPosition(lastKnownLocation);
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -291,51 +311,41 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
 
-    Response.ErrorListener logoutServerUserResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Logout Unsuccessfull. Response Error: " + error.toString());
-/*
-            NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                switch(response.statusCode){
-                    case 401:
-                        Log.e(TAG, "Logout Successfull: "+response.data.toString());
-                        Toast.makeText(getApplicationContext(), "Logout Successfull: (expired_token)", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "Change activity to LoginActivity");
-                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                        break;
-                }
-            }
-
-*/
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-        }
-    };
-
-    Response.Listener<JSONObject> logoutServerUserResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "Logout Successfull. Response: " + response.toString());
-
-            Toast.makeText(getApplicationContext(), "Logout Successfull", Toast.LENGTH_SHORT).show();
-
+            Log.e(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+            mPreferences.edit().clear().apply();
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+
         }
     };
 
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        mEditorPreferences.clear().apply();
-/*        mEditorPreferences.putString(KEY_LOGIN, "false").apply();*/
+        mServerHandler.setDriversAvailability(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""),"False", setDriverAsAvailableResponseListener);
+        if ("true".equals(mPreferences.getString("on_ride", "false")) || "true".equals(mPreferences.getString("requesting_ride", "false"))) {
+            cancelRide(logoutCancelRideResponseListener);
+        } else {
+            mPreferences.edit().clear().apply();
+            Log.d(TAG, "Change activity to LoginActivity");
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        }
 /*        LoginManager.getInstance().logOut();*/
-        mServerHandler.logoutServerUser(mPreferences.getString(KEY_AUTH_TOKEN, ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
+        // mServerHandler.logoutServerUser(mPreferences.getString(KEY_AUTH_TOKEN, ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
 
     }
+
+    Response.Listener<JSONObject> setDriverAsAvailableResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "setDriverAsAvailableResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "Change activity to LoginActivity");
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -446,7 +456,7 @@ public class DriverMapsActivity extends AppCompatActivity
                 .position(place.getLatLng())
                 .title(place.getName().toString()));
 
-        final LatLng destination = place.getLatLng();
+        destination = place.getLatLng();
         if (lastKnownLocation != null && destination != null) {
             GoogleDirection.withServerKey(GOOGLE_API_KEY)
                     .from(lastKnownLocation)
@@ -496,16 +506,18 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void showBottomSheet() {
+        Log.i(TAG, "showBottomSheet");
         mBottomSheetBehavior.setPeekHeight(50);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
-        findViewById(R.id.button_accept_ride).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_request_ride).setVisibility(View.VISIBLE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
         findViewById(R.id.button_chat).setVisibility(View.GONE);
         findViewById(R.id.button_view_profile).setVisibility(View.GONE);
     }
 
     private void updateUI() {
+        Log.i(TAG, "updateUI");
         if ("false".equals(mPreferences.getString("on_ride", "false"))) {
             mBottomSheetBehavior.setPeekHeight(0);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -520,16 +532,17 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void verifyRideState() {
+        Log.i(TAG, "verifyRideState");
         if ("false".equals(mPreferences.getString("reached_destination", "false"))) {
             findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_request_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
         }
         if ("true".equals(mPreferences.getString("reached_destination", "false"))) {
             findViewById(R.id.button_cancel).setVisibility(View.GONE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_request_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
@@ -552,10 +565,10 @@ public class DriverMapsActivity extends AppCompatActivity
         int i = v.getId();
         if (i == R.id.button_cancel) {
             Log.d(TAG, "clicked cancel button");
-            cancelRide();
-        } else if (i == R.id.button_accept_ride) {
+            cancelRide(cancelRideResponseListener);
+        } else if (i == R.id.button_request_ride) {
             Log.d(TAG, "clicked cancel button");
-            acceptRide();
+            requestRide();
         } else if (i == R.id.button_pay_ride) {
             Log.d(TAG, "clicked cancel button");
             payRide();
@@ -568,22 +581,86 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     }
 
+    Response.Listener<JSONObject> requestRideResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.e(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+
+            //TODO: Change this:
+
+            try {
+                mPreferences.edit().putString(KEY_RIDE_ID, response.getString("id")).apply();
+                Log.e(TAG, "RIDE ID: " + mPreferences.getString(KEY_RIDE_ID, ""));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            sendNotification(getCurrentFocus(), "Ride",  "Your ride request has been made",DriverMapsActivity.class);
+            mPreferences.edit().putString("requesting_ride", "false").apply();
+            mPreferences.edit().putString("on_ride", "true").apply();
+            findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_refresh).setVisibility(View.GONE);
+            findViewById(R.id.button_request_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+            findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
+            updateUI();
+
+        }
+    };
 
     //TODO: Change finished to true when location is equal to destination
-    private void acceptRide() {
-        mEditorPreferences.putString("on_ride", "true").apply();
+    private void requestRide() {
+        Log.i(TAG, "requestRide");
+        mPreferences.edit().putString("requesting_ride", "true").apply();
+        findViewById(R.id.text_waiting_for_driver).setVisibility(View.VISIBLE);
         findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
-        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_refresh).setVisibility(View.GONE);
+        findViewById(R.id.button_request_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_chat).setVisibility(View.GONE);
+        findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+
+        String username = mPreferences.getString(KEY_USERNAME, "");
+        String password = mPreferences.getString(KEY_PASSWORD, "");
+        String latitudeInitial = String.valueOf(lastKnownLocation.latitude);
+        String longitudeInitial = String.valueOf(lastKnownLocation.longitude);
+        String latitudeFinal = String.valueOf(destination.latitude);
+        String longitudeFinal = String.valueOf(destination.longitude);
+
+        mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal,requestRideResponseListener);
+    }
+
+
+    //TODO: Change finished to true when location is equal to destination
+    private void receiveRide() {
+        Log.i(TAG, "receiveRide");
+        mPreferences.edit().putString("on_ride", "true").apply();
+        findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_request_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
         findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
         findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
         updateUI();
     }
 
-    private void cancelRide() {
-        mEditorPreferences.putString("on_ride", "false").apply();
+    Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.e(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+        }
+    };
+
+    private void cancelRide(    Response.Listener<JSONObject> responseListener) {
+        Log.i(TAG, "cancelRide");
+        if ("true".equals(mPreferences.getString("on_ride", "false")) || "true".equals(mPreferences.getString("requesting_ride", "false")))
+            mServerHandler.cancelRide(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_USERNAME, ""), responseListener);
+        mPreferences.edit().putString("on_ride", "false").apply();
+        mPreferences.edit().putString("requesting_ride", "false").apply();
+        mPreferences.edit().remove(KEY_RIDE_ID).apply();
         findViewById(R.id.button_cancel).setVisibility(View.GONE);
-        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_refresh).setVisibility(View.GONE);
+        findViewById(R.id.button_request_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
         findViewById(R.id.button_chat).setVisibility(View.GONE);
         findViewById(R.id.button_view_profile).setVisibility(View.GONE);
@@ -598,10 +675,11 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void payRide() {
-        mEditorPreferences.putString("on_ride", "false").apply();
-        mEditorPreferences.putString("reached_destination", "false").apply();
+        Log.i(TAG, "payRide");
+        mPreferences.edit().putString("on_ride", "false").apply();
+        mPreferences.edit().putString("reached_destination", "false").apply();
         findViewById(R.id.button_cancel).setVisibility(View.GONE);
-        findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
+        findViewById(R.id.button_request_ride).setVisibility(View.GONE);
         findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
         findViewById(R.id.button_chat).setVisibility(View.GONE);
         findViewById(R.id.button_view_profile).setVisibility(View.GONE);
@@ -609,6 +687,7 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void chat() {
+        Log.i(TAG, "chat");
         startActivity(new Intent(getApplicationContext(), ChatActivity.class));
     }
 
@@ -622,7 +701,6 @@ public class DriverMapsActivity extends AppCompatActivity
                         Manifest.permission.ACCESS_FINE_LOCATION
                 }, 10);
             }
-            return;
         }
     }
 
@@ -644,6 +722,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                         .position(lastKnownLocation)
                                         .title("Current Position"));
                             current_location_marker.setPosition(lastKnownLocation);
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);

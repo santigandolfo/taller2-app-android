@@ -126,13 +126,14 @@
     <string name="action_text_change_to_driver">Do you want to register as a Driver? Click here!</string>
     <string name="action_text_change_to_passenger">Don\'t want to register as a Driver? Click Here!</string>
     <string name="action_cancel">Cancel</string>
-    <string name="action_accept_ride">Accept Ride</string>
+    <string name="action_request_ride">Request Ride</string>
     <string name="action_pay_ride">Pay</string>
     <string name="action_view_profile">View Profile</string>
     <string name="action_chat">Chat</string>
     <string name="prompt_car_model">Model</string>
     <string name="prompt_car_color">Color</string>
-    <string name="prompt_car_id">Id</string>
+    <string name="prompt_car_plate">Plate</string>
     <string name="prompt_car_year">Year</string>
+    <string name="action_refresh">Refresh</string>
 
 </resources>

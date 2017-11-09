@@ -7,15 +7,13 @@ import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.chat.ChatActivity;
-import com.fiuber.fiuber.chat.ChatMessage;
 import com.google.firebase.database.DatabaseReference;
 
 public class MessageAdapter extends FirebaseListAdapter<ChatMessage> {
 
     private ChatActivity activity;
 
-    public MessageAdapter(ChatActivity activity, Class<ChatMessage> modelClass, int modelLayout, DatabaseReference ref) {
+    MessageAdapter(ChatActivity activity, Class<ChatMessage> modelClass, int modelLayout, DatabaseReference ref) {
         super(activity, modelClass, modelLayout, ref);
         this.activity = activity;
     }
@@ -23,7 +21,7 @@ public class MessageAdapter extends FirebaseListAdapter<ChatMessage> {
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         ChatMessage chatMessage = getItem(position);
-        if (chatMessage.getMessageUserId().equals(activity.getLoggedInUserName()))
+        if (chatMessage.getMessageUser().equals(activity.getLoggedInUserName()))
             view = activity.getLayoutInflater().inflate(R.layout.item_out_message, viewGroup, false);
         else
             view = activity.getLayoutInflater().inflate(R.layout.item_in_message, viewGroup, false);
@@ -36,9 +34,9 @@ public class MessageAdapter extends FirebaseListAdapter<ChatMessage> {
 
     @Override
     protected void populateView(View v, ChatMessage model, int position) {
-        TextView messageText = (TextView) v.findViewById(R.id.message_text);
-        TextView messageUser = (TextView) v.findViewById(R.id.message_user);
-        TextView messageTime = (TextView) v.findViewById(R.id.message_time);
+        TextView messageText = v.findViewById(R.id.message_text);
+        TextView messageUser = v.findViewById(R.id.message_user);
+        TextView messageTime = v.findViewById(R.id.message_time);
 
         messageText.setText(model.getMessageText());
         messageUser.setText(model.getMessageUser());

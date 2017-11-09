@@ -205,7 +205,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/layout_car_id"
+            android:id="@+id/layout_car_plate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
@@ -215,23 +215,23 @@
 
 
             <TextView
-                android:id="@+id/text_car_id"
+                android:id="@+id/text_car_plate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:text="Id"
+                android:text="Plate"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/text_car_id"
+                android:layout_below="@id/text_car_plate"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
-                android:text="Id"
+                android:text="Plate"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textColor="#727272" />
 
@@ -269,10 +269,6 @@
                 android:textColor="#727272"/>
 
         </RelativeLayout>
-
-
-        <include layout="@layout/item_divider" />
-
 
     </LinearLayout>
 

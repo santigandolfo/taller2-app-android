@@ -30,13 +30,11 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
     private ServerHandler mServerHandler;
 
     SharedPreferences mPreferences;
-    SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
     Toolbar toolbar;
 
-    private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
     private static final String KEY_USERNAME = "username";
@@ -45,7 +43,6 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
-    private EditText mUsernameField;
     private EditText mEmailField;
 
 
@@ -57,7 +54,6 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        mEditorPreferences = mPreferences.edit();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -65,13 +61,11 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
 
         mFirstnameField = findViewById(R.id.text_firstname);
         mLastnameField = findViewById(R.id.text_lastname);
-        mUsernameField = findViewById(R.id.text_username);
         mEmailField = findViewById(R.id.text_email);
 
 
         mFirstnameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
         mLastnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
 
     }
@@ -108,39 +102,12 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         @Override
         public void onResponse(JSONObject response) {
             Log.e(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
-            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
 
             Log.d(TAG, "change activity to PassengerProfileActivity");
             startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
-        }
-    };
-
-    Response.ErrorListener modifyUserProfileResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "modifyUserProfileResponseErrorListener Failed. Response Error: " + error.toString());
-        }
-    };
-
-    Response.Listener<JSONObject> modifyUserProfileResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.i(TAG, "modifyUserProfileResponseListener Successful. Response: " + response.toString());
-            try {
-                String auth_token = response.getString(KEY_AUTH_TOKEN);
-                String firstname = mFirstnameField.getText().toString().trim();
-                String lastname = mLastnameField.getText().toString().trim();
-                String email = mEmailField.getText().toString().trim();
-                String username = mUsernameField.getText().toString().trim();
-
-                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
-                //modifyProfileMock(firstname, lastname, username, email);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
         }
     };
 
@@ -152,29 +119,18 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
                 return true;
             case R.id.action_save:
                 if (validateFullForm()) {
-                    String currentUsername = mPreferences.getString(KEY_USERNAME, "");
-                    String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
+                    String username = mPreferences.getString(KEY_USERNAME, "");
+                    String password = mPreferences.getString(KEY_PASSWORD, "");
                     String firstname = mFirstnameField.getText().toString().trim();
                     String lastname = mLastnameField.getText().toString().trim();
                     String email = mEmailField.getText().toString().trim();
-                    String username = mUsernameField.getText().toString().trim();
-                    mServerHandler.saveModificationsUser(currentUsername, currentPassword, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+                    mServerHandler.saveModificationsUser(username, password, firstname, lastname, email, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
                 }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
-    }
-
-    public void modifyProfileMock(String firstname, String lastname, String username, String email) {
-        Log.e(TAG, "modifyProfileMock Response");
-        mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
-        mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
-        mEditorPreferences.putString(KEY_USERNAME, username).apply();
-        mEditorPreferences.putString(KEY_EMAIL, email).apply();
-        Log.d(TAG, "change activity to PassengerProfileActivity");
-        startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
     }
 
     private boolean validateFullForm() {
@@ -203,14 +159,6 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
             valid = false;
         } else {
             mEmailField.setError(null);
-        }
-
-        String username = mUsernameField.getText().toString().trim();
-        if (TextUtils.isEmpty(username)) {
-            mUsernameField.setError("Required.");
-            valid = false;
-        } else {
-            mUsernameField.setError(null);
         }
 
         return valid;

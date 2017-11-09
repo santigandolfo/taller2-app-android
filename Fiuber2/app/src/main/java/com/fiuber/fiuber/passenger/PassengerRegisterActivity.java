@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.LoginActivity;
@@ -34,12 +35,10 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
 
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
-    SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
     private static final String KEY_TYPE = "type";
-    private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
     private static final String KEY_EMAIL = "email";
@@ -56,7 +55,6 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        mEditorPreferences = mPreferences.edit();
 
         // Views
         mFirstnameField = findViewById(R.id.edit_text_firstname);
@@ -85,7 +83,12 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
     Response.ErrorListener createPassengerResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Creating Passenger Unsuccessfull. Response Error: " + error.toString());
+            Log.e(TAG, "createPassengerResponseErrorListener Failed. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if(response != null && response.data != null){
+                Log.e(TAG, "Response statusCode: "+response.statusCode);
+                Log.e(TAG, "Response data: "+response.data.toString());
+            }
             Toast.makeText(getApplicationContext(), "Creating Passenger Failed", Toast.LENGTH_SHORT).show();
         }
     };
@@ -95,19 +98,14 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Creating Passenger Successfull. Response: " + response.toString());
-            try {
-                mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
-            mEditorPreferences.putString(KEY_TYPE, "passenger").apply();
-            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putString(KEY_TYPE, "passenger").apply();
+            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
 
             Toast.makeText(getApplicationContext(), "Creating Passenger Successfull!", Toast.LENGTH_SHORT).show();
 

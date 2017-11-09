@@ -34,12 +34,12 @@ public class PassengerProfileActivity extends AppCompatActivity {
 
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(mPreferences.getString(KEY_FIRSTNAME, "") + " " + mPreferences.getString(KEY_LASTNAME, ""));
         toolbar.setSubtitle("");
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -33,7 +33,6 @@ public class LoginActivity extends AppCompatActivity implements
 
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
-    SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
@@ -58,7 +57,6 @@ public class LoginActivity extends AppCompatActivity implements
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        mEditorPreferences = mPreferences.edit();
 
         // Views
         mUsernameField = findViewById(R.id.edit_text_username);
@@ -75,8 +73,7 @@ public class LoginActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         if ("true".equals(mPreferences.getString(KEY_LOGIN, "false"))) {
-            Log.d(TAG, "Change activity to PassengerMapsActivity");
-            startActivity(new Intent(this, PassengerMapsActivity.class));
+            startMapActivity(mPreferences.getString(KEY_TYPE, ""));
         }
     }
 
@@ -98,8 +95,8 @@ public class LoginActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Login Successful. Response: " + response.toString());
             try {
-                mEditorPreferences.putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
-                mEditorPreferences.putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+                mPreferences.edit().putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
+                mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -146,21 +143,16 @@ public class LoginActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Getting user information Successful. Response: " + response.toString());
             try {
-                Log.d(TAG, KEY_FIRSTNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME));
-                Log.d(TAG, KEY_LASTNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME));
-                Log.d(TAG, KEY_USERNAME+": "+response.getJSONObject(KEY_INFO).getString(KEY_USERNAME));
-                Log.d(TAG, KEY_EMAIL+": "+response.getJSONObject(KEY_INFO).getString(KEY_EMAIL));
-                Log.d(TAG, KEY_TYPE+": "+response.getJSONObject(KEY_INFO).getString(KEY_TYPE));
-                mEditorPreferences.putString(KEY_FIRSTNAME, response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME)).apply();
-                mEditorPreferences.putString(KEY_LASTNAME, response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME)).apply();
-                mEditorPreferences.putString(KEY_USERNAME, response.getJSONObject(KEY_INFO).getString(KEY_USERNAME)).apply();
-                mEditorPreferences.putString(KEY_EMAIL, response.getJSONObject(KEY_INFO).getString(KEY_EMAIL)).apply();
-                mEditorPreferences.putString(KEY_TYPE, response.getJSONObject(KEY_INFO).getString(KEY_TYPE)).apply();
+                mPreferences.edit().putString(KEY_FIRSTNAME, response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME)).apply();
+                mPreferences.edit().putString(KEY_LASTNAME, response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME)).apply();
+                mPreferences.edit().putString(KEY_USERNAME, response.getJSONObject(KEY_INFO).getString(KEY_USERNAME)).apply();
+                mPreferences.edit().putString(KEY_EMAIL, response.getJSONObject(KEY_INFO).getString(KEY_EMAIL)).apply();
+                mPreferences.edit().putString(KEY_TYPE, response.getJSONObject(KEY_INFO).getString(KEY_TYPE)).apply();
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mEditorPreferences.putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
 
             Toast.makeText(getApplicationContext(), "Got user information!", Toast.LENGTH_SHORT).show();
 
@@ -182,9 +174,17 @@ public class LoginActivity extends AppCompatActivity implements
             startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
         } else if(type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
-            startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
+            mServerHandler.setDriversAvailability(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), "True", setDriverAsAvailableResponseListener);
         }
     }
+
+    Response.Listener<JSONObject> setDriverAsAvailableResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "setDriverAsAvailableResponseListener Successful. Response: " + response.toString());
+            startActivity(new Intent(LoginActivity.this, DriverMapsActivity.class));
+        }
+    };
 
     private boolean validateLoginForm() {
         Log.d(TAG, "validateLoginForm");

@@ -82,21 +82,6 @@
                 android:layout_height="wrap_content">
 
                 <EditText
-                    android:id="@+id/text_username"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_username"
-                    android:inputType="textEmailAddress"
-                    android:maxLines="1"
-                    android:visibility="visible" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
                     android:id="@+id/text_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -107,6 +92,65 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/text_car_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_model"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1"
+                    android:visibility="gone"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/text_car_color"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_color"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1"
+                    android:visibility="gone"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/text_car_plate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_plate"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1"
+                    android:visibility="gone"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/text_car_year"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_car_year"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1"
+                    android:visibility="gone"/>
+
+            </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
 

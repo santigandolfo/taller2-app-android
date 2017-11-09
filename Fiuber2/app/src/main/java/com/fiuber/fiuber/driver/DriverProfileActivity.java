@@ -27,6 +27,12 @@ public class DriverProfileActivity extends AppCompatActivity {
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
 
+    //car
+    private static final String KEY_CAR_MODEL = "model";
+    private static final String KEY_CAR_COLOR = "color";
+    private static final String KEY_CAR_PLATE = "plate";
+    private static final String KEY_CAR_YEAR = "year";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,10 +61,25 @@ public class DriverProfileActivity extends AppCompatActivity {
         TextView mUsernameField = findViewById(R.id.text_username);
         TextView mEmailField = findViewById(R.id.text_email);
 
+        TextView mCarModelField = findViewById(R.id.text_car_model);
+        TextView mCarColorField = findViewById(R.id.text_car_color);
+        TextView mCarPlateField = findViewById(R.id.text_car_plate);
+        TextView mCarYearField = findViewById(R.id.text_car_year);
 
         mNameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
         mSurnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
         mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+
+        findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
+        findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
+        findViewById(R.id.layout_car_plate).setVisibility(View.VISIBLE);
+        findViewById(R.id.layout_car_year).setVisibility(View.VISIBLE);
+
+        mCarModelField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
+        mCarColorField.setText(mPreferences.getString(KEY_CAR_COLOR, ""));
+        mCarPlateField.setText(mPreferences.getString(KEY_CAR_PLATE, ""));
+        mCarYearField.setText(mPreferences.getString(KEY_CAR_YEAR, ""));
+
     }
 }

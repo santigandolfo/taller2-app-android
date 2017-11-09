@@ -18,36 +18,42 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.passenger.PassengerProfileActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DriverProfileModificationActivity extends AppCompatActivity {
 
-    private static final String TAG = "ProfileModificationAct";
+    private static final String TAG = "DriverProfileModAct";
 
     private ServerHandler mServerHandler;
 
     SharedPreferences mPreferences;
-    SharedPreferences.Editor mEditorPreferences;
 
     String MY_PREFERENCES = "MyPreferences";
 
     Toolbar toolbar;
 
-    private static final String KEY_AUTH_TOKEN = "auth_token";
     private static final String KEY_FIRSTNAME = "firstname";
     private static final String KEY_LASTNAME = "lastname";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_PASSWORD = "password";
 
+    //car
+    private static final String KEY_CAR_MODEL = "model";
+    private static final String KEY_CAR_COLOR = "color";
+    private static final String KEY_CAR_PLATE = "plate";
+    private static final String KEY_CAR_YEAR = "year";
+
     private EditText mFirstnameField;
     private EditText mLastnameField;
-    private EditText mUsernameField;
     private EditText mEmailField;
+
+    private EditText mCarModelField;
+    private EditText mCarColorField;
+    private EditText mCarPlateField;
+    private EditText mCarYearField;
 
 
     @Override
@@ -58,7 +64,6 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-        mEditorPreferences = mPreferences.edit();
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,14 +71,22 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
         mFirstnameField = findViewById(R.id.text_firstname);
         mLastnameField = findViewById(R.id.text_lastname);
-        mUsernameField = findViewById(R.id.text_username);
         mEmailField = findViewById(R.id.text_email);
 
+        mCarModelField = findViewById(R.id.text_car_model);
+        mCarColorField = findViewById(R.id.text_car_color);
+        mCarPlateField = findViewById(R.id.text_car_plate);
+        mCarYearField = findViewById(R.id.text_car_year);
 
+        //Defaults
         mFirstnameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
         mLastnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+
+        mCarModelField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
+        mCarColorField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
+        mCarPlateField.setText(mPreferences.getString(KEY_CAR_PLATE, ""));
+        mCarYearField.setText(mPreferences.getString(KEY_CAR_YEAR, ""));
 
     }
 
@@ -92,7 +105,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         return true;
     }
 
-    Response.ErrorListener saveModificationsUserResponseErrorListener = new Response.ErrorListener() {
+    Response.ErrorListener saveCarInformationResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "saveModificationsUserResponseErrorListener Failed. Response Error: " + error.toString());
@@ -105,43 +118,43 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         }
     };
 
-    Response.Listener<JSONObject> saveModificationsUserResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> saveCarInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
-            mEditorPreferences.putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
-            mEditorPreferences.putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            Log.e(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
 
-            Log.d(TAG, "change activity to PassengerProfileActivity");
-            startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
+            mPreferences.edit().putString(KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
+
+            Log.d(TAG, "change activity to DriverProfileActivity");
+            startActivity(new Intent(getApplicationContext(), DriverProfileActivity.class));
         }
     };
 
-    Response.ErrorListener modifyUserProfileResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "modifyUserProfileResponseErrorListener Failed. Response Error: " + error.toString());
-        }
-    };
-
-    Response.Listener<JSONObject> modifyUserProfileResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> saveUserInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.i(TAG, "modifyUserProfileResponseListener Successful. Response: " + response.toString());
-            try {
-                String auth_token = response.getString(KEY_AUTH_TOKEN);
-                String firstname = mFirstnameField.getText().toString().trim();
-                String lastname = mLastnameField.getText().toString().trim();
-                String email = mEmailField.getText().toString().trim();
-                String username = mUsernameField.getText().toString().trim();
+            Log.e(TAG, "saveUserInformationResponseListener Successful. Response: " + response.toString());
 
-                //mServerHandler.saveModificationsUser(auth_token, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
-                //modifyProfileMock(firstname, lastname, username, email);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+
+            String username = mPreferences.getString(KEY_USERNAME, "");
+            String password = mPreferences.getString(KEY_PASSWORD, "");
+
+            String carModel = mCarModelField.getText().toString().trim();
+            String carColor = mCarColorField.getText().toString().trim();
+            String carPlate = mCarPlateField.getText().toString().trim();
+            String carYear = mCarYearField.getText().toString().trim();
+
+            //TODO: Change this
+            Log.d(TAG, "change activity to DriverProfileActivity");
+            startActivity(new Intent(getApplicationContext(), DriverProfileActivity.class));
+
+            //mServerHandler.saveModificationsCar(username, password, carModel, carColor, carPlate, carYear, saveCarInformationResponseListener, saveCarInformationResponseErrorListener);
         }
     };
 
@@ -153,29 +166,21 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
                 return true;
             case R.id.action_save:
                 if (validateFullForm()) {
-                    String currentUsername = mPreferences.getString(KEY_USERNAME, "");
-                    String currentPassword = mPreferences.getString(KEY_PASSWORD, "");
+
+                    String username = mPreferences.getString(KEY_USERNAME, "");
+                    String password = mPreferences.getString(KEY_PASSWORD, "");
+
                     String firstname = mFirstnameField.getText().toString().trim();
                     String lastname = mLastnameField.getText().toString().trim();
                     String email = mEmailField.getText().toString().trim();
-                    String username = mUsernameField.getText().toString().trim();
-                    mServerHandler.saveModificationsUser(currentUsername, currentPassword, firstname, lastname, email, username, saveModificationsUserResponseListener, saveModificationsUserResponseErrorListener);
+
+                    mServerHandler.saveModificationsUser(username, password, firstname, lastname, email, saveUserInformationResponseListener, saveCarInformationResponseErrorListener);
                 }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
-    }
-
-    public void modifyProfileMock(String firstname, String lastname, String username, String email) {
-        Log.e(TAG, "modifyProfileMock Response");
-        mEditorPreferences.putString(KEY_FIRSTNAME, firstname).apply();
-        mEditorPreferences.putString(KEY_LASTNAME, lastname).apply();
-        mEditorPreferences.putString(KEY_USERNAME, username).apply();
-        mEditorPreferences.putString(KEY_EMAIL, email).apply();
-        Log.d(TAG, "change activity to PassengerProfileActivity");
-        startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
     }
 
     private boolean validateFullForm() {
@@ -206,18 +211,46 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
             mEmailField.setError(null);
         }
 
-        String username = mUsernameField.getText().toString().trim();
-        if (TextUtils.isEmpty(username)) {
-            mUsernameField.setError("Required.");
+        String carModel = mCarModelField.getText().toString().trim();
+        if (TextUtils.isEmpty(carModel)) {
+            mCarModelField.setError("Required.");
             valid = false;
         } else {
-            mUsernameField.setError(null);
+            mCarModelField.setError(null);
+        }
+
+        String carColor = mCarColorField.getText().toString().trim();
+        if (TextUtils.isEmpty(carColor)) {
+            mCarColorField.setError("Required.");
+            valid = false;
+        } else {
+            mCarColorField.setError(null);
+        }
+
+        String carPlate = mCarPlateField.getText().toString().trim();
+        if (TextUtils.isEmpty(carPlate)) {
+            mCarPlateField.setError("Required.");
+            valid = false;
+        } else {
+            mCarPlateField.setError(null);
+        }
+
+        String carYear = mCarYearField.getText().toString().trim();
+        if (TextUtils.isEmpty(carYear)) {
+            mCarYearField.setError("Required.");
+            valid = false;
+        } else {
+            mCarYearField.setError(null);
         }
 
         return valid;
     }
 
 }
+
+
+
+
 
 
 

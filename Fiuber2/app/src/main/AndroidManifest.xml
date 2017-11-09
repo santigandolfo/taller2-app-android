@@ -73,6 +73,10 @@
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".driver.DriverMapsActivity"
+            android:label="@string/title_activity_maps"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".passenger.PassengerSettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".passenger.PassengerMapsActivity">
@@ -80,6 +84,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
+
+        <activity
+            android:name=".driver.DriverSettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".driver.DriverMapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
+        </activity>
+
         <activity
             android:name=".passenger.PassengerProfileModificationActivity"
             android:label="@string/title_activity_profile"
@@ -89,6 +103,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerProfileActivity" />
         </activity>
+
+        <activity
+            android:name=".driver.DriverProfileModificationActivity"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".driver.DriverProfileActivity"
+            android:theme="@style/AppThemeNoAc">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.driver.DriverProfileActivity" />
+        </activity>
+
         <activity
             android:name=".passenger.PassengerPaymentActivity"
             android:label="@string/title_activity_payment"
@@ -97,6 +122,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
+
+        <activity
+            android:name=".driver.DriverPaymentActivity"
+            android:label="@string/title_activity_payment"
+            android:parentActivityName=".driver.DriverMapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
+        </activity>
+
         <activity
             android:name=".passenger.PassengerHistoryActivity"
             android:label="@string/title_activity_history"
@@ -105,6 +140,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
+
+        <activity
+            android:name=".driver.DriverHistoryActivity"
+            android:label="@string/title_activity_history"
+            android:parentActivityName=".driver.DriverMapsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
+        </activity>
+
         <activity
             android:name=".passenger.PassengerProfileActivity"
             android:label="@string/title_activity_profile"
@@ -114,16 +159,26 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
+
+        <activity
+            android:name=".driver.DriverProfileActivity"
+            android:label="@string/title_activity_profile"
+            android:parentActivityName=".driver.DriverMapsActivity"
+            android:theme="@style/AppThemeNoAc">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
+        </activity>
+
         <activity
             android:name=".driver.DriverRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".driver.DriverMapsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".passenger.PassengerRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".chat.ChatActivity"/>
+        <activity android:name=".chat.ChatActivity" />
+        <activity android:name=".OtherProfileActivity" />
     </application>
 
 </manifest>

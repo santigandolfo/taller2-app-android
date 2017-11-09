@@ -40,6 +40,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_username"
                     android:inputType="textAutoComplete"
+                    android:imeOptions="actionNext"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
@@ -54,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_password"
                     android:inputType="textPassword"
+                    android:imeOptions="actionNext"
                     android:maxLines="1" />
 
             </android.support.design.widget.TextInputLayout>
@@ -81,7 +83,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="30dp"
-                android:layout_marginTop="30dp" />
+                android:layout_marginTop="30dp"
+                android:visibility="gone"/>
 
 
         </LinearLayout>

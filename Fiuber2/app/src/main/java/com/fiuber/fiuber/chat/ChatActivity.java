@@ -1,5 +1,7 @@
 package com.fiuber.fiuber.chat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -12,21 +14,40 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.fiuber.fiuber.R;
+import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import org.json.JSONObject;
 
 public class ChatActivity extends AppCompatActivity {
-    private FirebaseListAdapter<ChatMessage> adapter;
     private ListView listView;
     private String loggedInUserName = "";
 
     private FirebaseAuth mAuth;
+
+    String FIREBASE_URL = "https://fiuber2-7a583.firebaseio.com/";
+
+    String MY_PREFERENCES = "MyPreferences";
+
+    String FINAL_FIREBASE_URL;
+
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_RIDE_ID = "ride_id";
+
+    SharedPreferences mPreferences;
+
+    private ServerHandler mServerHandler;
+
+    String rideId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +56,12 @@ public class ChatActivity extends AppCompatActivity {
 
         final String TAG = "PassengerMapsActivity";
         mAuth = FirebaseAuth.getInstance();
+        mServerHandler = new ServerHandler(this.getApplicationContext());
+        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+
+        //TODO: Reeplazar KEY_USERNAME por el id del viaje
+        rideId = mPreferences.getString(KEY_RIDE_ID, "");
+        FINAL_FIREBASE_URL = FIREBASE_URL + rideId;
 
         //find views by Ids
         FloatingActionButton fab =  findViewById(R.id.fab);
@@ -51,7 +78,6 @@ public class ChatActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInAnonymously:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
                                 showAllOldMessages();
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -72,11 +98,12 @@ public class ChatActivity extends AppCompatActivity {
                 if (input.getText().toString().trim().equals("")) {
                     Toast.makeText(ChatActivity.this, "Please enter some texts!", Toast.LENGTH_SHORT).show();
                 } else {
+
                     FirebaseDatabase.getInstance()
-                            .getReference()
+                            .getReferenceFromUrl(FINAL_FIREBASE_URL)
                             .push()
                             .setValue(new ChatMessage(input.getText().toString(),
-                                    mAuth.getCurrentUser().getDisplayName(),
+                                    mPreferences.getString(KEY_USERNAME, ""),
                                     mAuth.getCurrentUser().getUid())
                             );
                     input.setText("");
@@ -101,11 +128,11 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void showAllOldMessages() {
-        loggedInUserName = mAuth.getCurrentUser().getUid();
+        loggedInUserName = mPreferences.getString(KEY_USERNAME, "");
         Log.d("Chat", "user id: " + loggedInUserName);
 
-        adapter = new MessageAdapter(this, ChatMessage.class, R.layout.item_in_message,
-                FirebaseDatabase.getInstance().getReference());
+        FirebaseListAdapter<ChatMessage> adapter = new MessageAdapter(this, ChatMessage.class, R.layout.item_in_message,
+                FirebaseDatabase.getInstance().getReferenceFromUrl(FINAL_FIREBASE_URL));
         listView.setAdapter(adapter);
     }
 
