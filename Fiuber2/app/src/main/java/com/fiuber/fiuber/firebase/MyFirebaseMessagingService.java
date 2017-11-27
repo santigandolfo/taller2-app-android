@@ -72,7 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        Intent lbcIntent = new Intent("rideAcceptedMessage"); //Send to any reciever listening for this
+        Intent lbcIntent = new Intent("rideAcceptanceMessage"); //Send to any reciever listening for this
         lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
         LocalBroadcastManager.getInstance(this).sendBroadcast(lbcIntent);  //Send the intent
 /*

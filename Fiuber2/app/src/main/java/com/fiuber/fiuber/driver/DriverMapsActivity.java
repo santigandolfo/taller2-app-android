@@ -189,7 +189,7 @@ public class DriverMapsActivity extends AppCompatActivity
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(rideAcceptedReceiver, new IntentFilter("rideAcceptedMessage"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(acceptRideReceiver, new IntentFilter("rideAcceptanceMessage"));
 
         while (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             checkLocationPermition();
@@ -209,6 +209,7 @@ public class DriverMapsActivity extends AppCompatActivity
                 mPreferences.edit().putString(KEY_STATE, "paying").apply();
                 myGeofence.stopGeoFencing();
                 myGeofence.startGeofencing(destination);
+                mPreferences.edit().putString(KEY_STATE, "picking_up_passenger").apply();
             } else if ("on_ride".equals(mPreferences.getString(KEY_STATE, "free"))){
                 myGeofence.stopGeoFencing();
                 mPreferences.edit().putString(KEY_STATE, "free").apply();
@@ -217,19 +218,18 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     };
 
-    private BroadcastReceiver rideAcceptedReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver acceptRideReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "rideAccepted");
+            Log.d(TAG, "acceptRide");
             // Get extra data included in the Intent
             String message = intent.getStringExtra("data");
-            sendNotification(getCurrentFocus(), "Ride",  "Your ride request has been made",PassengerMapsActivity.class);
 
             TextView mNameField = findViewById(R.id.text_driver_name);
             String fullName = mPreferences.getString(KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
 
-            mPreferences.edit().putString(KEY_STATE, "picking_up_passenger").apply();
+            mPreferences.edit().putString(KEY_STATE, "passenger_available").apply();
             myGeofence.startGeofencing(destination);
             updateUI();
         }
