@@ -137,7 +137,7 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_accept_ride">Accept Ride</string>
 
-    <string name="client_id">dcd05f5-8767-453e-a605-96bfb8c03995</string>
+    <string name="client_id">3dcd05f5-8767-453e-a605-96bfb8c03995</string>
     <string name="client_secret">43fac65f-4450-48ce-8260-8ba4e52c88f7</string>
     <string name="valid">Valid</string>
     <string name="invalid">Invalid</string>

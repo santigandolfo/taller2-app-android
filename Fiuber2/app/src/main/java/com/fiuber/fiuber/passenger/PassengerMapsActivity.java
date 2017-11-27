@@ -770,8 +770,10 @@ public class PassengerMapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().putString(Constants.KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
-            mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            Toast.makeText(getApplicationContext(), "Payment Successful!",
+                    Toast.LENGTH_SHORT).show();
+            mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+            updateUI();
         }
     };
 
@@ -784,6 +786,8 @@ public class PassengerMapsActivity extends AppCompatActivity
                 Log.e(TAG, "Response statusCode: " + response.statusCode);
                 Log.e(TAG, "Response data: " + Arrays.toString(response.data));
             }
+            Toast.makeText(getApplicationContext(), "Couldn't make payment",
+                    Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -802,7 +806,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         String cvv = mPreferences.getString(Constants.KEY_CVV, "");
         String type = mPreferences.getString(Constants.KEY_PAYMENT_TYPE, "");
         mServerHandler.generatePayment(rideId, value, month, year, method, number, cvv, type, payRideResponseListener, payRideResponseErrorListener);
-        updateUI();
     }
 
     private void chat() {

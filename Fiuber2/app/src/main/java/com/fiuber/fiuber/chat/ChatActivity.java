@@ -14,19 +14,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import org.json.JSONObject;
 
 public class ChatActivity extends AppCompatActivity {
     private ListView listView;
@@ -45,8 +40,6 @@ public class ChatActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    private ServerHandler mServerHandler;
-
     String rideId;
 
     @Override
@@ -56,7 +49,6 @@ public class ChatActivity extends AppCompatActivity {
 
         final String TAG = "PassengerMapsActivity";
         mAuth = FirebaseAuth.getInstance();
-        mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
         //TODO: Reeplazar KEY_USERNAME por el id del viaje

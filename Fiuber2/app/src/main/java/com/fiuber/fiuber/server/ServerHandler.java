@@ -1,11 +1,8 @@
 package com.fiuber.fiuber.server;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -16,7 +13,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
-import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,22 +20,17 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-
-import static android.provider.Settings.Global.getString;
 
 public class ServerHandler {
 
     private static final String TAG = "ServerHandler";
     private RequestQueue mRequestQueue;
 
-    private SharedPreferences mPreferences;
-
-    private String token;
+    private String auth_token;
+    private String payments_token;
 
     public ServerHandler(Context aplicationContext) {
         mRequestQueue = MyRequestQueue.getInstance(aplicationContext).getRequestQueue();
-        mPreferences = aplicationContext.getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
     }
 
     private <T> void addToRequestQueue(Request<T> req) {
@@ -58,7 +49,7 @@ public class ServerHandler {
         }
     };
 
-    Response.Listener<JSONObject> defaultResponseListener = new Response.Listener<JSONObject>() {
+    private Response.Listener<JSONObject> defaultResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Request Successful. Response: " + response.toString());
@@ -154,6 +145,14 @@ public class ServerHandler {
 
                 return volleyError;
             }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
         };
 
         Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
@@ -178,7 +177,7 @@ public class ServerHandler {
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
                 try {
-                    token = response.getString(Constants.KEY_PAYMENT_TOKEN);
+                    payments_token = response.getString(Constants.KEY_PAYMENT_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -192,7 +191,7 @@ public class ServerHandler {
                 paymentMethodHash.put(Constants.KEY_EXPIRATION_YEAR, year);
                 paymentMethodHash.put(Constants.KEY_METHOD, method);
                 paymentMethodHash.put(Constants.KEY_NUMBER, number);
-                paymentMethodHash.put(Constants.KEY_CVV, cvv);
+                paymentMethodHash.put(Constants.KEY_CCVV, cvv);
                 paymentMethodHash.put(Constants.KEY_PAYMENT_TYPE, type);
 
                 JSONObject paymentMethod = new JSONObject(paymentMethodHash);
@@ -201,6 +200,7 @@ public class ServerHandler {
                 params.put("transaction_id", transaction_id);
                 params.put("currency", "ARS");
                 params.put("value", value);
+                params.put("paymentMethod", paymentMethod.toString());
 
                 Log.d(TAG, "creating JsonObjectRequest");
                 JsonObjectRequest req = new JsonObjectRequest(
@@ -220,7 +220,8 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + mPreferences.getString(Constants.KEY_AUTH_TOKEN, ""));
+                        headers.put("Content-Type", "application/json");
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + payments_token);
                         return headers;
                     }
                 };
@@ -300,7 +301,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.MODIFY_DRIVER + "/" + username;
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -327,7 +328,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + mPreferences.getString(Constants.KEY_AUTH_TOKEN, ""));
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         return headers;
                     }
                 };
@@ -356,7 +357,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username;
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -387,7 +388,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
@@ -418,7 +419,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "cars";
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -447,7 +448,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
@@ -476,7 +477,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "coordinates";
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -507,7 +508,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
@@ -538,7 +539,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.REQUEST_RIDE + "/" + username + "/" + "request";
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -570,7 +571,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
@@ -597,7 +598,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.REQUEST_RIDE + "/" + username + "/" + "request";
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -620,7 +621,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         return headers;
                     }
                 };
@@ -646,7 +647,7 @@ public class ServerHandler {
                 String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "push-token";
 
                 try {
-                    token = response.getString(Constants.KEY_AUTH_TOKEN);
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -676,7 +677,7 @@ public class ServerHandler {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + token);
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
                         Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
@@ -739,7 +740,7 @@ public class ServerHandler {
 
 
 /*    //TODO: Ask Gonza or Fede the real logout URL
-    public void logoutServerUser(String username, final String token, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
+    public void logoutServerUser(String username, final String auth_token, Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "logoutServerUser:");
 
         String FINAL_URL = URL + LOGIN_USER + username;
@@ -760,7 +761,7 @@ public class ServerHandler {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<String, String>();
-                headers.put(KEY_AUTHORIZATION, "Bearer " + token);
+                headers.put(KEY_AUTHORIZATION, "Bearer " + auth_token);
                 return headers;
             }
 

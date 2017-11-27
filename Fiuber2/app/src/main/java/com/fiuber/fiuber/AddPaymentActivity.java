@@ -4,11 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braintreepayments.cardform.OnCardFormSubmitListener;
@@ -16,7 +13,6 @@ import com.braintreepayments.cardform.utils.CardType;
 import com.braintreepayments.cardform.view.CardEditText;
 import com.braintreepayments.cardform.view.CardForm;
 import com.braintreepayments.cardform.view.SupportedCardTypesView;
-import com.fiuber.fiuber.server.ServerHandler;
 
 public class AddPaymentActivity extends AppCompatActivity implements OnCardFormSubmitListener,
         CardEditText.OnCardTypeChangedListener {
@@ -64,16 +60,6 @@ public class AddPaymentActivity extends AppCompatActivity implements OnCardFormS
         return super.onOptionsItemSelected(item);
     }
 
-    private String generateCardType(String numberString){
-       if (numberString.startsWith("4"))
-           return "VISA";
-       if (numberString.startsWith("4"))
-           return "AMEX";
-        if (numberString.startsWith("5"))
-            return "MASTERCARD";
-        return "";
-    }
-
     @Override
     public void onCardFormSubmit() {
         if (mCardForm.isValid()) {
@@ -81,14 +67,14 @@ public class AddPaymentActivity extends AppCompatActivity implements OnCardFormS
             String expirationMonth = mCardForm.getExpirationMonth();
             String expirationYear =  mCardForm.getExpirationYear();
             String number = mCardForm.getCardNumber();
-            String cvv = mCardForm.getCvv();
+            String ccvv = mCardForm.getCvv();
 
-            mPreferences.edit().putString(Constants.KEY_EXPIRATION_MONTH, expirationMonth);
-            mPreferences.edit().putString(Constants.KEY_EXPIRATION_YEAR, expirationYear);
-            mPreferences.edit().putString(Constants.KEY_METHOD, "card");
-            mPreferences.edit().putString(Constants.KEY_NUMBER, number);
-            mPreferences.edit().putString(Constants.KEY_CVV, cvv);
-            mPreferences.edit().putString(Constants.KEY_PAYMENT_TYPE, mCardType);
+            mPreferences.edit().putString(Constants.KEY_EXPIRATION_MONTH, expirationMonth).apply();
+            mPreferences.edit().putString(Constants.KEY_EXPIRATION_YEAR, expirationYear).apply();
+            mPreferences.edit().putString(Constants.KEY_METHOD, "card").apply();
+            mPreferences.edit().putString(Constants.KEY_NUMBER, number).apply();
+            mPreferences.edit().putString(Constants.KEY_CCVV, ccvv).apply();
+            mPreferences.edit().putString(Constants.KEY_PAYMENT_TYPE, mCardType).apply();
 
             finish();
 

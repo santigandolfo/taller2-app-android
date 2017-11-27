@@ -1,6 +1,7 @@
 package com.fiuber.fiuber.server;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.android.volley.Request;
@@ -10,31 +11,28 @@ import com.android.volley.toolbox.Volley;
 
 public class MyRequestQueue {
 
+    @SuppressLint("StaticFieldLeak")
     private static MyRequestQueue mInstance;
     private RequestQueue mRequestQueue;
+    @SuppressLint("StaticFieldLeak")
     private static Context mCtx;
-    private static HttpStack mHttpStack;
 
-    private MyRequestQueue(Context context/*, HttpStack httpStack*/) {
+    private MyRequestQueue(Context context) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
     }
 
-    public static synchronized MyRequestQueue getInstance(Context context/*, HttpStack httpStack*/) {
+    static synchronized MyRequestQueue getInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new MyRequestQueue(context/*, mHttpStack*/);
+            mInstance = new MyRequestQueue(context);
         }
         return mInstance;
     }
 
-    public RequestQueue getRequestQueue() {
+    RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
-            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext(), mHttpStack);
+            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
         }
         return mRequestQueue;
-    }
-
-    public <T> void addToRequestQueue(Request<T> req) {
-        getRequestQueue().add(req);
     }
 }

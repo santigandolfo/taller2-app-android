@@ -51,11 +51,11 @@ public class Constants {
 
 
 
-    public static final String KEY_EXPIRATION_MONTH = "epiration_month";
+    public static final String KEY_EXPIRATION_MONTH = "expiration_month";
     public static final String KEY_EXPIRATION_YEAR = "expiration_year";
     public static final String KEY_METHOD = "method";
     public static final String KEY_NUMBER = "number";
-    public static final String KEY_CVV = "cvv";
+    public static final String KEY_CCVV = "ccvv";
     public static final String KEY_PAYMENT_TYPE = "type";
 
     public static final String KEY_AUTHORIZATION = "Authorization";
