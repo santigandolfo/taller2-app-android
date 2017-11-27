@@ -1,9 +1,13 @@
 package com.fiuber.fiuber;
 
+import android.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,21 +38,6 @@ public class LoginActivity extends AppCompatActivity implements
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_AUTH_TOKEN = "auth_token";
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-
-
-    private static final String KEY_TYPE = "type";
-    private static final String KEY_INFO = "info";
-    private static final String KEY_LOGIN = "login";
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_login);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         // Views
         mUsernameField = findViewById(R.id.edit_text_username);
@@ -66,14 +55,25 @@ public class LoginActivity extends AppCompatActivity implements
         findViewById(R.id.button_login).setOnClickListener(this);
         findViewById(R.id.text_register).setOnClickListener(this);
         findViewById(R.id.text_change_to_driver).setOnClickListener(this);
+
+        checkLocationPermition();
+
+    }
+
+    private void checkLocationPermition() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 10);
+            }
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        if (mPreferences.getBoolean(KEY_LOGIN, false)) {
-            startMapActivity(mPreferences.getString(KEY_TYPE, ""));
+        if (mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
+            startMapActivity(mPreferences.getString(Constants.KEY_TYPE, ""));
         }
     }
 
@@ -95,19 +95,15 @@ public class LoginActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Login Successful. Response: " + response.toString());
             try {
-                mPreferences.edit().putString(KEY_AUTH_TOKEN, response.getString(KEY_AUTH_TOKEN)).apply();
-                mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+                mPreferences.edit().putString(Constants.KEY_AUTH_TOKEN, response.getString(Constants.KEY_AUTH_TOKEN)).apply();
+                mPreferences.edit().putString(Constants.KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             Toast.makeText(getApplicationContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
-            //TODO: Uncoment this
+
             getUserInfo();
 
-/*            //TODO: Delete this
-
-            Log.d(TAG, "Change activity to PassengerRegisterActivity");
-            startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));*/
         }
     };
 
@@ -143,20 +139,20 @@ public class LoginActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Getting user information Successful. Response: " + response.toString());
             try {
-                mPreferences.edit().putString(KEY_FIRSTNAME, response.getJSONObject(KEY_INFO).getString(KEY_FIRSTNAME)).apply();
-                mPreferences.edit().putString(KEY_LASTNAME, response.getJSONObject(KEY_INFO).getString(KEY_LASTNAME)).apply();
-                mPreferences.edit().putString(KEY_USERNAME, response.getJSONObject(KEY_INFO).getString(KEY_USERNAME)).apply();
-                mPreferences.edit().putString(KEY_EMAIL, response.getJSONObject(KEY_INFO).getString(KEY_EMAIL)).apply();
-                mPreferences.edit().putString(KEY_TYPE, response.getJSONObject(KEY_INFO).getString(KEY_TYPE)).apply();
+                mPreferences.edit().putString(Constants.KEY_FIRSTNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_FIRSTNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_LASTNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_LASTNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_USERNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_USERNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_EMAIL, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_EMAIL)).apply();
+                mPreferences.edit().putString(Constants.KEY_TYPE, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_TYPE)).apply();
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
+            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Got user information!", Toast.LENGTH_SHORT).show();
 
-            startMapActivity(mPreferences.getString(KEY_TYPE, ""));
+            startMapActivity(mPreferences.getString(Constants.KEY_TYPE, ""));
         }
     };
 
@@ -174,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements
             startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
         } else if (type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
-            mServerHandler.setDriversAvailability(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), "True", setDriverAsAvailableResponseListener);
+            mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), "True", setDriverAsAvailableResponseListener);
         }
     }
 

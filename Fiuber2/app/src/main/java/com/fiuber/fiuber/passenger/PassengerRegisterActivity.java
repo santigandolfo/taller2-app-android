@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.driver.DriverRegisterActivity;
@@ -36,17 +37,6 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_TYPE = "type";
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_LOGIN = "login";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +44,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_register_user);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         // Views
         mFirstnameField = findViewById(R.id.edit_text_firstname);
@@ -74,7 +64,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         super.onStart();
         Log.e(TAG, "onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
-        if (mPreferences.getBoolean(KEY_LOGIN, false)) {
+        if (mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
             Log.d(TAG, "Change activity to PassengerMapsActivity");
             startActivity(new Intent(this, PassengerMapsActivity.class));
         }
@@ -99,13 +89,13 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "Creating Passenger Successfull. Response: " + response.toString());
 
-            mPreferences.edit().putString(KEY_TYPE, "passenger").apply();
-            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
-            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
+            mPreferences.edit().putString(Constants.KEY_TYPE, "passenger").apply();
+            mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Creating Passenger Successfull!", Toast.LENGTH_SHORT).show();
 

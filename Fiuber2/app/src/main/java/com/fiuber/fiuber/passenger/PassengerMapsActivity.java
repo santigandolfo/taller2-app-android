@@ -44,7 +44,11 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.fiuber.fiuber.AddPaymentActivity;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.OtherProfileActivity;
 import com.fiuber.fiuber.R;
@@ -74,11 +78,15 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PassengerMapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
@@ -111,29 +119,14 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private MyGeofence myGeofence;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_LOGIN = "login";
-
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_LATITUDE = "latitude";
-    private static final String KEY_LONGITUDE = "longitude";
-
-    private static final String KEY_RIDE_ID = "ride_id";
-    private static final String KEY_INFO = "info";
-
-    private static final String KEY_STATE = "state";
-
-    private static final String KEY_OTHERS_FIRSTNAME = "others_firstname";
-    private static final String KEY_OTHERS_LASTNAME = "others_lastname";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_passenger_map);
+
+        checkLocationPermition();
 
         myGeofence = new MyGeofence(this);
 
@@ -150,7 +143,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -204,7 +197,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                         // .findViewById(R.id.place_autocomplete_search_input)).setText("");
                         autocompleteFragment.setText("");
                         view.setVisibility(View.GONE);
-                        mPreferences.edit().putString(KEY_STATE, "free").apply();
+                        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
                         updateUI();
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
                     }
@@ -228,7 +221,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             String message = intent.getStringExtra("data");
 
             myGeofence.stopGeoFencing();
-            mPreferences.edit().putString(KEY_STATE, "paying").apply();
+            mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
             updateUI();
         }
     };
@@ -242,10 +235,10 @@ public class PassengerMapsActivity extends AppCompatActivity
             sendNotification(getCurrentFocus(), "Ride",  "Your ride request has been made",PassengerMapsActivity.class);
 
             TextView mNameField = findViewById(R.id.text_driver_name);
-            String fullName = mPreferences.getString(KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(KEY_OTHERS_LASTNAME, "");
+            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
 
-            mPreferences.edit().putString(KEY_STATE, "on_ride").apply();
+            mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
             myGeofence.startGeofencing(destination);
             updateUI();
         }
@@ -291,8 +284,8 @@ public class PassengerMapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().putString(KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
-            mPreferences.edit().putString(KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(Constants.KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
         }
     };
 
@@ -317,7 +310,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                                         .title("Current Position"));
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-                            mServerHandler.updateUserCoordinates(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -332,7 +325,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         super.onStart();
         Log.d(TAG, "onStart");
 
-        if (!mPreferences.getBoolean(KEY_LOGIN, false)) {
+        if (!mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }
@@ -342,6 +335,10 @@ public class PassengerMapsActivity extends AppCompatActivity
         for (int i = 0; i < size; i++) {
             navigationView.getMenu().getItem(i).setChecked(false);
         }
+
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
+        mServerHandler.sendFirebaseToken(username, password, FirebaseInstanceId.getInstance().getToken());
 
         updateUI();
 
@@ -411,7 +408,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        if (!"free".equals(mPreferences.getString(KEY_STATE, "free"))) {
+        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             cancelRide(logoutCancelRideResponseListener);
         } else {
             mPreferences.edit().clear().apply();
@@ -469,7 +466,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             startActivity(new Intent(this, PassengerProfileActivity.class));
         } else if (id == R.id.payment) {
             Log.d(TAG, "change activity to PassengerPaymentActivity");
-            startActivity(new Intent(this, PassengerPaymentActivity.class));
+            startActivity(new Intent(this, AddPaymentActivity.class));
         } else if (id == R.id.history) {
             Log.d(TAG, "change activity to PassengerHistoryActivity");
             startActivity(new Intent(this, PassengerHistoryActivity.class));
@@ -534,7 +531,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                             String status = direction.getStatus();
                             if (status.equals(RequestResult.OK)) {
 
-                                //Add destination marker
+                                /*//Add destination marker
                                 destinationLocationMarker = mMap.addMarker(new MarkerOptions()
                                         .position(place.getLatLng())
                                         .title(place.getName().toString()));
@@ -552,7 +549,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                                 Leg leg = route.getLegList().get(0);
                                 ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
                                 mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                                mPolyline = mMap.addPolyline(mLineOptions);
+                                //mPolyline = mMap.addPolyline(mLineOptions);
                                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
                                 builder.include(lastKnownLocation);
                                 builder.include(destination);
@@ -561,8 +558,8 @@ public class PassengerMapsActivity extends AppCompatActivity
                                 CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                 mMap.animateCamera(cu);
                                 //Finish drawing route
-
-                                mPreferences.edit().putString(KEY_STATE, "place_selected").apply();
+*/
+                                mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Couldn't find a route",
@@ -592,7 +589,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void updateUI() {
         Log.i(TAG, "updateUI");
-        if("free".equals(mPreferences.getString(KEY_STATE,"free"))){
+        if("free".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
 
             findViewById(R.id.search_bar).setVisibility(View.VISIBLE);
 
@@ -610,7 +607,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         } else {
             mBottomSheetBehavior.setPeekHeight(50);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            if ("place_selected".equals(mPreferences.getString(KEY_STATE, "free"))) {
+            if ("place_selected".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
 
                 findViewById(R.id.search_bar).setVisibility(View.VISIBLE);
 
@@ -625,7 +622,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                 findViewById(R.id.search_bar).setVisibility(View.GONE);
 
-                if ("requesting_ride".equals(mPreferences.getString(KEY_STATE, "free"))) {
+                if ("requesting_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.text_waiting_for_driver).setVisibility(View.VISIBLE);
                     findViewById(R.id.text_driver_name).setVisibility(View.GONE);
                     findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
@@ -633,7 +630,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_chat).setVisibility(View.GONE);
                     findViewById(R.id.button_view_profile).setVisibility(View.GONE);
-                } else if ("on_ride".equals(mPreferences.getString(KEY_STATE, "free"))) {
+                } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
                     findViewById(R.id.text_driver_name).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
@@ -641,7 +638,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
-                } else if ("paying".equals(mPreferences.getString(KEY_STATE, "free"))) {
+                } else if ("paying".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
                     findViewById(R.id.text_driver_name).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
@@ -691,8 +688,9 @@ public class PassengerMapsActivity extends AppCompatActivity
         public void onResponse(JSONObject response) {
             Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
             try {
-                mPreferences.edit().putString(KEY_RIDE_ID, response.getString("id")).apply();
-                Log.d(TAG, "RIDE ID: " + mPreferences.getString(KEY_RIDE_ID, ""));
+                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
+                drawDirections(response.getString("directions"));
+                Log.d(TAG, "RIDE ID: " + mPreferences.getString(Constants.KEY_RIDE_ID, ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -701,28 +699,47 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
+    private void drawDirections(String encodedDirections){
+        Log.i(TAG, "drawDirections");
+        clearMap();
+
+        ArrayList<LatLng> latLngs = (ArrayList<LatLng>)PolyUtil.decode(encodedDirections);
+
+        //Add origin marker
+        currentLocationMarker = mMap.addMarker(new MarkerOptions()
+                .position(lastKnownLocation));
+
+        //Add destination marker
+        destinationLocationMarker = mMap.addMarker(new MarkerOptions()
+                .position(destination));
+
+        //Start drawing route
+        mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), latLngs, 5, R.color.colorPrimary);
+        mPolyline = mMap.addPolyline(mLineOptions);
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(lastKnownLocation);
+        builder.include(destination);
+        LatLngBounds bounds = builder.build();
+        int padding = 150; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mMap.animateCamera(cu);
+        //Finish drawing route
+        Log.i(TAG, "drawDirections finished");
+    }
+
     //TODO: Change finished to true when location is equal to destination
     private void requestRide() {
         Log.i(TAG, "requestRide");
-        mPreferences.edit().putString(KEY_STATE, "requesting_ride").apply();
+        mPreferences.edit().putString(Constants.KEY_STATE, "requesting_ride").apply();
 
-        String username = mPreferences.getString(KEY_USERNAME, "");
-        String password = mPreferences.getString(KEY_PASSWORD, "");
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
         String latitudeInitial = String.valueOf(lastKnownLocation.latitude);
         String longitudeInitial = String.valueOf(lastKnownLocation.longitude);
         String latitudeFinal = String.valueOf(destination.latitude);
         String longitudeFinal = String.valueOf(destination.longitude);
 
         mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal,requestRideResponseListener);
-        updateUI();
-    }
-
-
-    //TODO: Use this when whien Firebase Push Notification is implemented
-    private void receiveRide() {
-        Log.i(TAG, "receiveRide");
-        mPreferences.edit().putString(KEY_STATE, "on_ride").apply();
-        myGeofence.startGeofencing(destination);
         updateUI();
     }
 
@@ -739,20 +756,52 @@ public class PassengerMapsActivity extends AppCompatActivity
         list.add("free");
         list.add("place_selected");
 
-        if (!list.contains(mPreferences.getString(KEY_STATE, "free")))
-            mServerHandler.cancelRide(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_USERNAME, ""), responseListener);
-        mPreferences.edit().putString(KEY_STATE, "free").apply();
-        mPreferences.edit().remove(KEY_RIDE_ID).apply();
+        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free")))
+            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_USERNAME, ""), responseListener);
+        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
 
         updateUI();
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
+    Response.Listener<JSONObject> payRideResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
+            mPreferences.edit().putString(Constants.KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+        }
+    };
+
+    private Response.ErrorListener payRideResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "Request Failed. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
+            }
+        }
+    };
+
     private void payRide() {
         Log.i(TAG, "payRide");
-        mPreferences.edit().putString(KEY_STATE, "paying").apply();
-
+        if (mPreferences.getString(Constants.KEY_NUMBER, "").isEmpty()) {
+            Log.i(TAG, "No card, starting AddPaymentActivity");
+            startActivity(new Intent(getApplicationContext(), AddPaymentActivity.class));
+        }
+        String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
+        String value = mPreferences.getString(Constants.KEY_VALUE, "");
+        String month = mPreferences.getString(Constants.KEY_EXPIRATION_MONTH, "");
+        String year = mPreferences.getString(Constants.KEY_EXPIRATION_YEAR, "");
+        String method = mPreferences.getString(Constants.KEY_METHOD, "");
+        String number = mPreferences.getString(Constants.KEY_NUMBER, "");
+        String cvv = mPreferences.getString(Constants.KEY_CVV, "");
+        String type = mPreferences.getString(Constants.KEY_PAYMENT_TYPE, "");
+        mServerHandler.generatePayment(rideId, value, month, year, method, number, cvv, type, payRideResponseListener, payRideResponseErrorListener);
         updateUI();
     }
 

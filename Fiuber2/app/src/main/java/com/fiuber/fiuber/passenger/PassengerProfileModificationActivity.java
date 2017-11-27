@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
 
@@ -31,15 +32,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
     Toolbar toolbar;
-
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PASSWORD = "password";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -53,7 +46,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -64,9 +57,9 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         mEmailField = findViewById(R.id.text_email);
 
 
-        mFirstnameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
-        mLastnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+        mFirstnameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
+        mLastnameField.setText(mPreferences.getString(Constants.KEY_LASTNAME, ""));
+        mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
     }
 
@@ -102,9 +95,9 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         @Override
         public void onResponse(JSONObject response) {
             Log.e(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
 
             Log.d(TAG, "change activity to PassengerProfileActivity");
             startActivity(new Intent(getApplicationContext(), PassengerProfileActivity.class));
@@ -119,8 +112,8 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
                 return true;
             case R.id.action_save:
                 if (validateFullForm()) {
-                    String username = mPreferences.getString(KEY_USERNAME, "");
-                    String password = mPreferences.getString(KEY_PASSWORD, "");
+                    String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+                    String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
                     String firstname = mFirstnameField.getText().toString().trim();
                     String lastname = mLastnameField.getText().toString().trim();
                     String email = mEmailField.getText().toString().trim();

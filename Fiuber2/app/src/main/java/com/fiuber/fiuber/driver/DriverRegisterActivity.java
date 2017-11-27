@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.server.ServerHandler;
@@ -40,30 +41,13 @@ public class DriverRegisterActivity extends AppCompatActivity implements
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_TYPE = "type";
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PASSWORD = "password";
-
-    //car
-    private static final String KEY_CAR_MODEL = "model";
-    private static final String KEY_CAR_COLOR = "color";
-    private static final String KEY_CAR_PLATE = "plate";
-    private static final String KEY_CAR_YEAR = "year";
-
-    private static final String KEY_LOGIN = "login";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_driver);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         // Views
         mFirstnameField = findViewById(R.id.edit_text_firstname);
@@ -86,7 +70,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        if ("true".equals(mPreferences.getString("login", "false"))) {
+        if (mPreferences.getBoolean("login", false)) {
             Log.d(TAG, "change activity to DriverMapsActivity");
             startActivity(new Intent(this, DriverMapsActivity.class));
         }
@@ -110,11 +94,11 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.e(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
 
-            mPreferences.edit().putString(KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
-            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
+            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Creating Driver Successfull!", Toast.LENGTH_SHORT).show();
 
@@ -128,12 +112,12 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         public void onResponse(JSONObject response) {
             Log.d(TAG, "createDriverResponseListener Successfull. Response: " + response.toString());
 
-            mPreferences.edit().putString(KEY_TYPE, "driver").apply();
-            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_TYPE, "driver").apply();
+            mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
 
             String username = mUsernameField.getText().toString().trim();
             String password = mPasswordField.getText().toString().trim();
@@ -144,7 +128,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
             String carYear = mCarYearField.getText().toString().trim();
 
             //TODO: CHange this
-            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
+            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
             Log.d(TAG, "Change activity to DriverMapsActivity");
             startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));
 

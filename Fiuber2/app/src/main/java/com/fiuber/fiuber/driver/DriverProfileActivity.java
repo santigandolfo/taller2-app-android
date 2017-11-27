@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.passenger.PassengerProfileModificationActivity;
 
@@ -21,29 +22,16 @@ public class DriverProfileActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-
-    //car
-    private static final String KEY_CAR_MODEL = "model";
-    private static final String KEY_CAR_COLOR = "color";
-    private static final String KEY_CAR_PLATE = "plate";
-    private static final String KEY_CAR_YEAR = "year";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(mPreferences.getString(KEY_FIRSTNAME, "") + " " + mPreferences.getString(KEY_LASTNAME, ""));
+        toolbar.setTitle(mPreferences.getString(Constants.KEY_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_LASTNAME, ""));
         toolbar.setSubtitle("");
         setSupportActionBar(toolbar);
 
@@ -66,20 +54,20 @@ public class DriverProfileActivity extends AppCompatActivity {
         TextView mCarPlateField = findViewById(R.id.text_car_plate);
         TextView mCarYearField = findViewById(R.id.text_car_year);
 
-        mNameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
-        mSurnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
-        mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+        mNameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
+        mSurnameField.setText(mPreferences.getString(Constants.KEY_LASTNAME, ""));
+        mUsernameField.setText(mPreferences.getString(Constants.KEY_USERNAME, ""));
+        mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
         findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_plate).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_year).setVisibility(View.VISIBLE);
 
-        mCarModelField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
-        mCarColorField.setText(mPreferences.getString(KEY_CAR_COLOR, ""));
-        mCarPlateField.setText(mPreferences.getString(KEY_CAR_PLATE, ""));
-        mCarYearField.setText(mPreferences.getString(KEY_CAR_YEAR, ""));
+        mCarModelField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
+        mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_COLOR, ""));
+        mCarPlateField.setText(mPreferences.getString(Constants.KEY_CAR_PLATE, ""));
+        mCarYearField.setText(mPreferences.getString(Constants.KEY_CAR_YEAR, ""));
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

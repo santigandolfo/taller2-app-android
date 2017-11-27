@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -11,10 +12,6 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseInsIDService";
-
-    String MY_PREFERENCES = "MyPreferences";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
 
     SharedPreferences mPreferences;
 
@@ -27,11 +24,12 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         Log.d(TAG, "New Token: " + refreshedToken);
 
         ServerHandler mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
-         String username = mPreferences.getString(KEY_USERNAME, "");
-        String password = mPreferences.getString(KEY_PASSWORD, "");
+         String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
 
-        //mServerHandler.sendFirebaseToken(username, password, refreshedToken);
+        if (!username.equals(""))
+            mServerHandler.sendFirebaseToken(username, password, refreshedToken);
     }
 }

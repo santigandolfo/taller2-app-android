@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 
 public class PassengerProfileActivity extends AppCompatActivity {
@@ -20,23 +21,16 @@ public class PassengerProfileActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(mPreferences.getString(KEY_FIRSTNAME, "") + " " + mPreferences.getString(KEY_LASTNAME, ""));
+        toolbar.setTitle(mPreferences.getString(Constants.KEY_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_LASTNAME, ""));
         toolbar.setSubtitle("");
         setSupportActionBar(toolbar);
 
@@ -55,10 +49,10 @@ public class PassengerProfileActivity extends AppCompatActivity {
         TextView mEmailField = findViewById(R.id.text_email);
 
 
-        mNameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
-        mSurnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
-        mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+        mNameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
+        mSurnameField.setText(mPreferences.getString(Constants.KEY_LASTNAME, ""));
+        mUsernameField.setText(mPreferences.getString(Constants.KEY_USERNAME, ""));
+        mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

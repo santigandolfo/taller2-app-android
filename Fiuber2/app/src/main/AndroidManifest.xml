@@ -60,7 +60,7 @@
         <service
             android:name=".geofence.GeofenceRegistrationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -90,7 +90,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
-
         <activity
             android:name=".driver.DriverSettingsActivity"
             android:label="@string/title_activity_settings"
@@ -99,7 +98,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
         </activity>
-
         <activity
             android:name=".passenger.PassengerProfileModificationActivity"
             android:label="@string/title_activity_profile"
@@ -109,7 +107,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerProfileActivity" />
         </activity>
-
         <activity
             android:name=".driver.DriverProfileModificationActivity"
             android:label="@string/title_activity_profile"
@@ -119,7 +116,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.driver.DriverProfileActivity" />
         </activity>
-
         <activity
             android:name=".passenger.PassengerPaymentActivity"
             android:label="@string/title_activity_payment"
@@ -128,7 +124,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
-
         <activity
             android:name=".driver.DriverPaymentActivity"
             android:label="@string/title_activity_payment"
@@ -137,7 +132,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
         </activity>
-
         <activity
             android:name=".passenger.PassengerHistoryActivity"
             android:label="@string/title_activity_history"
@@ -146,7 +140,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
-
         <activity
             android:name=".driver.DriverHistoryActivity"
             android:label="@string/title_activity_history"
@@ -155,7 +148,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
         </activity>
-
         <activity
             android:name=".passenger.PassengerProfileActivity"
             android:label="@string/title_activity_profile"
@@ -165,7 +157,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
-
         <activity
             android:name=".driver.DriverProfileActivity"
             android:label="@string/title_activity_profile"
@@ -175,16 +166,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
         </activity>
-
         <activity
             android:name=".OtherProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppThemeNoAc"/>
-
+            android:theme="@style/AppThemeNoAc" />
         <activity
             android:name=".driver.DriverRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".passenger.PassengerRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
@@ -192,15 +180,18 @@
 
         <service android:name=".firebase.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <service android:name=".firebase.MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".AddPaymentActivity"
+            android:label="@string/title_activity_add_payment" />
     </application>
 
 </manifest>

@@ -50,6 +50,7 @@ import com.fiuber.fiuber.OtherProfileActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.chat.ChatActivity;
 import com.fiuber.fiuber.geofence.MyGeofence;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.passenger.PassengerMapsActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
@@ -72,6 +73,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -111,24 +113,6 @@ public class DriverMapsActivity extends AppCompatActivity
 
     private MyGeofence myGeofence;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_LOGIN = "login";
-
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_LATITUDE = "latitude";
-    private static final String KEY_LONGITUDE = "longitude";
-
-    private static final String KEY_RIDE_ID = "ride_id";
-    private static final String KEY_INFO = "info";
-
-    private static final String KEY_STATE = "state";
-
-    private static final String KEY_OTHERS_FIRSTNAME = "others_firstname";
-    private static final String KEY_OTHERS_LASTNAME = "others_lastname";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,26 +126,17 @@ public class DriverMapsActivity extends AppCompatActivity
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         // Buttons
-        findViewById(R.id.button_cancel).setOnClickListener(this);
-        findViewById(R.id.button_request_ride).setOnClickListener(this);
-        findViewById(R.id.button_pay_ride).setOnClickListener(this);
+        findViewById(R.id.button_accept_ride).setOnClickListener(this);
         findViewById(R.id.button_chat).setOnClickListener(this);
         findViewById(R.id.button_view_profile).setOnClickListener(this);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
         updateUI();
-
-        findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDrawer.openDrawer(GravityCompat.START);
-            }
-        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -205,14 +180,14 @@ public class DriverMapsActivity extends AppCompatActivity
             // Get extra data included in the Intent
             String message = intent.getStringExtra("data");
 
-            if ("picking_up_passenger".equals(mPreferences.getString(KEY_STATE, "free"))){
-                mPreferences.edit().putString(KEY_STATE, "paying").apply();
+            if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))){
+                mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
                 myGeofence.stopGeoFencing();
                 myGeofence.startGeofencing(destination);
-                mPreferences.edit().putString(KEY_STATE, "picking_up_passenger").apply();
-            } else if ("on_ride".equals(mPreferences.getString(KEY_STATE, "free"))){
+                mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
+            } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))){
                 myGeofence.stopGeoFencing();
-                mPreferences.edit().putString(KEY_STATE, "free").apply();
+                mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             }
             updateUI();
         }
@@ -226,10 +201,10 @@ public class DriverMapsActivity extends AppCompatActivity
             String message = intent.getStringExtra("data");
 
             TextView mNameField = findViewById(R.id.text_driver_name);
-            String fullName = mPreferences.getString(KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(KEY_OTHERS_LASTNAME, "");
+            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
 
-            mPreferences.edit().putString(KEY_STATE, "passenger_available").apply();
+            mPreferences.edit().putString(Constants.KEY_STATE, "passenger_available").apply();
             myGeofence.startGeofencing(destination);
             updateUI();
         }
@@ -275,8 +250,8 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.e(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().putString(KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
-            mPreferences.edit().putString(KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(Constants.KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
+            mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
         }
     };
 
@@ -301,7 +276,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                         .title("Current Position"));
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-                            mServerHandler.updateUserCoordinates(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -316,7 +291,7 @@ public class DriverMapsActivity extends AppCompatActivity
         super.onStart();
         Log.e(TAG, "onStart");
 
-        if (!mPreferences.getBoolean(KEY_LOGIN, false)) {
+        if (!mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }
@@ -328,6 +303,10 @@ public class DriverMapsActivity extends AppCompatActivity
         for (int i = 0; i < size; i++) {
             navigationView.getMenu().getItem(i).setChecked(false);
         }
+
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
+        mServerHandler.sendFirebaseToken(username, password, FirebaseInstanceId.getInstance().getToken());
 
         updateUI();
     }
@@ -391,8 +370,8 @@ public class DriverMapsActivity extends AppCompatActivity
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        mServerHandler.setDriversAvailability(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), "False", setDriverAsAvailableResponseListener);
-        if (!"free".equals(mPreferences.getString(KEY_STATE, "free"))) {
+        mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), "False", setDriverAsAvailableResponseListener);
+        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             cancelRide(logoutCancelRideResponseListener);
         } else {
             mPreferences.edit().clear().apply();
@@ -519,7 +498,7 @@ public class DriverMapsActivity extends AppCompatActivity
         if (lastKnownLocation != null && destination != null && pickUpPlace != null) {
             GoogleDirection.withServerKey(GOOGLE_API_KEY)
                     .from(lastKnownLocation)
-                    .to(destination)
+                    .to(pickUpPlace)
                     .execute(new DirectionCallback() {
                         @Override
                         public void onDirectionSuccess(Direction direction, String rawBody) {
@@ -527,8 +506,8 @@ public class DriverMapsActivity extends AppCompatActivity
                             if (status.equals(RequestResult.OK)) {
 
                                 //Add destination marker
-                                destinationLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(destination));
+                                passengerLocationMarker = mMap.addMarker(new MarkerOptions()
+                                        .position(pickUpPlace));
 
                                 //Start drawing route
                                 Route route = direction.getRouteList().get(0);
@@ -545,7 +524,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                 mMap.animateCamera(cu);
                                 //Finish drawing route
 
-                                mPreferences.edit().putString(KEY_STATE, "place_selected").apply();
+                                mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Couldn't find a route",
@@ -561,8 +540,8 @@ public class DriverMapsActivity extends AppCompatActivity
 
             //TODO: IMPROVE THIS FUCKING SHIT
             GoogleDirection.withServerKey(GOOGLE_API_KEY)
-                    .from(lastKnownLocation)
-                    .to(pickUpPlace)
+                    .from(pickUpPlace)
+                    .to(destination)
                     .execute(new DirectionCallback() {
                         @Override
                         public void onDirectionSuccess(Direction direction, String rawBody) {
@@ -570,8 +549,8 @@ public class DriverMapsActivity extends AppCompatActivity
                             if (status.equals(RequestResult.OK)) {
 
                                 //Add passengerLocation marker
-                                passengerLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(pickUpPlace));
+                                destinationLocationMarker = mMap.addMarker(new MarkerOptions()
+                                        .position(destination));
 
                                 //Start drawing route
                                 Route route = direction.getRouteList().get(0);
@@ -588,7 +567,7 @@ public class DriverMapsActivity extends AppCompatActivity
                                 mMap.animateCamera(cu);
                                 //Finish drawing route
 
-                                mPreferences.edit().putString(KEY_STATE, "place_selected").apply();
+                                mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Couldn't find a route",
@@ -622,26 +601,26 @@ public class DriverMapsActivity extends AppCompatActivity
         mBottomSheetBehavior.setPeekHeight(50);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        if("free".equals(mPreferences.getString(KEY_STATE,"free"))){
+        if("free".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.VISIBLE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
             findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
             clearRoute();
-        } else if ("passenger_available".equals(mPreferences.getString(KEY_STATE,"free"))){
+        } else if ("passenger_available".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
             findViewById(R.id.button_accept_ride).setVisibility(View.VISIBLE);
-        } else if ("picking_up_passenger".equals(mPreferences.getString(KEY_STATE,"free"))){
+        } else if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
-        } else if ("on_ride".equals(mPreferences.getString(KEY_STATE,"free"))){
+        } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
@@ -674,8 +653,8 @@ public class DriverMapsActivity extends AppCompatActivity
             mPreferences.edit().putString("picking_up_passenger", "true").apply();
 
             try {
-                mPreferences.edit().putString(KEY_RIDE_ID, response.getString("id")).apply();
-                Log.e(TAG, "RIDE ID: " + mPreferences.getString(KEY_RIDE_ID, ""));
+                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
+                Log.e(TAG, "RIDE ID: " + mPreferences.getString(Constants.KEY_RIDE_ID, ""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -687,8 +666,8 @@ public class DriverMapsActivity extends AppCompatActivity
     private void acceptRide() {
         Log.i(TAG, "requestRide");
 
-        String username = mPreferences.getString(KEY_USERNAME, "");
-        String password = mPreferences.getString(KEY_PASSWORD, "");
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
         String latitudeInitial = String.valueOf(lastKnownLocation.latitude);
         String longitudeInitial = String.valueOf(lastKnownLocation.longitude);
         String latitudeFinal = String.valueOf(destination.latitude);
@@ -703,10 +682,10 @@ public class DriverMapsActivity extends AppCompatActivity
         list.add("free");
         list.add("passenger_available");
 
-        if (!list.contains(mPreferences.getString(KEY_STATE, "free")))
-            mServerHandler.cancelRide(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_USERNAME, ""), responseListener);
-        mPreferences.edit().putString(KEY_STATE, "free").apply();
-        mPreferences.edit().remove(KEY_RIDE_ID).apply();
+        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free")))
+            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_USERNAME, ""), responseListener);
+        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
 
         updateUI();
 

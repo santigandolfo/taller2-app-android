@@ -16,8 +16,6 @@ public class GeofenceRegistrationService extends IntentService {
 
     private static final String TAG = "GeoIntentService";
 
-    public static final String GEOFENCE_ID = "ID";
-
     public GeofenceRegistrationService() {
         super(TAG);
     }

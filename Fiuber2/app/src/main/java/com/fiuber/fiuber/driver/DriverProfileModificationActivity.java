@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
 
@@ -30,21 +31,9 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
 
     Toolbar toolbar;
 
-    private static final String KEY_FIRSTNAME = "firstname";
-    private static final String KEY_LASTNAME = "lastname";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PASSWORD = "password";
-
-    //car
-    private static final String KEY_CAR_MODEL = "model";
-    private static final String KEY_CAR_COLOR = "color";
-    private static final String KEY_CAR_PLATE = "plate";
-    private static final String KEY_CAR_YEAR = "year";
 
     private EditText mFirstnameField;
     private EditText mLastnameField;
@@ -63,7 +52,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,14 +68,14 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         mCarYearField = findViewById(R.id.text_car_year);
 
         //Defaults
-        mFirstnameField.setText(mPreferences.getString(KEY_FIRSTNAME, ""));
-        mLastnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
-        mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+        mFirstnameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
+        mLastnameField.setText(mPreferences.getString(Constants.KEY_LASTNAME, ""));
+        mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
-        mCarModelField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
-        mCarColorField.setText(mPreferences.getString(KEY_CAR_MODEL, ""));
-        mCarPlateField.setText(mPreferences.getString(KEY_CAR_PLATE, ""));
-        mCarYearField.setText(mPreferences.getString(KEY_CAR_YEAR, ""));
+        mCarModelField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
+        mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
+        mCarPlateField.setText(mPreferences.getString(Constants.KEY_CAR_PLATE, ""));
+        mCarYearField.setText(mPreferences.getString(Constants.KEY_CAR_YEAR, ""));
 
     }
 
@@ -123,10 +112,10 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         public void onResponse(JSONObject response) {
             Log.e(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
 
-            mPreferences.edit().putString(KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
 
             Log.d(TAG, "change activity to DriverProfileActivity");
             startActivity(new Intent(getApplicationContext(), DriverProfileActivity.class));
@@ -138,12 +127,12 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         public void onResponse(JSONObject response) {
             Log.e(TAG, "saveUserInformationResponseListener Successful. Response: " + response.toString());
 
-            mPreferences.edit().putString(KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
 
-            String username = mPreferences.getString(KEY_USERNAME, "");
-            String password = mPreferences.getString(KEY_PASSWORD, "");
+            String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+            String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
 
             String carModel = mCarModelField.getText().toString().trim();
             String carColor = mCarColorField.getText().toString().trim();
@@ -167,8 +156,8 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
             case R.id.action_save:
                 if (validateFullForm()) {
 
-                    String username = mPreferences.getString(KEY_USERNAME, "");
-                    String password = mPreferences.getString(KEY_PASSWORD, "");
+                    String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+                    String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
 
                     String firstname = mFirstnameField.getText().toString().trim();
                     String lastname = mLastnameField.getText().toString().trim();

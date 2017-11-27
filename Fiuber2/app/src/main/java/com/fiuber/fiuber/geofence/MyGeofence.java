@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.fiuber.fiuber.Constants;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,9 +38,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MyGeofence implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
-    public static final float GEOFENCE_RADIUS_IN_METERS = 200;
-    public static final String GEOFENCE_ID = "ID";
 
     private static final String TAG = "MyGeofence";
 
@@ -99,9 +97,9 @@ public class MyGeofence implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     private Geofence getGeofence(LatLng latLng) {
         Log.d(TAG, "getGeofence");
         return new Geofence.Builder()
-                .setRequestId(GEOFENCE_ID)
+                .setRequestId(Constants.GEOFENCE_ID)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setCircularRegion(latLng.latitude, latLng.longitude, GEOFENCE_RADIUS_IN_METERS)
+                .setCircularRegion(latLng.latitude, latLng.longitude, Constants.GEOFENCE_RADIUS_IN_METERS)
                 .setNotificationResponsiveness(1000)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
