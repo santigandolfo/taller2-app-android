@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements
 
 
     private static final String KEY_TYPE = "type";
-    private static final String KEY_INFO= "info";
+    private static final String KEY_INFO = "info";
     private static final String KEY_LOGIN = "login";
 
 
@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        if ("true".equals(mPreferences.getString(KEY_LOGIN, "false"))) {
+        if (mPreferences.getBoolean(KEY_LOGIN, false)) {
             startMapActivity(mPreferences.getString(KEY_TYPE, ""));
         }
     }
@@ -152,7 +152,7 @@ public class LoginActivity extends AppCompatActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Got user information!", Toast.LENGTH_SHORT).show();
 
@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity implements
         if (type.equals("passenger")) {
             Log.d(TAG, "Change activity to PassengerMapsActivity");
             startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
-        } else if(type.equals("driver")) {
+        } else if (type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
             mServerHandler.setDriversAvailability(mPreferences.getString(KEY_USERNAME, ""), mPreferences.getString(KEY_PASSWORD, ""), "True", setDriverAsAvailableResponseListener);
         }

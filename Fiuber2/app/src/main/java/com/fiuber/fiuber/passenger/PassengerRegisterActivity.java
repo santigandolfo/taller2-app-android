@@ -74,7 +74,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         super.onStart();
         Log.e(TAG, "onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
-        if("true".equals(mPreferences.getString(KEY_LOGIN, "false"))){
+        if (mPreferences.getBoolean(KEY_LOGIN, false)) {
             Log.d(TAG, "Change activity to PassengerMapsActivity");
             startActivity(new Intent(this, PassengerMapsActivity.class));
         }
@@ -85,9 +85,9 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "createPassengerResponseErrorListener Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                Log.e(TAG, "Response statusCode: "+response.statusCode);
-                Log.e(TAG, "Response data: "+response.data.toString());
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Creating Passenger Failed", Toast.LENGTH_SHORT).show();
         }
@@ -105,7 +105,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
             mPreferences.edit().putString(KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
             mPreferences.edit().putString(KEY_USERNAME, mUsernameField.getText().toString().trim()).apply();
             mPreferences.edit().putString(KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Creating Passenger Successfull!", Toast.LENGTH_SHORT).show();
 
@@ -116,7 +116,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
 
 
     private void createAccount() {
-        Log.d(TAG, "createAccount" );
+        Log.d(TAG, "createAccount");
         if (!validateCreateAccountForm()) {
             return;
         }

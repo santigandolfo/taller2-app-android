@@ -135,5 +135,6 @@
     <string name="prompt_car_plate">Plate</string>
     <string name="prompt_car_year">Year</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_accept_ride">Accept Ride</string>
 
 </resources>

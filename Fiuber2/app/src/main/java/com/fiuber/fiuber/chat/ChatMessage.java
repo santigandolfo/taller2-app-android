@@ -15,7 +15,7 @@ public class ChatMessage {
         this.messageUserId = messageUserId;
     }
 
-    public ChatMessage(){
+    public ChatMessage() {
 
     }
 

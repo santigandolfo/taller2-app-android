@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DriverRegisterActivity extends AppCompatActivity implements
-            View.OnClickListener {
+        View.OnClickListener {
 
     private static final String TAG = "DriverRegisterActivity";
 
@@ -32,10 +32,10 @@ public class DriverRegisterActivity extends AppCompatActivity implements
     private EditText mUsernameField;
     private EditText mPasswordField;
 
-    private EditText  mCarModelField;
+    private EditText mCarModelField;
     private EditText mCarColorField;
     private EditText mCarPlateField;
-    private EditText  mCarYearField;
+    private EditText mCarYearField;
 
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
@@ -97,9 +97,9 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "createDriverResponseErrorListener Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                Log.e(TAG, "Response statusCode: "+response.statusCode);
-                Log.e(TAG, "Response data: "+response.data.toString());
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Creating Driver Failed", Toast.LENGTH_SHORT).show();
         }
@@ -114,7 +114,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
             mPreferences.edit().putString(KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
             mPreferences.edit().putString(KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
             mPreferences.edit().putString(KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Creating Driver Successfull!", Toast.LENGTH_SHORT).show();
 
@@ -144,11 +144,11 @@ public class DriverRegisterActivity extends AppCompatActivity implements
             String carYear = mCarYearField.getText().toString().trim();
 
             //TODO: CHange this
-            mPreferences.edit().putString(KEY_LOGIN, "true").apply();
+            mPreferences.edit().putBoolean(KEY_LOGIN, true).apply();
             Log.d(TAG, "Change activity to DriverMapsActivity");
             startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));
 
-            //mServerHandler.saveModificationsCar(username, password, carModel, carColor, carPlate, carYear, saveCarInformationResponseListener, createDriverResponseErrorListener);
+            mServerHandler.saveModificationsCar(username, password, carModel, carColor, carPlate, carYear, saveCarInformationResponseListener, createDriverResponseErrorListener);
         }
     };
 
@@ -225,7 +225,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         if (i == R.id.button_register) {
             Log.d(TAG, "clicked register button");
             createAccount();
-        } else  if (i == R.id.text_change_to_passenger) {
+        } else if (i == R.id.text_change_to_passenger) {
             Log.d(TAG, "change activity to LoginActivity");
             startActivity(new Intent(this, LoginActivity.class));
         }

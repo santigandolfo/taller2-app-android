@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity {
         FINAL_FIREBASE_URL = FIREBASE_URL + rideId;
 
         //find views by Ids
-        FloatingActionButton fab =  findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         final EditText input = findViewById(R.id.input);
         listView = findViewById(R.id.list);
 

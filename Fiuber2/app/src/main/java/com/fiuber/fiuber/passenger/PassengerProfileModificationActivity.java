@@ -90,9 +90,9 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "saveModificationsUserResponseErrorListener Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
-            if(response != null && response.data != null){
-                Log.e(TAG, "Response statusCode: "+response.statusCode);
-                Log.e(TAG, "Response data: "+response.data.toString());
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + response.data.toString());
             }
             Toast.makeText(getApplicationContext(), "Modification of Profile Failed", Toast.LENGTH_SHORT).show();
         }

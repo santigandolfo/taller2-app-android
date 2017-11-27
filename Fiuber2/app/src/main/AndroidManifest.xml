@@ -56,6 +56,12 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".geofence.GeofenceRegistrationService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -171,6 +177,11 @@
         </activity>
 
         <activity
+            android:name=".OtherProfileActivity"
+            android:label="@string/title_activity_profile"
+            android:theme="@style/AppThemeNoAc"/>
+
+        <activity
             android:name=".driver.DriverRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
 
@@ -178,7 +189,18 @@
             android:name=".passenger.PassengerRegisterActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".chat.ChatActivity" />
-        <activity android:name=".OtherProfileActivity" />
+
+        <service android:name=".firebase.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:name=".firebase.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -47,7 +48,6 @@ public class PassengerProfileActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), PassengerProfileModificationActivity.class));
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TextView mNameField = findViewById(R.id.text_firstname);
         TextView mSurnameField = findViewById(R.id.text_lastname);
@@ -59,5 +59,16 @@ public class PassengerProfileActivity extends AppCompatActivity {
         mSurnameField.setText(mPreferences.getString(KEY_LASTNAME, ""));
         mUsernameField.setText(mPreferences.getString(KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(KEY_EMAIL, ""));
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();    //Call the back button's method
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

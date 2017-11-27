@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -33,7 +36,6 @@ public class OtherProfileActivity extends AppCompatActivity {
     private static final String KEY_OTHERS_CAR_COLOR = "others_car_color";
     private static final String KEY_OTHERS_CAR_PLATE = "others_car_plate";
     private static final String KEY_OTHERS_CAR_YEAR = "others_car_year";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,7 @@ public class OtherProfileActivity extends AppCompatActivity {
         mEmailField.setText(mPreferences.getString(KEY_OTHERS_EMAIL, ""));
         mUsernameField.setText(mPreferences.getString(KEY_OTHERS_USERNAME, ""));
 
-        if("passenger".equals(mPreferences.getString(KEY_TYPE,""))) {
+        if ("passenger".equals(mPreferences.getString(KEY_TYPE, ""))) {
             findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_plate).setVisibility(View.VISIBLE);
@@ -78,4 +80,15 @@ public class OtherProfileActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();    //Call the back button's method
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }
