@@ -116,6 +116,7 @@ public class DriverMapsActivity extends AppCompatActivity
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         // Buttons
+        findViewById(R.id.button_cancel).setOnClickListener(this);
         findViewById(R.id.button_chat).setOnClickListener(this);
         findViewById(R.id.button_view_profile).setOnClickListener(this);
 
@@ -188,14 +189,17 @@ public class DriverMapsActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "acceptRide");
 
-            TextView mNameField = findViewById(R.id.text_passenger_name);
-            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
+            Toast.makeText(getApplicationContext(), "RECEIVED FIREBASE NOTIFICATION",
+                    Toast.LENGTH_SHORT).show();
+/*             TextView mNameField = findViewById(R.id.text_passenger_name);
+           String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
 
             mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
+
             myGeofence.startGeofencing(destination);
             //drawDirections(String passengerLocationEncodedDirections, String destinationEncodedDirections)
-            updateUI();
+            updateUI();*/
         }
     };
 
@@ -426,17 +430,20 @@ public class DriverMapsActivity extends AppCompatActivity
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
+            findViewById(R.id.button_cancel).setVisibility(View.GONE);
             clearRoute();
         } else if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
         } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
         }
 
     }
@@ -450,6 +457,9 @@ public class DriverMapsActivity extends AppCompatActivity
         } else if (i == R.id.button_view_profile) {
             Log.d(TAG, "clicked view_profile button");
             viewPassengersProfile();
+        } else if (i == R.id.button_cancel) {
+            Log.d(TAG, "clicked cancel button");
+            cancelRide(cancelRideResponseListener);
         }
     }
 
@@ -494,6 +504,14 @@ public class DriverMapsActivity extends AppCompatActivity
 
         Log.i(TAG, "drawDirections finished");
     }
+
+    Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+        }
+    };
+
 
     private void cancelRide(Response.Listener<JSONObject> responseListener) {
         Log.i(TAG, "cancelRide");

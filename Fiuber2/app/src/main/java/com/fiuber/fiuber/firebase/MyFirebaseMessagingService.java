@@ -23,10 +23,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.d(TAG, "FROM:" + remoteMessage.getFrom());
         Log.d(TAG, "Full Notification:" + remoteMessage.toString());
+        if (remoteMessage.getData().size() > 0)
+        Log.d(TAG, "Full Notification:" + remoteMessage.getData().toString());
 
         mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        //Check if the message contains data
+/*        //Check if the message contains data
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data: " + remoteMessage.getData());
             mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, remoteMessage.getData().get(Constants.KEY_FIRSTNAME)).apply();
@@ -41,7 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, remoteMessage.getData().get(Constants.KEY_CAR_YEAR)).apply();
             }
         }
-
+*/
         Log.d(TAG, "Sending Intent");
         Intent lbcIntent = new Intent("rideAcceptanceMessage"); //Send to any reciever listening for this
         lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
