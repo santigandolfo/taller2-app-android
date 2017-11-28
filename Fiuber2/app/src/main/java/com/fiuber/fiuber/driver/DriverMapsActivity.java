@@ -2,15 +2,12 @@ package com.fiuber.fiuber.driver;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,7 +20,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -36,7 +32,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.RequestResult;
@@ -51,19 +46,14 @@ import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.chat.ChatActivity;
 import com.fiuber.fiuber.geofence.MyGeofence;
 import com.fiuber.fiuber.Constants;
-import com.fiuber.fiuber.passenger.PassengerMapsActivity;
 import com.fiuber.fiuber.server.ServerHandler;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -74,10 +64,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public class DriverMapsActivity extends AppCompatActivity
@@ -126,13 +116,12 @@ public class DriverMapsActivity extends AppCompatActivity
         mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
         // Buttons
-        findViewById(R.id.button_accept_ride).setOnClickListener(this);
         findViewById(R.id.button_chat).setOnClickListener(this);
         findViewById(R.id.button_view_profile).setOnClickListener(this);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -150,13 +139,15 @@ public class DriverMapsActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 checkLocationPermition();
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    return;
                 getLastLocation();
             }
         });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawer.setDrawerListener(toggle);
+        mDrawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -166,8 +157,9 @@ public class DriverMapsActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
         LocalBroadcastManager.getInstance(this).registerReceiver(acceptRideReceiver, new IntentFilter("rideAcceptanceMessage"));
 
-        while (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            checkLocationPermition();
+        checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            finish();
 
         this.initializeLocationManager();
 
@@ -177,8 +169,6 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("data");
 
             if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))){
                 mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
@@ -197,54 +187,17 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "acceptRide");
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("data");
 
-            TextView mNameField = findViewById(R.id.text_driver_name);
+            TextView mNameField = findViewById(R.id.text_passenger_name);
             String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
 
-            mPreferences.edit().putString(Constants.KEY_STATE, "passenger_available").apply();
+            mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
             myGeofence.startGeofencing(destination);
+            //drawDirections(String passengerLocationEncodedDirections, String destinationEncodedDirections)
             updateUI();
         }
     };
-
-    public void sendNotification(View view, String title, String text, Class to) {
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this);
-
-//Create the intent that’ll fire when the user taps the notification//
-
-        Intent intent = new Intent(this, to);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        mBuilder.setContentIntent(pendingIntent);
-
-        mBuilder.setSmallIcon(R.drawable.notification_icon);
-        mBuilder.setContentTitle(title);
-        mBuilder.setContentText(text);
-
-        NotificationManager mNotificationManager =
-
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        mNotificationManager.notify(001, mBuilder.build());
-    }
-
-
-
-/*    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 10:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-
-                }
-        }
-    }*/
 
     Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
         @Override
@@ -276,7 +229,11 @@ public class DriverMapsActivity extends AppCompatActivity
                                         .title("Current Position"));
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-                            mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
+                            mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                                                 mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                                                 String.valueOf(lastKnownLocation.latitude),
+                                                                 String.valueOf(lastKnownLocation.longitude),
+                                                                 updateUserCoordinatesResponseListener);
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -315,8 +272,7 @@ public class DriverMapsActivity extends AppCompatActivity
     private void initializeLocationManager() {
 
         //get the location manager
-        this.locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
+        this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //define the location manager criteria
         Criteria criteria = new Criteria();
@@ -325,9 +281,8 @@ public class DriverMapsActivity extends AppCompatActivity
 
         @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationProvider);
 
-
         //initialize the location
-        if(location != null) {
+        if (location != null) {
 
             onLocationChanged(location);
         }
@@ -335,25 +290,21 @@ public class DriverMapsActivity extends AppCompatActivity
 
     @SuppressLint("MissingPermission")
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        updateUI();
-        this.locationManager.requestLocationUpdates(this.locationProvider, 400, 1, this);
-/*        checkLocationPermition();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Conected Geofence");
-            myGeofence.reconnect();
-        }*/
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-/*        checkLocationPermition();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Disconected Geofence");
-            myGeofence.reconnect();
-        }*/
+        this.locationManager.requestLocationUpdates(this.locationProvider, 400, 1, this);
+
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
+        mServerHandler.sendFirebaseToken(username, password, FirebaseInstanceId.getInstance().getToken());
+
+        checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+
+        myGeofence.reconnect();
+        updateUI();
     }
 
     Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
@@ -409,26 +360,9 @@ public class DriverMapsActivity extends AppCompatActivity
         return true;
     }
 
-/*    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        Log.d(TAG, "optionsItemSelected");
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
-            logout();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         Log.d(TAG, "navigationItemSelected");
         int id = item.getItemId();
@@ -459,9 +393,9 @@ public class DriverMapsActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         Log.d(TAG, "onMapReady");
         mMap = googleMap;
-
         checkLocationPermition();
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
         getLastLocation();
 
     }
@@ -481,151 +415,28 @@ public class DriverMapsActivity extends AppCompatActivity
             currentLocationMarker.remove();
     }
 
-    /**
-     * Callback invoked when a place has been selected from the PlaceAutocompleteFragment.
-     */
-
-    public void onDestinationSelected(final LatLng pickUpPlace, final LatLng destination) {
-        Log.i(TAG, "onDestinationSelected: " + destination);
-
-        clearMap();
-
-        //Add origin marker
-        currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(lastKnownLocation)
-                .title("Current Position"));
-
-        if (lastKnownLocation != null && destination != null && pickUpPlace != null) {
-            GoogleDirection.withServerKey(GOOGLE_API_KEY)
-                    .from(lastKnownLocation)
-                    .to(pickUpPlace)
-                    .execute(new DirectionCallback() {
-                        @Override
-                        public void onDirectionSuccess(Direction direction, String rawBody) {
-                            String status = direction.getStatus();
-                            if (status.equals(RequestResult.OK)) {
-
-                                //Add destination marker
-                                passengerLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(pickUpPlace));
-
-                                //Start drawing route
-                                Route route = direction.getRouteList().get(0);
-                                Leg leg = route.getLegList().get(0);
-                                ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                                mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                                mPolyline = mMap.addPolyline(mLineOptions);
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                builder.include(lastKnownLocation);
-                                builder.include(destination);
-                                LatLngBounds bounds = builder.build();
-                                int padding = 150; // offset from edges of the map in pixels
-                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                                mMap.animateCamera(cu);
-                                //Finish drawing route
-
-                                mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
-                                updateUI();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Couldn't find a route",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onDirectionFailure(Throwable t) {
-                            Log.d(TAG, "Result Direction Failure");
-                        }
-                    });
-
-            //TODO: IMPROVE THIS FUCKING SHIT
-            GoogleDirection.withServerKey(GOOGLE_API_KEY)
-                    .from(pickUpPlace)
-                    .to(destination)
-                    .execute(new DirectionCallback() {
-                        @Override
-                        public void onDirectionSuccess(Direction direction, String rawBody) {
-                            String status = direction.getStatus();
-                            if (status.equals(RequestResult.OK)) {
-
-                                //Add passengerLocation marker
-                                destinationLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(destination));
-
-                                //Start drawing route
-                                Route route = direction.getRouteList().get(0);
-                                Leg leg = route.getLegList().get(0);
-                                ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                                mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                                mPolyline = mMap.addPolyline(mLineOptions);
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                builder.include(lastKnownLocation);
-                                builder.include(pickUpPlace);
-                                LatLngBounds bounds = builder.build();
-                                int padding = 150; // offset from edges of the map in pixels
-                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                                mMap.animateCamera(cu);
-                                //Finish drawing route
-
-                                mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
-                                updateUI();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Couldn't find a route",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onDirectionFailure(Throwable t) {
-                            Log.d(TAG, "Result Direction Failure");
-                        }
-                    });
-        }
-
-        // mPolyline = mMap.addPolyline(new PolylineOptions().add(lastKnownLocation,place.getLatLng()).color(Color.BLUE));
-        // Format the returned place's details and display them in the TextView.
-/*        mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(), place.getId(),
-                place.getAddress(), place.getPhoneNumber(), place.getWebsiteUri()));
-
-        CharSequence attributions = place.getAttributions();
-        if (!TextUtils.isEmpty(attributions)) {
-            mPlaceAttribution.setText(Html.fromHtml(attributions.toString()));
-        } else {
-            mPlaceAttribution.setText("");
-        }*/
-    }
-
     private void updateUI() {
         Log.i(TAG, "updateUI");
 
         mBottomSheetBehavior.setPeekHeight(50);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        if("free".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
+        if("free".equals(mPreferences.getString(Constants.KEY_STATE,"free"))) {
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.VISIBLE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
             clearRoute();
-        } else if ("passenger_available".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
-            findViewById(R.id.button_chat).setVisibility(View.GONE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.VISIBLE);
         } else if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_accept_ride).setVisibility(View.GONE);
         }
 
     }
@@ -633,10 +444,7 @@ public class DriverMapsActivity extends AppCompatActivity
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.button_accept_ride) {
-            Log.d(TAG, "clicked accep_ride button");
-            acceptRide();
-        } else if (i == R.id.button_chat) {
+        if (i == R.id.button_chat) {
             Log.d(TAG, "clicked chat button");
             chat();
         } else if (i == R.id.button_view_profile) {
@@ -645,44 +453,52 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     }
 
-    Response.Listener<JSONObject> acceptRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.e(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+    private void drawDirections(String passengerLocationEncodedDirections, String destinationEncodedDirections) {
+        Log.i(TAG, "drawDirections");
+        clearMap();
 
-            mPreferences.edit().putString("picking_up_passenger", "true").apply();
+        ArrayList<LatLng> passengerLocationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(passengerLocationEncodedDirections);
+        ArrayList<LatLng> destinationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(destinationEncodedDirections);
 
-            try {
-                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
-                Log.e(TAG, "RIDE ID: " + mPreferences.getString(Constants.KEY_RIDE_ID, ""));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            updateUI();
+        //Add origin marker
+        currentLocationMarker = mMap.addMarker(new MarkerOptions()
+                .position(lastKnownLocation));
 
-        }
-    };
+        //Add destination marker
+        passengerLocationMarker = mMap.addMarker(new MarkerOptions()
+                .position(passengerLocation));
 
-    private void acceptRide() {
-        Log.i(TAG, "requestRide");
+        //Add destination marker
+        destinationLocationMarker = mMap.addMarker(new MarkerOptions()
+                .position(destination));
 
-        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
-        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
-        String latitudeInitial = String.valueOf(lastKnownLocation.latitude);
-        String longitudeInitial = String.valueOf(lastKnownLocation.longitude);
-        String latitudeFinal = String.valueOf(destination.latitude);
-        String longitudeFinal = String.valueOf(destination.longitude);
+        //Start drawing route
+        mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), passengerLocationWaypoints, 5, R.color.colorPrimary);
+        mPolyline = mMap.addPolyline(mLineOptions);
+        //Finish drawing route
 
-        //mServerHandler.acceptRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal, acceptRideResponseListener);
+        //Start drawing route
+        mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), destinationWaypoints, 5, R.color.colorPrimary);
+        mPolyline = mMap.addPolyline(mLineOptions);
+        //Finish drawing route
+
+        //fit directions to screen
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(lastKnownLocation);
+        builder.include(passengerLocation);
+        builder.include(destination);
+        LatLngBounds bounds = builder.build();
+        int padding = 150; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mMap.animateCamera(cu);
+
+        Log.i(TAG, "drawDirections finished");
     }
 
     private void cancelRide(Response.Listener<JSONObject> responseListener) {
         Log.i(TAG, "cancelRide");
-        ArrayList<String> list = new ArrayList<String>();
-        list.add("free");
-        list.add("passenger_available");
 
-        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free")))
+        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free")))
             mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_USERNAME, ""), responseListener);
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
@@ -703,7 +519,7 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void checkLocationPermition() {
-        if (ActivityCompat.checkSelfPermission(DriverMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 10);
             }
@@ -714,8 +530,8 @@ public class DriverMapsActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged");
-        checkLocationPermition();
 
+        checkLocationPermition();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 

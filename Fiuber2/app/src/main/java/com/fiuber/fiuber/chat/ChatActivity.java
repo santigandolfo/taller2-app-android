@@ -51,7 +51,6 @@ public class ChatActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        //TODO: Reeplazar KEY_USERNAME por el id del viaje
         rideId = mPreferences.getString(KEY_RIDE_ID, "");
         FINAL_FIREBASE_URL = FIREBASE_URL + rideId;
 

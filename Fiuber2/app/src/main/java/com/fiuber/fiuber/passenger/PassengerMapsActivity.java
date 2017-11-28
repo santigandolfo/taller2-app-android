@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -24,6 +23,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -41,8 +41,6 @@ import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.RequestResult;
 import com.akexorcist.googledirection.model.Direction;
-import com.akexorcist.googledirection.model.Leg;
-import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
@@ -53,7 +51,6 @@ import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.OtherProfileActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.chat.ChatActivity;
-import com.fiuber.fiuber.driver.DriverMapsActivity;
 import com.fiuber.fiuber.geofence.MyGeofence;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
@@ -67,8 +64,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -86,10 +81,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class PassengerMapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback, PlaceSelectionListener, View.OnClickListener, LocationListener {
 
     private static final String TAG = "PassengerMapsActivity";
     private GoogleMap mMap;
@@ -119,7 +114,6 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private MyGeofence myGeofence;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +121,8 @@ public class PassengerMapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_passenger_map);
 
         checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            finish();
 
         myGeofence = new MyGeofence(this);
 
@@ -143,7 +139,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
@@ -168,13 +164,15 @@ public class PassengerMapsActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 checkLocationPermition();
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    return;
                 getLastLocation();
             }
         });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawer.setDrawerListener(toggle);
+        mDrawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -204,10 +202,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(rideAcceptedReceiver, new IntentFilter("rideAcceptedMessage"));
-
-        while (ActivityCompat.checkSelfPermission(PassengerMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            checkLocationPermition();
+        LocalBroadcastManager.getInstance(this).registerReceiver(rideAcceptedReceiver, new IntentFilter("rideAcceptanceMessage"));
 
         this.initializeLocationManager();
 
@@ -217,8 +212,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("data");
 
             myGeofence.stopGeoFencing();
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
@@ -226,13 +219,14 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
+    //TODO: WHen GOnza uploads his modification to the server this will have to be eliminated
     private BroadcastReceiver rideAcceptedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "rideAccepted");
             // Get extra data included in the Intent
             String message = intent.getStringExtra("data");
-            sendNotification(getCurrentFocus(), "Ride",  "Your ride request has been made",PassengerMapsActivity.class);
+            sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
 
             TextView mNameField = findViewById(R.id.text_driver_name);
             String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
@@ -264,21 +258,10 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotificationManager.notify(001, mBuilder.build());
-    }
-
-
-
-/*    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 10:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-
-                }
+        if (mNotificationManager != null) {
+            mNotificationManager.notify(001, mBuilder.build());
         }
-    }*/
+    }
 
     Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
         @Override
@@ -293,7 +276,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     private void getLastLocation() {
         Log.d(TAG, "getLastLocation");
 
-        if (ActivityCompat.checkSelfPermission(PassengerMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 
         mFusedLocationClient.getLastLocation()
@@ -304,13 +287,21 @@ public class PassengerMapsActivity extends AppCompatActivity
                             Log.d(TAG, "getLastLocation:all OK!");
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                            if (currentLocationMarker == null)
+                            if (currentLocationMarker == null) {
                                 currentLocationMarker = mMap.addMarker(new MarkerOptions()
                                         .position(lastKnownLocation)
                                         .title("Current Position"));
+                            }
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-                            mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), String.valueOf(lastKnownLocation.latitude), String.valueOf(lastKnownLocation.longitude), updateUserCoordinatesResponseListener);
+
+                            if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
+                                mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                                                     mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                                                     String.valueOf(lastKnownLocation.latitude),
+                                                                     String.valueOf(lastKnownLocation.longitude),
+                                                                     updateUserCoordinatesResponseListener);
+                            }
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -336,25 +327,17 @@ public class PassengerMapsActivity extends AppCompatActivity
             navigationView.getMenu().getItem(i).setChecked(false);
         }
 
-        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
-        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
-        mServerHandler.sendFirebaseToken(username, password, FirebaseInstanceId.getInstance().getToken());
+        checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
 
         updateUI();
-
-/*        checkLocationPermition();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Conected Geofence");
-            myGeofence.reconnect();
-        }*/
-
     }
 
     private void initializeLocationManager() {
 
         //get the location manager
-        this.locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-
+        this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         //define the location manager criteria
         Criteria criteria = new Criteria();
@@ -363,9 +346,8 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationProvider);
 
-
         //initialize the location
-        if(location != null) {
+        if (location != null) {
 
             onLocationChanged(location);
         }
@@ -373,25 +355,21 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     @SuppressLint("MissingPermission")
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        updateUI();
-        this.locationManager.requestLocationUpdates(this.locationProvider, 400, 1, this);
-/*        checkLocationPermition();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Conected Geofence");
-            myGeofence.reconnect();
-        }*/
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-/*        checkLocationPermition();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Disconected Geofence");
-            myGeofence.reconnect();
-        }*/
+        this.locationManager.requestLocationUpdates(this.locationProvider, 400, 1, this);
+
+        String username = mPreferences.getString(Constants.KEY_USERNAME, "");
+        String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
+        mServerHandler.sendFirebaseToken(username, password, FirebaseInstanceId.getInstance().getToken());
+
+        checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
+
+        myGeofence.reconnect();
+        updateUI();
     }
 
     Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
@@ -415,9 +393,6 @@ public class PassengerMapsActivity extends AppCompatActivity
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
-/*        LoginManager.getInstance().logOut();*/
-        // mServerHandler.logoutServerUser(mPreferences.getString(KEY_AUTH_TOKEN, ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
-
     }
 
     @Override
@@ -437,26 +412,9 @@ public class PassengerMapsActivity extends AppCompatActivity
         return true;
     }
 
-/*    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        Log.d(TAG, "optionsItemSelected");
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
-            logout();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         Log.d(TAG, "navigationItemSelected");
         int id = item.getItemId();
@@ -488,6 +446,8 @@ public class PassengerMapsActivity extends AppCompatActivity
         Log.d(TAG, "onMapReady");
         mMap = googleMap;
         checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            return;
         getLastLocation();
 
     }
@@ -521,6 +481,14 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         destination = place.getLatLng();
 
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(lastKnownLocation);
+        builder.include(destination);
+        LatLngBounds bounds = builder.build();
+        int padding = 150; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mMap.animateCamera(cu);
+
         if (lastKnownLocation != null && destination != null) {
             GoogleDirection.withServerKey(GOOGLE_API_KEY)
                     .from(lastKnownLocation)
@@ -530,35 +498,6 @@ public class PassengerMapsActivity extends AppCompatActivity
                         public void onDirectionSuccess(Direction direction, String rawBody) {
                             String status = direction.getStatus();
                             if (status.equals(RequestResult.OK)) {
-
-                                /*//Add destination marker
-                                destinationLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(place.getLatLng())
-                                        .title(place.getName().toString()));
-
-                                //Add destination circle
-                                //TODO: Remove this after testing various radius
-                                Circle circle = mMap.addCircle(new CircleOptions()
-                                        .center(new LatLng(destination.latitude, destination.longitude))
-                                        .radius(200)
-                                        .strokeColor(Color.RED)
-                                        .strokeWidth(4f));
-
-                                //Start drawing route
-                                Route route = direction.getRouteList().get(0);
-                                Leg leg = route.getLegList().get(0);
-                                ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                                mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), directionPositionList, 5, R.color.colorPrimary);
-                                //mPolyline = mMap.addPolyline(mLineOptions);
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                builder.include(lastKnownLocation);
-                                builder.include(destination);
-                                LatLngBounds bounds = builder.build();
-                                int padding = 150; // offset from edges of the map in pixels
-                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                                mMap.animateCamera(cu);
-                                //Finish drawing route
-*/
                                 mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
                             } else {
@@ -589,7 +528,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void updateUI() {
         Log.i(TAG, "updateUI");
-        if("free".equals(mPreferences.getString(Constants.KEY_STATE,"free"))){
+        if ("free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
 
             findViewById(R.id.search_bar).setVisibility(View.VISIBLE);
 
@@ -683,6 +622,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     }
 
+    //TODO: When Gonza changes server this will have to be modified to accept the information from the driver and waypoints
     Response.Listener<JSONObject> requestRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -699,11 +639,11 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
-    private void drawDirections(String encodedDirections){
+    private void drawDirections(String encodedDirections) {
         Log.i(TAG, "drawDirections");
         clearMap();
 
-        ArrayList<LatLng> latLngs = (ArrayList<LatLng>)PolyUtil.decode(encodedDirections);
+        ArrayList<LatLng> latLngs = (ArrayList<LatLng>) PolyUtil.decode(encodedDirections);
 
         //Add origin marker
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
@@ -739,25 +679,28 @@ public class PassengerMapsActivity extends AppCompatActivity
         String latitudeFinal = String.valueOf(destination.latitude);
         String longitudeFinal = String.valueOf(destination.longitude);
 
-        mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal,requestRideResponseListener);
+        mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal, requestRideResponseListener);
         updateUI();
     }
 
     Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
         }
     };
 
     private void cancelRide(Response.Listener<JSONObject> responseListener) {
         Log.i(TAG, "cancelRide");
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.add("free");
         list.add("place_selected");
 
-        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free")))
-            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_USERNAME, ""), responseListener);
+        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free"))) {
+            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                      mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                      responseListener);
+        }
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
 
@@ -769,7 +712,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> payRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "payRideResponseListener Successful. Response: " + response.toString());
             Toast.makeText(getApplicationContext(), "Payment Successful!",
                     Toast.LENGTH_SHORT).show();
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
@@ -780,7 +723,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     private Response.ErrorListener payRideResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "Request Failed. Response Error: " + error.toString());
+            Log.e(TAG, "payRideResponseErrorListener Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Response statusCode: " + response.statusCode);
@@ -803,9 +746,10 @@ public class PassengerMapsActivity extends AppCompatActivity
         String year = mPreferences.getString(Constants.KEY_EXPIRATION_YEAR, "");
         String method = mPreferences.getString(Constants.KEY_METHOD, "");
         String number = mPreferences.getString(Constants.KEY_NUMBER, "");
-        String cvv = mPreferences.getString(Constants.KEY_CVV, "");
+        String cvv = mPreferences.getString(Constants.KEY_CCVV, "");
         String type = mPreferences.getString(Constants.KEY_PAYMENT_TYPE, "");
-        mServerHandler.generatePayment(rideId, value, month, year, method, number, cvv, type, payRideResponseListener, payRideResponseErrorListener);
+        mServerHandler.generatePayment(rideId, value, month, year, method, number, cvv, type,
+                                       payRideResponseListener, payRideResponseErrorListener);
     }
 
     private void chat() {
@@ -819,9 +763,9 @@ public class PassengerMapsActivity extends AppCompatActivity
     }
 
     private void checkLocationPermition() {
-        if (ActivityCompat.checkSelfPermission(PassengerMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 10);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 99);
             }
         }
     }
@@ -830,9 +774,9 @@ public class PassengerMapsActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged");
-        checkLocationPermition();
 
-        if (ActivityCompat.checkSelfPermission(PassengerMapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        checkLocationPermition();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 
         getLastLocation();

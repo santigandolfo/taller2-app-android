@@ -132,7 +132,7 @@
     <string name="action_chat">Chat</string>
     <string name="prompt_car_model">Model</string>
     <string name="prompt_car_color">Color</string>
-    <string name="prompt_car_plate">Plate</string>
+    <string name="prompt_car_brand">Brand</string>
     <string name="prompt_car_year">Year</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_accept_ride">Accept Ride</string>

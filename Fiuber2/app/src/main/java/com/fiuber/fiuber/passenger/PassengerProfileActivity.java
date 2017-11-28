@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 
@@ -27,7 +26,7 @@ public class PassengerProfileActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(mPreferences.getString(Constants.KEY_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_LASTNAME, ""));

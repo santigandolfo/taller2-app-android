@@ -1,18 +1,11 @@
 package com.fiuber.fiuber.firebase;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.fiuber.fiuber.Constants;
-import com.fiuber.fiuber.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -30,25 +23,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         Log.d(TAG, "FROM:" + remoteMessage.getFrom());
+        Log.d(TAG, "Full Notification:" + remoteMessage.toString());
 
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         //Check if the message contains data
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data: " + remoteMessage.getData());
-            mPreferences.edit().putString(Constants.KEY_FIRSTNAME, remoteMessage.getData().get(Constants.KEY_OTHERS_FIRSTNAME)).apply();
-            mPreferences.edit().putString(Constants.KEY_LASTNAME, remoteMessage.getData().get(Constants.KEY_OTHERS_LASTNAME)).apply();
-            mPreferences.edit().putString(Constants.KEY_USERNAME, remoteMessage.getData().get(Constants.KEY_OTHERS_USERNAME)).apply();
-            mPreferences.edit().putString(Constants.KEY_EMAIL, remoteMessage.getData().get(Constants.KEY_OTHERS_EMAIL)).apply();
+            mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, remoteMessage.getData().get(Constants.KEY_FIRSTNAME)).apply();
+            mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, remoteMessage.getData().get(Constants.KEY_LASTNAME)).apply();
+            mPreferences.edit().putString(Constants.KEY_OTHERS_USERNAME, remoteMessage.getData().get(Constants.KEY_USERNAME)).apply();
+            mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, remoteMessage.getData().get(Constants.KEY_EMAIL)).apply();
 
             if (remoteMessage.getData().containsKey(Constants.KEY_CAR_MODEL)) {
-                mPreferences.edit().putString(Constants.KEY_CAR_MODEL, remoteMessage.getData().get(Constants.KEY_OTHERS_CAR_MODEL)).apply();
-                mPreferences.edit().putString(Constants.KEY_CAR_COLOR, remoteMessage.getData().get(Constants.KEY_OTHERS_CAR_COLOR)).apply();
-                mPreferences.edit().putString(Constants.KEY_CAR_PLATE, remoteMessage.getData().get(Constants.KEY_OTHERS_CAR_PLATE)).apply();
-                mPreferences.edit().putString(Constants.KEY_CAR_YEAR, remoteMessage.getData().get(Constants.KEY_OTHERS_CAR_YEAR)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_MODEL, remoteMessage.getData().get(Constants.KEY_CAR_MODEL)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, remoteMessage.getData().get(Constants.KEY_CAR_COLOR)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, remoteMessage.getData().get(Constants.KEY_CAR_BRAND)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, remoteMessage.getData().get(Constants.KEY_CAR_YEAR)).apply();
             }
         }
 
+        Log.d(TAG, "Sending Intent");
         Intent lbcIntent = new Intent("rideAcceptanceMessage"); //Send to any reciever listening for this
         lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
         LocalBroadcastManager.getInstance(this).sendBroadcast(lbcIntent);  //Send the intent
@@ -61,7 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }*/
     }
 
-    /**
+    /*
      * Dispay the notification
      * @param body
      */

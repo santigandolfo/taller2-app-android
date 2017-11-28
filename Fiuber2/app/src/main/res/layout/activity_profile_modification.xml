@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
-                    android:inputType="textEmailAddress"
+                    android:inputType="textAutoComplete"
                     android:maxLines="1"
                     android:visibility="visible" />
 
@@ -127,10 +127,10 @@
                 android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
-                    android:id="@+id/text_car_plate"
+                    android:id="@+id/text_car_brand"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_car_plate"
+                    android:hint="@string/prompt_car_brand"
                     android:inputType="textAutoComplete"
                     android:maxLines="1"
                     android:visibility="gone"/>
@@ -146,7 +146,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_car_year"
-                    android:inputType="textAutoComplete"
+                    android:inputType="phone"
                     android:maxLines="1"
                     android:visibility="gone"/>
 

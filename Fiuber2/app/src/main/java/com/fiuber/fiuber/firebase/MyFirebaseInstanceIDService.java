@@ -3,7 +3,6 @@ package com.fiuber.fiuber.firebase;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -24,7 +23,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         Log.d(TAG, "New Token: " + refreshedToken);
 
         ServerHandler mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
          String username = mPreferences.getString(Constants.KEY_USERNAME, "");
         String password = mPreferences.getString(Constants.KEY_PASSWORD, "");

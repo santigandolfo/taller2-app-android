@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.passenger.PassengerProfileModificationActivity;
@@ -28,14 +27,14 @@ public class DriverProfileActivity extends AppCompatActivity {
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(mPreferences.getString(Constants.KEY_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_LASTNAME, ""));
         toolbar.setSubtitle("");
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,7 +50,7 @@ public class DriverProfileActivity extends AppCompatActivity {
 
         TextView mCarModelField = findViewById(R.id.text_car_model);
         TextView mCarColorField = findViewById(R.id.text_car_color);
-        TextView mCarPlateField = findViewById(R.id.text_car_plate);
+        TextView mCarBrandField = findViewById(R.id.text_car_brand);
         TextView mCarYearField = findViewById(R.id.text_car_year);
 
         mNameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
@@ -61,12 +60,12 @@ public class DriverProfileActivity extends AppCompatActivity {
 
         findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
-        findViewById(R.id.layout_car_plate).setVisibility(View.VISIBLE);
+        findViewById(R.id.layout_car_brand).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_year).setVisibility(View.VISIBLE);
 
         mCarModelField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
         mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_COLOR, ""));
-        mCarPlateField.setText(mPreferences.getString(Constants.KEY_CAR_PLATE, ""));
+        mCarBrandField.setText(mPreferences.getString(Constants.KEY_CAR_BRAND, ""));
         mCarYearField.setText(mPreferences.getString(Constants.KEY_CAR_YEAR, ""));
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

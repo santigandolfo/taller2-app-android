@@ -7,13 +7,14 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -22,6 +23,8 @@ import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
 
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class DriverProfileModificationActivity extends AppCompatActivity {
 
@@ -41,7 +44,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
     private EditText mCarModelField;
     private EditText mCarColorField;
-    private EditText mCarPlateField;
+    private EditText mCarBrandField;
     private EditText mCarYearField;
 
 
@@ -52,7 +55,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -64,8 +67,15 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
         mCarModelField = findViewById(R.id.text_car_model);
         mCarColorField = findViewById(R.id.text_car_color);
-        mCarPlateField = findViewById(R.id.text_car_plate);
+        mCarBrandField = findViewById(R.id.text_car_brand);
         mCarYearField = findViewById(R.id.text_car_year);
+
+        mCarModelField.setVisibility(View.VISIBLE);
+        mCarColorField.setVisibility(View.VISIBLE);
+        mCarBrandField.setVisibility(View.VISIBLE);
+        mCarYearField.setVisibility(View.VISIBLE);
+
+        mCarYearField.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
 
         //Defaults
         mFirstnameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
@@ -74,7 +84,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
         mCarModelField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
         mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
-        mCarPlateField.setText(mPreferences.getString(Constants.KEY_CAR_PLATE, ""));
+        mCarBrandField.setText(mPreferences.getString(Constants.KEY_CAR_BRAND, ""));
         mCarYearField.setText(mPreferences.getString(Constants.KEY_CAR_YEAR, ""));
 
     }
@@ -101,7 +111,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Response data: " + response.data.toString());
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
             }
             Toast.makeText(getApplicationContext(), "Modification of Profile Failed", Toast.LENGTH_SHORT).show();
         }
@@ -114,7 +124,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
             mPreferences.edit().putString(Constants.KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
-            mPreferences.edit().putString(Constants.KEY_CAR_PLATE, mCarPlateField.getText().toString().trim()).apply();
+            mPreferences.edit().putString(Constants.KEY_CAR_BRAND, mCarBrandField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
 
             Log.d(TAG, "change activity to DriverProfileActivity");
@@ -136,14 +146,14 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
 
             String carModel = mCarModelField.getText().toString().trim();
             String carColor = mCarColorField.getText().toString().trim();
-            String carPlate = mCarPlateField.getText().toString().trim();
+            String carBrand = mCarBrandField.getText().toString().trim();
             String carYear = mCarYearField.getText().toString().trim();
 
             //TODO: Change this
             Log.d(TAG, "change activity to DriverProfileActivity");
             startActivity(new Intent(getApplicationContext(), DriverProfileActivity.class));
 
-            //mServerHandler.saveModificationsCar(username, password, carModel, carColor, carPlate, carYear, saveCarInformationResponseListener, saveCarInformationResponseErrorListener);
+            //mServerHandler.saveModificationsCar(username, password, carModel, carColor, carBrand, carYear, saveCarInformationResponseListener, saveCarInformationResponseErrorListener);
         }
     };
 
@@ -216,12 +226,12 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
             mCarColorField.setError(null);
         }
 
-        String carPlate = mCarPlateField.getText().toString().trim();
-        if (TextUtils.isEmpty(carPlate)) {
-            mCarPlateField.setError("Required.");
+        String carBrand = mCarBrandField.getText().toString().trim();
+        if (TextUtils.isEmpty(carBrand)) {
+            mCarBrandField.setError("Required.");
             valid = false;
         } else {
-            mCarPlateField.setError(null);
+            mCarBrandField.setError(null);
         }
 
         String carYear = mCarYearField.getText().toString().trim();

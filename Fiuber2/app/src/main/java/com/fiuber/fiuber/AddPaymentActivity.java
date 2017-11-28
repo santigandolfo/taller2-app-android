@@ -35,7 +35,7 @@ public class AddPaymentActivity extends AppCompatActivity implements OnCardFormS
         Log.d(TAG, "onCreate");
         setContentView(R.layout.card_form);
 
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         Log.d(TAG, "Here1");
         mSupportedCardTypesView = findViewById(R.id.supported_card_types);

@@ -65,7 +65,7 @@ public class ServerHandler {
                                  Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "createServerUser:" + username);
 
-        String FINAL_URL = Constants.URL + Constants.CREATE_USER;
+        String FINAL_URL = Constants.URL + Constants.USERS;
 
         HashMap<String, String> params = new HashMap<>();
         params.put(Constants.KEY_TYPE, type);
@@ -99,7 +99,7 @@ public class ServerHandler {
                                Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "getValidToken:" + username);
 
-        String FINAL_URL = Constants.URL + Constants.GET_VALID_TOKEN;
+        String FINAL_URL = Constants.URL + Constants.SECURITY;
 
         HashMap<String, String> params = new HashMap<>();
         params.put(Constants.KEY_USERNAME, username);
@@ -167,7 +167,7 @@ public class ServerHandler {
                                 final String number,
                                 final String cvv,
                                 final String type,
-                                final Response.Listener<JSONObject> responseListener,final Response.ErrorListener responseErrorListener) {
+                                final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "setDriversAvailability:" + rideId);
 
         getValidPaymentToken(new Response.Listener<JSONObject>() {
@@ -184,7 +184,7 @@ public class ServerHandler {
 
                 String FINAL_URL = Constants.PAYMENTS_URL;
 
-                String transaction_id = "fiuber-app-"+ rideId;
+                String transaction_id = "fiuber-app-" + rideId;
 
                 HashMap<String, String> paymentMethodHash = new HashMap<>();
                 paymentMethodHash.put(Constants.KEY_EXPIRATION_MONTH, month);
@@ -238,7 +238,7 @@ public class ServerHandler {
                                 Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "loginServerUser:" + username);
 
-        String FINAL_URL = Constants.URL + Constants.LOGIN_USER;
+        String FINAL_URL = Constants.URL + Constants.SECURITY;
 
         HashMap<String, String> params = new HashMap<>();
         params.put(Constants.KEY_USERNAME, username);
@@ -267,7 +267,7 @@ public class ServerHandler {
                                    Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "getUserInformation:" + username);
 
-        String FINAL_URL = Constants.URL + Constants.GET_USER_INFORMATION + "/" + username;
+        String FINAL_URL = Constants.URL + Constants.USERS + "/" + username;
 
         Log.d(TAG, "creating JsonObjectRequest");
         JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, FINAL_URL, null, responseListener, responseErrorListener) {
@@ -298,7 +298,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.MODIFY_DRIVER + "/" + username;
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username;
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -354,7 +354,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username;
+                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username;
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -405,7 +405,7 @@ public class ServerHandler {
                                      final String password,
                                      final String carModel,
                                      final String carColor,
-                                     final String carPlate,
+                                     final String carBrand,
                                      final String carYear,
                                      final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "saveModificationsCar:" + username);
@@ -416,7 +416,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "cars";
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "cars";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -424,38 +424,46 @@ public class ServerHandler {
                     e.printStackTrace();
                 }
 
-                HashMap<String, String> params = new HashMap<>();
-                params.put(Constants.KEY_CAR_MODEL, carModel);
-                params.put(Constants.KEY_CAR_COLOR, carColor);
-                params.put(Constants.KEY_CAR_PLATE, carPlate);
-                params.put(Constants.KEY_CAR_YEAR, carYear);
+                JSONObject newJSONObject = new JSONObject();
 
-                Log.d(TAG, "creating JsonObjectRequest");
-                JsonObjectRequest req = new JsonObjectRequest(
-                        Request.Method.POST,
-                        FINAL_URL,
-                        new JSONObject(params), responseListener, responseErrorListener) {
+                try {
+                    newJSONObject.put(Constants.KEY_CAR_MODEL, carModel);
+                    newJSONObject.put(Constants.KEY_CAR_COLOR, carColor);
+                    newJSONObject.put(Constants.KEY_CAR_BRAND, carBrand);
+                    newJSONObject.put(Constants.KEY_CAR_YEAR, Integer.parseInt(carYear));
 
-                    @Override
-                    protected VolleyError parseNetworkError(VolleyError volleyError) {
-                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
-                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                    Log.d(TAG, "BODY: " + newJSONObject.toString());
+
+                    Log.d(TAG, "creating JsonObjectRequest");
+                    JsonObjectRequest req = new JsonObjectRequest(
+                            Request.Method.POST,
+                            FINAL_URL,
+                            newJSONObject, responseListener, responseErrorListener) {
+
+                        @Override
+                        protected VolleyError parseNetworkError(VolleyError volleyError) {
+                            if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                                volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                            }
+
+                            return volleyError;
                         }
 
-                        return volleyError;
-                    }
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Content-Type", "application/json");
+                            headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                            Log.d(TAG, "HEADER: " + headers.toString());
+                            return headers;
+                        }
+                    };
 
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
-                        Log.d(TAG, "HEADER: " + headers.toString());
-                        return headers;
-                    }
-                };
-
-                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
-                addToRequestQueue(req);
+                    Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                    addToRequestQueue(req);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
             }
         }, defaultResponseErrorListener);
@@ -474,7 +482,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "coordinates";
+                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username + "/" + "coordinates";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -536,7 +544,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.REQUEST_RIDE + "/" + username + "/" + "request";
+                String FINAL_URL = Constants.URL + Constants.RIDERS + "/" + username + "/" + "request";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -595,7 +603,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.REQUEST_RIDE + "/" + username + "/" + "request";
+                String FINAL_URL = Constants.URL + Constants.RIDERS + "/" + username + "/" + "request";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -644,7 +652,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.MODIFY_USER + "/" + username + "/" + "push-token";
+                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username + "/" + "push-token";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);

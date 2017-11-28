@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -19,9 +18,9 @@ import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.driver.DriverRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
-
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class PassengerRegisterActivity extends AppCompatActivity implements
         View.OnClickListener {
@@ -44,7 +43,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_register_user);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         // Views
         mFirstnameField = findViewById(R.id.edit_text_firstname);
@@ -77,7 +76,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Response data: " + response.data.toString());
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
             }
             Toast.makeText(getApplicationContext(), "Creating Passenger Failed", Toast.LENGTH_SHORT).show();
         }

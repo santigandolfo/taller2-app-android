@@ -13,16 +13,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
-
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class PassengerProfileModificationActivity extends AppCompatActivity {
 
@@ -46,7 +45,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -85,7 +84,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Response data: " + response.data.toString());
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
             }
             Toast.makeText(getApplicationContext(), "Modification of Profile Failed", Toast.LENGTH_SHORT).show();
         }

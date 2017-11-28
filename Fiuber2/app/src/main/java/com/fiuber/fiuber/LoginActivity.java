@@ -1,12 +1,12 @@
 package com.fiuber.fiuber;
 
-import android.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -23,9 +22,10 @@ import com.fiuber.fiuber.driver.DriverRegisterActivity;
 import com.fiuber.fiuber.passenger.PassengerMapsActivity;
 import com.fiuber.fiuber.passenger.PassengerRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener {
@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_login);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
-        mPreferences = getSharedPreferences(Constants.MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         // Views
         mUsernameField = findViewById(R.id.edit_text_username);
@@ -63,7 +63,20 @@ public class LoginActivity extends AppCompatActivity implements
     private void checkLocationPermition() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 10);
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 99);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 99:{
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    finish();
+                }
             }
         }
     }
@@ -84,7 +97,7 @@ public class LoginActivity extends AppCompatActivity implements
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Login Failed. Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Login Failed. Response data: " + response.data.toString());
+                Log.e(TAG, "Login Failed. Response data: " + Arrays.toString(response.data));
             }
             Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
         }
@@ -128,7 +141,7 @@ public class LoginActivity extends AppCompatActivity implements
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Getting user information Failed. Response data: " + response.data.toString());
+                Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
             }
             Toast.makeText(getApplicationContext(), "Couldn't get user information", Toast.LENGTH_SHORT).show();
         }
