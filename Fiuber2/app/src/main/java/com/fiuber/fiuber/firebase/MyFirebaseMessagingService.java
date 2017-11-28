@@ -14,7 +14,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
-
     SharedPreferences mPreferences;
 
     @Override
@@ -47,41 +46,5 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent lbcIntent = new Intent("rideAcceptanceMessage"); //Send to any reciever listening for this
         lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
         LocalBroadcastManager.getInstance(this).sendBroadcast(lbcIntent);  //Send the intent
-/*
-        //Check if the message contains notification
-
-        if(remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Mesage body:" + remoteMessage.getNotification().getBody());
-            sendNotification(remoteMessage.getNotification().getBody());
-        }*/
     }
-
-    /*
-     * Dispay the notification
-     * @param body
-     */
-/*    private void sendNotification(String body) {
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0*//*Request code*//*, intent, PendingIntent.FLAG_ONE_SHOT);
-        //Set sound of notification
-        Uri notificationSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-
-        NotificationCompat.Builder notifiBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Firebase Cloud Messaging")
-                .setContentText(body)
-                .setAutoCancel(true)
-                .setSound(notificationSound)
-                .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0 *//*ID of notification*//*, notifiBuilder.build());
-
-        Intent lbcIntent = new Intent("rideAcceptedMessage"); //Send to any reciever listening for this
-        lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
-        LocalBroadcastManager.getInstance(this).sendBroadcast(lbcIntent);  //Send the intent
-
-    }*/
 }

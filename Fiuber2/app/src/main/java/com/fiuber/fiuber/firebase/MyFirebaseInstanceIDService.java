@@ -14,7 +14,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     SharedPreferences mPreferences;
 
-
     @Override
     public void onTokenRefresh() {
         Log.d(TAG, "onTokenRefresh");
