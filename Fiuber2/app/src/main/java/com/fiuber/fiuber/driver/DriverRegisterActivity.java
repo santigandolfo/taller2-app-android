@@ -130,11 +130,6 @@ public class DriverRegisterActivity extends AppCompatActivity implements
             String carBrand = mCarBrandField.getText().toString().trim();
             String carYear = mCarYearField.getText().toString().trim();
 
-            //TODO: CHange this
-/*            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
-            Log.d(TAG, "Change activity to DriverMapsActivity");
-            startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));*/
-
             mServerHandler.saveModificationsCar(username, password, carModel, carColor, carBrand, carYear, saveCarInformationResponseListener, createDriverResponseErrorListener);
         }
     };

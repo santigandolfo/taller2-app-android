@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -74,8 +73,6 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         mCarColorField.setVisibility(View.VISIBLE);
         mCarBrandField.setVisibility(View.VISIBLE);
         mCarYearField.setVisibility(View.VISIBLE);
-
-        mCarYearField.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
 
         //Defaults
         mFirstnameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
@@ -149,11 +146,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
             String carBrand = mCarBrandField.getText().toString().trim();
             String carYear = mCarYearField.getText().toString().trim();
 
-            //TODO: Change this
-            Log.d(TAG, "change activity to DriverProfileActivity");
-            startActivity(new Intent(getApplicationContext(), DriverProfileActivity.class));
-
-            //mServerHandler.saveModificationsCar(username, password, carModel, carColor, carBrand, carYear, saveCarInformationResponseListener, saveCarInformationResponseErrorListener);
+            mServerHandler.saveModificationsCar(username, password, carModel, carColor, carBrand, carYear, saveCarInformationResponseListener, saveCarInformationResponseErrorListener);
         }
     };
 

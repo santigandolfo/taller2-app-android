@@ -219,7 +219,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
-    //TODO: WHen GOnza uploads his modification to the server this will have to be eliminated
+    //TODO: WHen Gonza uploads his modification to the server this will have to be eliminated
     private BroadcastReceiver rideAcceptedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -667,7 +667,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
-    //TODO: Change finished to true when location is equal to destination
     private void requestRide() {
         Log.i(TAG, "requestRide");
         mPreferences.edit().putString(Constants.KEY_STATE, "requesting_ride").apply();
