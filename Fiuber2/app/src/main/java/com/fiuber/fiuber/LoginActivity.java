@@ -183,7 +183,7 @@ public class LoginActivity extends AppCompatActivity implements
             startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
         } else if (type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
-            mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), "True", setDriverAsAvailableResponseListener);
+            mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), true, setDriverAsAvailableResponseListener);
         }
     }
 

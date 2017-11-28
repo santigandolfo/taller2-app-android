@@ -288,7 +288,7 @@ public class ServerHandler {
 
     public void setDriversAvailability(final String username,
                                        final String password,
-                                       final String availability,
+                                       final Boolean availability,
                                        final Response.Listener<JSONObject> responseListener) {
         Log.d(TAG, "setDriversAvailability:" + username);
 
@@ -306,35 +306,39 @@ public class ServerHandler {
                     e.printStackTrace();
                 }
 
+                JSONObject newJSONObject = new JSONObject();
 
-                HashMap<String, String> params = new HashMap<>();
-                params.put(Constants.KEY_AVAILABILITY, availability);
+                try {
+                    newJSONObject.put(Constants.KEY_AVAILABILITY, availability);
 
-                Log.d(TAG, "creating JsonObjectRequest");
-                JsonObjectRequest req = new JsonObjectRequest(
-                        Request.Method.PATCH,
-                        FINAL_URL,
-                        new JSONObject(params), responseListener, defaultResponseErrorListener) {
+                    Log.d(TAG, "creating JsonObjectRequest");
+                    JsonObjectRequest req = new JsonObjectRequest(
+                            Request.Method.PATCH,
+                            FINAL_URL,
+                            newJSONObject, responseListener, defaultResponseErrorListener) {
 
-                    @Override
-                    protected VolleyError parseNetworkError(VolleyError volleyError) {
-                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
-                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                        @Override
+                        protected VolleyError parseNetworkError(VolleyError volleyError) {
+                            if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                                volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                            }
+
+                            return volleyError;
                         }
 
-                        return volleyError;
-                    }
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                            return headers;
+                        }
+                    };
 
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
-                        return headers;
-                    }
-                };
-
-                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
-                addToRequestQueue(req);
+                    Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                    addToRequestQueue(req);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
             }
         }, defaultResponseErrorListener);

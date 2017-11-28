@@ -321,7 +321,7 @@ public class DriverMapsActivity extends AppCompatActivity
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), "False", setDriverAsAvailableResponseListener);
+        mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), false, setDriverAsAvailableResponseListener);
         if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             cancelRide(logoutCancelRideResponseListener);
         } else {
