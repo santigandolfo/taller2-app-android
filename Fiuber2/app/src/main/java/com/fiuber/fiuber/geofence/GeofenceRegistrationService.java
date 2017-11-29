@@ -31,7 +31,7 @@ public class GeofenceRegistrationService extends IntentService {
             if (transaction == Geofence.GEOFENCE_TRANSITION_ENTER) {
                 Log.d(TAG, "You are inside Stanford University");
 
-                Intent lbcIntent = new Intent("googlegeofence"); //Send to any reciever listening for this
+                Intent lbcIntent = new Intent("activate_geofence"); //Send to any reciever listening for this
                 lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
                 LocalBroadcastManager.getInstance(this).sendBroadcast(lbcIntent);  //Send the intent
 

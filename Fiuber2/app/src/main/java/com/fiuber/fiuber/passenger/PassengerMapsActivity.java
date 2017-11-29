@@ -112,7 +112,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
-    private MyGeofence myGeofence;
+    //private MyGeofence myGeofence;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +124,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             finish();
 
-        myGeofence = new MyGeofence(this);
+        //myGeofence = new MyGeofence(this);
 
         // BottomSheet
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -202,17 +202,27 @@ public class PassengerMapsActivity extends AppCompatActivity
                 });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("cancel_ride"));
+
 
         this.initializeLocationManager();
 
     }
+
+    private BroadcastReceiver cancelRideReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "destinationReached");
+            cancelRideUpdate();
+        }
+    };
 
     private BroadcastReceiver destinationReachedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
 
-            myGeofence.stopGeoFencing();
+            //myGeofence.stopGeoFencing();
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
             updateUI();
         }
@@ -348,7 +358,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 
-        myGeofence.reconnect();
+        //myGeofence.reconnect();
         updateUI();
     }
 
@@ -703,7 +713,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
 
                 mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
-                myGeofence.startGeofencing(destination);
+                //myGeofence.startGeofencing(destination);
                 updateUI();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -728,10 +738,18 @@ public class PassengerMapsActivity extends AppCompatActivity
         updateUI();
     }
 
+    private void cancelRideUpdate(){
+        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
+        updateUI();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+    }
+
     Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            cancelRideUpdate();
         }
     };
 
@@ -744,14 +762,12 @@ public class PassengerMapsActivity extends AppCompatActivity
         if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
                                       mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                      mPreferences.getString(Constants.KEY_RIDE_ID, ""),
                                       responseListener);
+        } else {
+            cancelRideUpdate();
         }
-        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
 
-        updateUI();
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
     Response.Listener<JSONObject> payRideResponseListener = new Response.Listener<JSONObject>() {

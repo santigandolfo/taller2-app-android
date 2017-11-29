@@ -154,8 +154,9 @@ public class DriverMapsActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(acceptRideReceiver, new IntentFilter("rideAcceptanceMessage"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("activate_geofence"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("accept_ride"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("cancel_ride"));
 
         checkLocationPermition();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
@@ -179,6 +180,14 @@ public class DriverMapsActivity extends AppCompatActivity
                 mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             }
             updateUI();
+        }
+    };
+
+    private BroadcastReceiver cancelRideReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "destinationReached");
+            cancelRideUpdate();
         }
     };
 
@@ -506,10 +515,18 @@ public class DriverMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
+    private void cancelRideUpdate(){
+        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
+        updateUI();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+    }
+
     Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            cancelRideUpdate();
         }
     };
 
@@ -517,14 +534,14 @@ public class DriverMapsActivity extends AppCompatActivity
     private void cancelRide(Response.Listener<JSONObject> responseListener) {
         Log.i(TAG, "cancelRide");
 
-        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free")))
-            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_USERNAME, ""), responseListener);
-        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
-
-        updateUI();
-
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))){
+            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                      mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                      mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                                      responseListener);
+        } else {
+            cancelRideUpdate();
+        }
     }
 
     private void chat() {

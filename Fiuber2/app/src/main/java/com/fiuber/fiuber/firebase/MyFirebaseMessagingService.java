@@ -58,9 +58,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
 
-            Log.d(TAG, "Sending Intent");
-            Intent lbcIntent = new Intent("rideAcceptanceMessage"); //Send to any reciever listening for this
-            lbcIntent.putExtra("data", "This is my data!");  //Put whatever it is you want the activity to handle
+            Log.d(TAG, "Sending acceptRide Intent");
+            Intent lbcIntent = new Intent("accept_ride"); //Send to any reciever listening for this
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(lbcIntent);  //Send the intent
 
         }
@@ -84,21 +83,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         //Check if the message contains data
         if (remoteMessage.getData().size() > 0) {
-            mPreferences.edit().putString(Constants.KEY_RIDE_ID, remoteMessage.getData().get("id")).apply();
+            if("trip_assigned".equals(remoteMessage.getNotification().getBody())) {
+                mPreferences.edit().putString(Constants.KEY_RIDE_ID, remoteMessage.getData().get("id")).apply();
 
-            //TODO: ASK GONZA OR FEDE THE REAL NAME
-/*
-            mPreferences.edit().putString(Constants.KEY_LATITUDE_INITIAL, remoteMessage.getData().get("passenger_latitude")).apply();
-            mPreferences.edit().putString(Constants.KEY_LONGITUDE_INITIAL, remoteMessage.getData().get("passenger_longitude")).apply();
-            mPreferences.edit().putString(Constants.KEY_LATITUDE_FINAL, remoteMessage.getData().get("destination_latitude")).apply();
-            mPreferences.edit().putString(Constants.KEY_LONGITUDE_FINAL, remoteMessage.getData().get("destination_longitude")).apply();
-            mPreferences.edit().putString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, remoteMessage.getData().get("passenger_directions")).apply();
-            mPreferences.edit().putString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, remoteMessage.getData().get("destination_directions")).apply();
-*/
+                //TODO: ASK GONZA OR FEDE THE REAL NAME
+    /*
+                mPreferences.edit().putString(Constants.KEY_LATITUDE_INITIAL, remoteMessage.getData().get("passenger_latitude")).apply();
+                mPreferences.edit().putString(Constants.KEY_LONGITUDE_INITIAL, remoteMessage.getData().get("passenger_longitude")).apply();
+                mPreferences.edit().putString(Constants.KEY_LATITUDE_FINAL, remoteMessage.getData().get("destination_latitude")).apply();
+                mPreferences.edit().putString(Constants.KEY_LONGITUDE_FINAL, remoteMessage.getData().get("destination_longitude")).apply();
+                mPreferences.edit().putString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, remoteMessage.getData().get("passenger_directions")).apply();
+                mPreferences.edit().putString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, remoteMessage.getData().get("destination_directions")).apply();
+    */
 
 
-            mServerHandler.getUserInformation(remoteMessage.getData().get("rider"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
-
+                mServerHandler.getUserInformation(remoteMessage.getData().get("rider"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
+            } else if("trip_cancelled".equals(remoteMessage.getNotification().getBody())) {
+                Log.d(TAG, "Sending cancelRide Intent");
+                Intent lbcIntent = new Intent("cancel_ride"); //Send to any reciever listening for this
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(lbcIntent);  //Send the intent
+            }
         }
     }
 }

@@ -598,6 +598,7 @@ public class ServerHandler {
 
     public void cancelRide(final String username,
                            final String password,
+                           final String requestId,
                            final Response.Listener<JSONObject> responseListener) {
         Log.d(TAG, "cancelRide:" + username);
 
@@ -607,7 +608,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.RIDERS + "/" + username + "/" + "request";
+                String FINAL_URL = Constants.URL + Constants.REQUESTS + "/" + requestId;
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);

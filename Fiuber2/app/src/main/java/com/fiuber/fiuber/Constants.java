@@ -16,6 +16,7 @@ public class Constants {
     public static final String USERS = "/users";
     public static final String DRIVERS = "/drivers";
     public static final String RIDERS = "/riders";
+    public static final String REQUESTS = "/requests";
 
     //tokens
     public static final String KEY_AUTH_TOKEN = "auth_token";
