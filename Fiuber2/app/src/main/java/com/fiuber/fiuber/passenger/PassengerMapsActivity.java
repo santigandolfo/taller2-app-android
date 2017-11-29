@@ -362,6 +362,17 @@ public class PassengerMapsActivity extends AppCompatActivity
         updateUI();
     }
 
+    private Response.ErrorListener logoutCancelRideResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "logoutCancelRide Failed. Response Error: " + error.toString());
+            mPreferences.edit().clear().apply();
+            Log.d(TAG, "Change activity to LoginActivity");
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        }
+    };
+
+
     Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -377,7 +388,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         Log.d(TAG, "logout");
         mAuth.signOut();
         if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            cancelRide(logoutCancelRideResponseListener);
+            cancelRide(logoutCancelRideResponseListener, logoutCancelRideResponseErrorListener);
         } else {
             mPreferences.edit().clear().apply();
             Log.d(TAG, "Change activity to LoginActivity");
@@ -596,7 +607,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         int i = v.getId();
         if (i == R.id.button_cancel) {
             Log.d(TAG, "clicked cancel button");
-            cancelRide(cancelRideResponseListener);
+            cancelRide(cancelRideResponseListener, cancelRideResponseErrorListener);
         } else if (i == R.id.button_request_ride) {
             Log.d(TAG, "clicked request_ride button");
             requestRide();
@@ -745,6 +756,14 @@ public class PassengerMapsActivity extends AppCompatActivity
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
+    private Response.ErrorListener cancelRideResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "cancelRide Failed. Response Error: " + error.toString());
+            cancelRideUpdate();
+        }
+    };
+
     Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -753,7 +772,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
-    private void cancelRide(Response.Listener<JSONObject> responseListener) {
+    private void cancelRide(Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.i(TAG, "cancelRide");
         ArrayList<String> list = new ArrayList<>();
         list.add("free");
@@ -763,7 +782,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
                                       mPreferences.getString(Constants.KEY_USERNAME, ""),
                                       mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                                      responseListener);
+                                      responseListener, responseErrorListener);
         } else {
             cancelRideUpdate();
         }
