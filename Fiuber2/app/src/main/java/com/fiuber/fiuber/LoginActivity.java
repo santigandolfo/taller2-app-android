@@ -22,6 +22,7 @@ import com.fiuber.fiuber.driver.DriverRegisterActivity;
 import com.fiuber.fiuber.passenger.PassengerMapsActivity;
 import com.fiuber.fiuber.passenger.PassengerRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -158,6 +159,15 @@ public class LoginActivity extends AppCompatActivity implements
                 mPreferences.edit().putString(Constants.KEY_EMAIL, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_EMAIL)).apply();
                 mPreferences.edit().putString(Constants.KEY_TYPE, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_TYPE)).apply();
 
+                if ("driver".equals(mPreferences.getString(Constants.KEY_TYPE, ""))) {
+                    Log.d(TAG, "User is a driver");
+                    Log.d(TAG, "cars:" + response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").toString());
+                    mPreferences.edit().putString(Constants.KEY_CAR_MODEL, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_MODEL)).apply();
+                    mPreferences.edit().putString(Constants.KEY_CAR_BRAND, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_BRAND)).apply();
+                    mPreferences.edit().putString(Constants.KEY_CAR_COLOR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_COLOR)).apply();
+                    mPreferences.edit().putString(Constants.KEY_CAR_YEAR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_YEAR)).apply();
+                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -183,7 +193,7 @@ public class LoginActivity extends AppCompatActivity implements
             startActivity(new Intent(LoginActivity.this, PassengerMapsActivity.class));
         } else if (type.equals("driver")) {
             Log.d(TAG, "Change activity to DriverMapsActivity");
-            mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), true, setDriverAsAvailableResponseListener);
+            mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), true, setDriverAsAvailableResponseListener);
         }
     }
 

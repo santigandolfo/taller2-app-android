@@ -4,7 +4,7 @@ public class Constants {
 
 
     //misc
-    static final String KEY_INFO = "info";
+    public static final String KEY_INFO = "info";
 
     //urls
     //payment urls
@@ -50,6 +50,7 @@ public class Constants {
     public static final String KEY_OTHERS_LASTNAME = "others_lastname";
     public static final String KEY_OTHERS_EMAIL = "others_email";
     public static final String KEY_OTHERS_USERNAME = "others_username";
+    public static final String KEY_OTHERS_TYPE = "others_type";
 
     //other user car
     public static final String KEY_OTHERS_CAR_MODEL = "others_car_mode";
@@ -65,7 +66,7 @@ public class Constants {
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
     //driver info
-    public static final String KEY_AVAILABILITY = "availability";
+    public static final String KEY_DUTY = "duty";
     //state in app
     public static final String KEY_STATE = "state";
 

@@ -168,7 +168,7 @@ public class ServerHandler {
                                 final String cvv,
                                 final String type,
                                 final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
-        Log.d(TAG, "setDriversAvailability:" + rideId);
+        Log.d(TAG, "setDriversDuty:" + rideId);
 
         getValidPaymentToken(new Response.Listener<JSONObject>() {
             @Override
@@ -286,11 +286,11 @@ public class ServerHandler {
         this.addToRequestQueue(req);
     }
 
-    public void setDriversAvailability(final String username,
-                                       final String password,
-                                       final Boolean availability,
-                                       final Response.Listener<JSONObject> responseListener) {
-        Log.d(TAG, "setDriversAvailability:" + username);
+    public void setDriversDuty(final String username,
+                               final String password,
+                               final Boolean duty,
+                               final Response.Listener<JSONObject> responseListener) {
+        Log.d(TAG, "setDriversDuty:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
             @Override
@@ -309,7 +309,7 @@ public class ServerHandler {
                 JSONObject newJSONObject = new JSONObject();
 
                 try {
-                    newJSONObject.put(Constants.KEY_AVAILABILITY, availability);
+                    newJSONObject.put(Constants.KEY_DUTY, duty);
 
                     Log.d(TAG, "creating JsonObjectRequest");
                     JsonObjectRequest req = new JsonObjectRequest(
@@ -539,7 +539,7 @@ public class ServerHandler {
                             final String longitudeInitial,
                             final String latitudeFinal,
                             final String longitudeFinal,
-                            final Response.Listener<JSONObject> responseListener) {
+                            final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "requestRide:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
@@ -569,7 +569,7 @@ public class ServerHandler {
                 JsonObjectRequest req = new JsonObjectRequest(
                         Request.Method.POST,
                         FINAL_URL,
-                        new JSONObject(params), responseListener, defaultResponseErrorListener) {
+                        new JSONObject(params), responseListener, responseErrorListener) {
 
                     @Override
                     protected VolleyError parseNetworkError(VolleyError volleyError) {

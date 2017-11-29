@@ -16,27 +16,13 @@ public class OtherProfileActivity extends AppCompatActivity {
 
     SharedPreferences mPreferences;
 
-    String MY_PREFERENCES = "MyPreferences";
-
-    private static final String KEY_TYPE = "type";
-
-    private static final String KEY_OTHERS_FIRSTNAME = "others_firstname";
-    private static final String KEY_OTHERS_LASTNAME = "others_lastname";
-    private static final String KEY_OTHERS_EMAIL = "others_email";
-    private static final String KEY_OTHERS_USERNAME = "others_username";
-
-    private static final String KEY_OTHERS_CAR_MODEL = "others_car_mode";
-    private static final String KEY_OTHERS_CAR_COLOR = "others_car_color";
-    private static final String KEY_OTHERS_CAR_BRAND = "others_car_brand";
-    private static final String KEY_OTHERS_CAR_YEAR = "others_car_year";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate");
         setContentView(R.layout.activity_profile);
 
-        mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         TextView mNameField = findViewById(R.id.text_firstname);
         TextView mSurnameField = findViewById(R.id.text_lastname);
@@ -49,27 +35,32 @@ public class OtherProfileActivity extends AppCompatActivity {
         TextView mCarYearField = findViewById(R.id.text_car_year);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(mPreferences.getString(KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(KEY_OTHERS_LASTNAME, ""));
+        toolbar.setTitle(mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, ""));
         toolbar.setSubtitle("");
 
-        mNameField.setText(mPreferences.getString(KEY_OTHERS_FIRSTNAME, ""));
-        mSurnameField.setText(mPreferences.getString(KEY_OTHERS_LASTNAME, ""));
-        mEmailField.setText(mPreferences.getString(KEY_OTHERS_EMAIL, ""));
-        mUsernameField.setText(mPreferences.getString(KEY_OTHERS_USERNAME, ""));
+        mNameField.setText(mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, ""));
+        mSurnameField.setText(mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, ""));
+        mEmailField.setText(mPreferences.getString(Constants.KEY_OTHERS_EMAIL, ""));
+        mUsernameField.setText(mPreferences.getString(Constants.KEY_OTHERS_USERNAME, ""));
 
-        if ("passenger".equals(mPreferences.getString(KEY_TYPE, ""))) {
+        Log.d(TAG, "Type: " + mPreferences.getString(Constants.KEY_OTHERS_TYPE, ""));
+        if ("driver".equals(mPreferences.getString(Constants.KEY_OTHERS_TYPE, ""))) {
             findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_brand).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_year).setVisibility(View.VISIBLE);
 
-            mCarModelField.setText(mPreferences.getString(KEY_OTHERS_CAR_MODEL, ""));
-            mCarColorField.setText(mPreferences.getString(KEY_OTHERS_CAR_COLOR, ""));
-            mCarBrandField.setText(mPreferences.getString(KEY_OTHERS_CAR_BRAND, ""));
-            mCarYearField.setText(mPreferences.getString(KEY_OTHERS_CAR_YEAR, ""));
+            mCarModelField.setText(mPreferences.getString(Constants.KEY_OTHERS_CAR_MODEL, ""));
+            mCarColorField.setText(mPreferences.getString(Constants.KEY_OTHERS_CAR_COLOR, ""));
+            mCarBrandField.setText(mPreferences.getString(Constants.KEY_OTHERS_CAR_BRAND, ""));
+            mCarYearField.setText(mPreferences.getString(Constants.KEY_OTHERS_CAR_YEAR, ""));
+        } else {
+            Log.d(TAG, "HELL TO THE NOOOO");
         }
 
         setSupportActionBar(toolbar);
+
+        findViewById(R.id.fab).setVisibility(View.GONE);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

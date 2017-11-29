@@ -30,14 +30,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
-import com.akexorcist.googledirection.DirectionCallback;
-import com.akexorcist.googledirection.GoogleDirection;
-import com.akexorcist.googledirection.constant.RequestResult;
-import com.akexorcist.googledirection.model.Direction;
-import com.akexorcist.googledirection.model.Leg;
-import com.akexorcist.googledirection.model.Route;
+
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.Response;
 import com.fiuber.fiuber.LoginActivity;
@@ -66,7 +60,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.maps.android.PolyUtil;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
@@ -325,7 +318,7 @@ public class DriverMapsActivity extends AppCompatActivity
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        mServerHandler.setDriversAvailability(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), false, setDriverAsAvailableResponseListener);
+        mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), false, setDriverAsNotOnDutyResponseListener);
         if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             cancelRide(logoutCancelRideResponseListener);
         } else {
@@ -338,12 +331,10 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
-    Response.Listener<JSONObject> setDriverAsAvailableResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> setDriverAsNotOnDutyResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "setDriverAsAvailableResponseListener Successful. Response: " + response.toString());
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            Log.d(TAG, "setDriverAsNotOnDutyResponseListener Successful. Response: " + response.toString());
         }
     };
 

@@ -375,7 +375,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "logoutCancelRideResponseListener Successful. Response: " + response.toString());
             mPreferences.edit().clear().apply();
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -622,23 +622,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     }
 
-    //TODO: When Gonza changes server this will have to be modified to accept the information from the driver and waypoints
-    Response.Listener<JSONObject> requestRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
-            try {
-                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
-                drawDirections(response.getString("directions"));
-                Log.d(TAG, "RIDE ID: " + mPreferences.getString(Constants.KEY_RIDE_ID, ""));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            updateUI();
-
-        }
-    };
-
     private void drawDirections(String encodedDirections) {
         Log.i(TAG, "drawDirections");
         clearMap();
@@ -667,6 +650,85 @@ public class PassengerMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
+    private Response.ErrorListener requestRideResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "payRideResponseErrorListener Failed. Response Error: " + error.toString());
+            mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
+
+
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't make request",
+                    Toast.LENGTH_SHORT).show();
+            updateUI();
+        }
+    };
+
+    Response.ErrorListener getUserInformationResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "Getting user information Failed. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't get drivers information", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> getUserInformationResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "Getting user information Successful. Response: " + response.toString());
+            try {
+                mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_FIRSTNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_LASTNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_USERNAME, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_USERNAME)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_EMAIL)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_TYPE, response.getJSONObject(Constants.KEY_INFO).getString(Constants.KEY_TYPE)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_MODEL, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_MODEL)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_BRAND)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_COLOR)).apply();
+                mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_YEAR)).apply();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
+
+            Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> requestRideResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
+            try {
+                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
+                drawDirections(response.getString("directions"));
+
+                mServerHandler.getUserInformation(response.getString("driver"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
+
+                TextView mNameField = findViewById(R.id.text_driver_name);
+                String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
+                mNameField.setText(fullName);
+
+                mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                myGeofence.startGeofencing(destination);
+                updateUI();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            updateUI();
+
+        }
+    };
+
     private void requestRide() {
         Log.i(TAG, "requestRide");
         mPreferences.edit().putString(Constants.KEY_STATE, "requesting_ride").apply();
@@ -678,7 +740,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         String latitudeFinal = String.valueOf(destination.latitude);
         String longitudeFinal = String.valueOf(destination.longitude);
 
-        mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal, requestRideResponseListener);
+        mServerHandler.requestRide(username, password, latitudeInitial, longitudeInitial, latitudeFinal, longitudeFinal, requestRideResponseListener, requestRideResponseErrorListener);
         updateUI();
     }
 
