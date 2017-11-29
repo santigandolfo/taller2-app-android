@@ -30,6 +30,10 @@ public class Constants {
     public static final String KEY_LATITUDE_FINAL = "latitude_final";
     public static final String KEY_LONGITUDE_FINAL = "longitude_final";
 
+    //position info
+    public static final String KEY_DRIVER_TO_PASSENGER_DIRECTIONS = "driver_to_passenger_directions";
+    public static final String KEY_PASSENGER_TO_DESTINATION_DIRECTIONS = "driver_to_passenger_directions";
+
     //payment info
     public static final String KEY_EXPIRATION_MONTH = "expiration_month";
     public static final String KEY_EXPIRATION_YEAR = "expiration_year";

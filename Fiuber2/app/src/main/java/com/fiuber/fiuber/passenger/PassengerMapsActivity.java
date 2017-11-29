@@ -202,7 +202,6 @@ public class PassengerMapsActivity extends AppCompatActivity
                 });
 
         LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(rideAcceptedReceiver, new IntentFilter("rideAcceptanceMessage"));
 
         this.initializeLocationManager();
 
@@ -215,25 +214,6 @@ public class PassengerMapsActivity extends AppCompatActivity
 
             myGeofence.stopGeoFencing();
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
-            updateUI();
-        }
-    };
-
-    //TODO: WHen Gonza uploads his modification to the server this will have to be eliminated
-    private BroadcastReceiver rideAcceptedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "rideAccepted");
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("data");
-            sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
-
-            TextView mNameField = findViewById(R.id.text_driver_name);
-            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
-            mNameField.setText(fullName);
-
-            mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
-            myGeofence.startGeofencing(destination);
             updateUI();
         }
     };
@@ -695,10 +675,16 @@ public class PassengerMapsActivity extends AppCompatActivity
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_BRAND)).apply();
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_COLOR)).apply();
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_YEAR)).apply();
+
+
+                TextView mNameField = findViewById(R.id.text_driver_name);
+                String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
+                mNameField.setText(fullName);
+
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
             Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
         }
@@ -714,9 +700,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                 mServerHandler.getUserInformation(response.getString("driver"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
 
-                TextView mNameField = findViewById(R.id.text_driver_name);
-                String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
-                mNameField.setText(fullName);
+                sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
 
                 mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
                 myGeofence.startGeofencing(destination);
