@@ -106,7 +106,7 @@ public class DriverMapsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_driver_map);
 
         myGeofence = new MyGeofence(this);
@@ -206,7 +206,7 @@ public class DriverMapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "updateUserCoordinatesResponseListener Successful. Response: " + response.toString());
             mPreferences.edit().putString(Constants.KEY_LATITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
             mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
         }
@@ -250,7 +250,7 @@ public class DriverMapsActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        Log.e(TAG, "onStart");
+        Log.d(TAG, "onStart");
 
         if (!mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
             Log.d(TAG, "change activity to LoginActivity");

@@ -13,7 +13,7 @@ public class DriverPaymentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_payment);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

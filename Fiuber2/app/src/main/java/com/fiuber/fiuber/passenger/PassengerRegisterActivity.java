@@ -39,7 +39,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_register_user);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -61,7 +61,7 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        Log.e(TAG, "onStart");
+        Log.d(TAG, "onStart");
         // Check if user is signed in (non-null) and update UI accordingly.
         if (mPreferences.getBoolean(Constants.KEY_LOGIN, false)) {
             Log.d(TAG, "Change activity to PassengerMapsActivity");

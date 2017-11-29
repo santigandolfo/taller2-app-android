@@ -36,12 +36,12 @@ public class MyGeofence implements GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     public void reconnect() {
-        Log.e(TAG, "reconnect");
+        Log.d(TAG, "reconnect");
         googleApiClient.reconnect();
     }
 
     public void disconnect() {
-        Log.e(TAG, "disconnect");
+        Log.d(TAG, "disconnect");
         googleApiClient.disconnect();
     }
 

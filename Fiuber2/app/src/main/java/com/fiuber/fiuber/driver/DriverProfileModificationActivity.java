@@ -50,7 +50,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -117,7 +117,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
     Response.Listener<JSONObject> saveCarInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
 
             mPreferences.edit().putString(Constants.KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();
@@ -132,7 +132,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
     Response.Listener<JSONObject> saveUserInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveUserInformationResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "saveUserInformationResponseListener Successful. Response: " + response.toString());
 
             mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();

@@ -95,7 +95,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
     Response.Listener<JSONObject> saveCarInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "saveCarInformationResponseListener Successful. Response: " + response.toString());
 
             mPreferences.edit().putString(Constants.KEY_CAR_MODEL, mCarModelField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_CAR_COLOR, mCarColorField.getText().toString().trim()).apply();

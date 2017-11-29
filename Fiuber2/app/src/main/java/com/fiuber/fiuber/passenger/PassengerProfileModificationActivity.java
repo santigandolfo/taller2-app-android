@@ -41,7 +41,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG, "onCreate");
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
@@ -93,7 +93,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
     Response.Listener<JSONObject> saveModificationsUserResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.e(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "saveModificationsUserResponseListener Successful. Response: " + response.toString());
             mPreferences.edit().putString(Constants.KEY_FIRSTNAME, mFirstnameField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_LASTNAME, mLastnameField.getText().toString().trim()).apply();
             mPreferences.edit().putString(Constants.KEY_EMAIL, mEmailField.getText().toString().trim()).apply();
