@@ -122,14 +122,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/action_text_login"
                 android:textColor="@color/com_facebook_blue" />
-
+<!--
             <com.facebook.login.widget.LoginButton
                 android:id="@+id/button_facebook_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="30dp"
-                android:layout_marginTop="30dp" />
+                android:layout_marginTop="30dp" />-->
 
 
 

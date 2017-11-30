@@ -230,7 +230,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
             Button buttonPayRide = findViewById(R.id.button_pay_ride);
             DecimalFormat df = new DecimalFormat("#.##");
-            buttonPayRide.setText("Pay: " + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
+            buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
 
             updateUI();
         }
@@ -832,7 +832,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void payRide() {
         Log.i(TAG, "payRide");
-        if (mPreferences.getString(Constants.KEY_NUMBER, "").isEmpty()) {
+        while (mPreferences.getString(Constants.KEY_NUMBER, "").isEmpty()) {
             Log.i(TAG, "No card, starting AddPaymentActivity");
             startActivity(new Intent(getApplicationContext(), AddPaymentActivity.class));
         }

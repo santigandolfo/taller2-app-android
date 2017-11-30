@@ -168,7 +168,7 @@ public class ServerHandler {
                                 final String cvv,
                                 final String type,
                                 final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
-        Log.d(TAG, "setDriversDuty:" + rideId);
+        Log.d(TAG, "generatePayment:" + rideId);
 
         getValidPaymentToken(new Response.Listener<JSONObject>() {
             @Override
