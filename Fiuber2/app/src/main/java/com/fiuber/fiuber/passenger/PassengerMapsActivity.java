@@ -265,9 +265,6 @@ public class PassengerMapsActivity extends AppCompatActivity
     private void getLastLocation() {
         Log.d(TAG, "getLastLocation");
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            return;
-
         mFusedLocationClient.getLastLocation()
                 .addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override

@@ -6,7 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DriverHistoryElement {
 
@@ -22,7 +25,14 @@ public class DriverHistoryElement {
         Log.i(TAG, "DriverHistoryElement");
         try {
             this.cost = object.getString("cost");
-            this.date = object.getString("createdAt");
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
+                SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
+                Date d = sdf.parse(object.getString("createdAt"));
+                this.date = output.format(d);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             this.passenger = object.getString("passenger_id");
             this.startLocation = object.getJSONArray("start_location").toString();
             this.endLocation = object.getJSONArray("end_location").toString();

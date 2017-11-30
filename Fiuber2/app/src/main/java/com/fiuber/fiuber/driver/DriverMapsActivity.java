@@ -318,9 +318,6 @@ public class DriverMapsActivity extends AppCompatActivity
     private void getLastLocation() {
         Log.d(TAG, "getLastLocation");
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            return;
-
         mFusedLocationClient.getLastLocation()
                 .addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
@@ -329,12 +326,14 @@ public class DriverMapsActivity extends AppCompatActivity
                             Log.d(TAG, "getLastLocation:all OK!");
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                            if (currentLocationMarker == null)
+                            if (currentLocationMarker == null) {
                                 currentLocationMarker = mMap.addMarker(new MarkerOptions()
                                         .position(lastKnownLocation)
                                         .title("Current Position"));
+                            }
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+
                             mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
                                     mPreferences.getString(Constants.KEY_PASSWORD, ""),
                                     String.valueOf(lastKnownLocation.latitude),

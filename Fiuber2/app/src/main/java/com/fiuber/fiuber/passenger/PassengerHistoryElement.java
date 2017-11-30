@@ -26,17 +26,14 @@ public class PassengerHistoryElement {
 
         try {
             this.cost = object.getString("cost");
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
-            SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
             try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
+                SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
                 Date d = sdf.parse(object.getString("createdAt"));
                 this.date = output.format(d);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
-
             this.driver = String.valueOf(object.getInt("driver_id"));
             this.startLocation = object.getJSONArray("start_location").toString();
             this.endLocation = object.getJSONArray("end_location").toString();
