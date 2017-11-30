@@ -187,18 +187,26 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
-            myGeofence.startGeofencing(destination);
-            mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
-            updateUI();
+            try {
+                if (!"fail".equals(response.getString("status"))) {
+                    myGeofence.startGeofencing(destination);
+                    mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                    updateUI();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Couldn't start trip", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     };
 
     private void startTrip() {
 
         mServerHandler.startTrip(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                 mPreferences.getString(Constants.KEY_PASSWORD, ""),
-                                 mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                                 startTripResponseListener, startTripResponseErrorListener);
+                mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                startTripResponseListener, startTripResponseErrorListener);
     }
 
     Response.ErrorListener finishTripResponseErrorListener = new Response.ErrorListener() {
@@ -210,7 +218,7 @@ public class DriverMapsActivity extends AppCompatActivity
                 Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
                 Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
             }
-            Toast.makeText(getApplicationContext(), "Couldn't start trip", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Couldn't finish trip", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -218,18 +226,27 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onResponse(JSONObject response) {
             Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-            updateUI();
-            clearPassengerConstants();
+            try {
+                if (!"fail".equals(response.getString("status"))) {
+                    mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+                    updateUI();
+                    clearPassengerConstants();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Couldn't finish trip", Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
     };
 
     private void finishTrip() {
 
         mServerHandler.finishTrip(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                  mPreferences.getString(Constants.KEY_PASSWORD, ""),
-                                  mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                                  finishTripResponseListener, finishTripResponseErrorListener);
+                mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                finishTripResponseListener, finishTripResponseErrorListener);
     }
 
     private BroadcastReceiver destinationReachedReceiver = new BroadcastReceiver() {

@@ -24,13 +24,13 @@ public class PassengerHistoryActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-/*        // Construct the data source
+        // Construct the data source
         ArrayList<HistoryElement> arrayOfUsers = new ArrayList<HistoryElement>();
      // Create the adapter to convert the array to views
         HistoryAdapter adapter = new HistoryAdapter(this, arrayOfUsers);
         // Attach the adapter to a ListView
         ListView listView = (ListView) findViewById(R.id.lvItems);
-        listView.setAdapter(adapter);*/
+        listView.setAdapter(adapter);
 
     }
 

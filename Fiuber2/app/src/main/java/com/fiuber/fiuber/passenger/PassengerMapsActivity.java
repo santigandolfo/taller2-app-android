@@ -724,17 +724,22 @@ public class PassengerMapsActivity extends AppCompatActivity
         public void onResponse(JSONObject response) {
             Log.d(TAG, "requestRideResponseListener Successful. Response: " + response.toString());
             try {
-                mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
-                drawDirections(response.getString("directions"));
+                if (!"fail".equals(response.getString("status"))) {
+                    mPreferences.edit().putString(Constants.KEY_RIDE_ID, response.getString("id")).apply();
+                    drawDirections(response.getString("directions"));
 
-                mServerHandler.getUserInformation(response.getString("driver"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
+                    mServerHandler.getUserInformation(response.getString("driver"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
 
-                sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
+                    sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
 
-                mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
-                mPreferences.edit().putFloat(Constants.KEY_ESTIMATED_COST, Float.parseFloat(String.valueOf(response.getDouble("estimated_cost")))).apply();
-                //myGeofence.startGeofencing(destination);
-                updateUI();
+                    mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                    mPreferences.edit().putFloat(Constants.KEY_ESTIMATED_COST, Float.parseFloat(String.valueOf(response.getDouble("estimated_cost")))).apply();
+                    //myGeofence.startGeofencing(destination);
+                    updateUI();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Couldn't make request",
+                            Toast.LENGTH_SHORT).show();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
