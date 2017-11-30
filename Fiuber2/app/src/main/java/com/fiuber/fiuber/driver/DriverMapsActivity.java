@@ -92,8 +92,10 @@ public class DriverMapsActivity extends AppCompatActivity
     private BottomSheetBehavior mBottomSheetBehavior;
 
     private DrawerLayout mDrawer;
-    PolylineOptions mLineOptions;
-    Polyline mPolyline;
+    PolylineOptions mPasengerLineOptions;
+    PolylineOptions mDestinationLineOptions;
+    Polyline mPasengerPolyline;
+    Polyline mDestinationPolyline;
 
     String GOOGLE_API_KEY = "AIzaSyAWcT3cBWZ75CxCgC5vq51iJmoZSUKnqyA";
 
@@ -437,8 +439,10 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void clearRoute() {
-        if (mPolyline != null)
-            mPolyline.remove();
+        if (mPasengerPolyline != null)
+            mPasengerPolyline.remove();
+        if (mDestinationPolyline != null)
+            mDestinationPolyline.remove();
         if (destinationLocationMarker != null)
             destinationLocationMarker.remove();
         if (passengerLocationMarker != null)
@@ -515,13 +519,13 @@ public class DriverMapsActivity extends AppCompatActivity
                 .position(destination));
 
         //Start drawing route
-        mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), passengerLocationWaypoints, 5, R.color.colorPrimary);
-        mPolyline = mMap.addPolyline(mLineOptions);
+        mPasengerLineOptions = DirectionConverter.createPolyline(getApplicationContext(), passengerLocationWaypoints, 5, R.color.colorPrimary);
+        mPasengerPolyline = mMap.addPolyline(mPasengerLineOptions);
         //Finish drawing route
 
         //Start drawing route
-        mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), destinationWaypoints, 5, R.color.colorPrimary);
-        mPolyline = mMap.addPolyline(mLineOptions);
+        mDestinationLineOptions = DirectionConverter.createPolyline(getApplicationContext(), destinationWaypoints, 5, R.color.colorPrimary);
+        mDestinationPolyline = mMap.addPolyline(mDestinationLineOptions);
         //Finish drawing route
 
         //fit directions to screen

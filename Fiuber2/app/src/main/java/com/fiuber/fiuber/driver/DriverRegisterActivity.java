@@ -92,6 +92,15 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         }
     };
 
+    Response.Listener<JSONObject> setDriverAsAvailableResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "setDriverAsAvailableResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "Change activity to DriverMapsActivity");
+            startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));
+        }
+    };
+
     Response.Listener<JSONObject> saveCarInformationResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
@@ -105,8 +114,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
 
             Toast.makeText(getApplicationContext(), "Creating Driver Successfull!", Toast.LENGTH_SHORT).show();
 
-            Log.d(TAG, "Change activity to DriverMapsActivity");
-            startActivity(new Intent(getApplicationContext(), DriverMapsActivity.class));
+            mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), true, setDriverAsAvailableResponseListener);
         }
     };
 
