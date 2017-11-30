@@ -427,11 +427,11 @@ public class PassengerMapsActivity extends AppCompatActivity
         } else if (id == R.id.history) {
             Log.d(TAG, "change activity to PassengerHistoryActivity");
             startActivity(new Intent(this, PassengerHistoryActivity.class));
-        } else if (id == R.id.settings) {
+        }/* else if (id == R.id.settings) {
             Log.d(TAG, "change activity to PassengerSettingsActivity");
             startActivity(new Intent(this, PassengerSettingsActivity.class));
 
-        } else if (id == R.id.action_logout) {
+        }*/ else if (id == R.id.action_logout) {
             logout();
         }
 

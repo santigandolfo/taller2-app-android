@@ -42,7 +42,7 @@ public class PassengerProfileModificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_profile_modification);
+        setContentView(R.layout.activity_passenger_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);

@@ -487,11 +487,11 @@ public class DriverMapsActivity extends AppCompatActivity
         } else if (id == R.id.history) {
             Log.d(TAG, "change activity to DriverHistoryActivity");
             startActivity(new Intent(this, DriverHistoryActivity.class));
-        } else if (id == R.id.settings) {
+        } /*else if (id == R.id.settings) {
             Log.d(TAG, "change activity to DriverSettingsActivity");
             startActivity(new Intent(this, DriverSettingsActivity.class));
 
-        } else if (id == R.id.action_logout) {
+        } */else if (id == R.id.action_logout) {
             logout();
         }
 

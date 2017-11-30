@@ -17,7 +17,7 @@
             android:icon="@drawable/ic_history"
             android:title="@string/history" />
     </group>
-
+<!--
     <group
         android:id="@+id/grp2"
         android:checkableBehavior="single">
@@ -25,7 +25,7 @@
             android:id="@+id/settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/settings" />
-    </group>
+    </group>-->
 
     <group
         android:id="@+id/grp3"

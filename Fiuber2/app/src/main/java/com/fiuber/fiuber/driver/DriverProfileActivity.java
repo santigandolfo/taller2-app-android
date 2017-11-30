@@ -39,7 +39,7 @@ public class DriverProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "change activity to PassengerMapsActivity");
-                startActivity(new Intent(getApplicationContext(), PassengerProfileModificationActivity.class));
+                startActivity(new Intent(getApplicationContext(), DriverProfileModificationActivity.class));
             }
         });
 

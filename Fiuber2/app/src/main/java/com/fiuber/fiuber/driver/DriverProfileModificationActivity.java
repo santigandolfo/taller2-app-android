@@ -51,7 +51,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-        setContentView(R.layout.activity_profile_modification);
+        setContentView(R.layout.activity_driver_profile_modification);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
@@ -68,11 +68,6 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         mCarColorField = findViewById(R.id.text_car_color);
         mCarBrandField = findViewById(R.id.text_car_brand);
         mCarYearField = findViewById(R.id.text_car_year);
-
-        mCarModelField.setVisibility(View.VISIBLE);
-        mCarColorField.setVisibility(View.VISIBLE);
-        mCarBrandField.setVisibility(View.VISIBLE);
-        mCarYearField.setVisibility(View.VISIBLE);
 
         //Defaults
         mFirstnameField.setText(mPreferences.getString(Constants.KEY_FIRSTNAME, ""));
