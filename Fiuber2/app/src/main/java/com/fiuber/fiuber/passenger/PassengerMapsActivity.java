@@ -563,7 +563,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 findViewById(R.id.text_driver_name).setVisibility(View.GONE);
                 findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_request_ride).setVisibility(View.VISIBLE);
-                findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
+                findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                 findViewById(R.id.button_chat).setVisibility(View.GONE);
                 findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             } else {
@@ -837,20 +837,14 @@ public class PassengerMapsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "No Credit Card",
                     Toast.LENGTH_SHORT).show();
         } else {
-            //TODO: FIX THIS
-            Log.i(TAG, "Card Set: "  + mPreferences.getString(Constants.KEY_NUMBER, ""));
-            String rideId = "234";
-            //String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
-            Float value = mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, (float) 12.5);
+            String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
+            Float value = mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0);
             String month = mPreferences.getString(Constants.KEY_EXPIRATION_MONTH, "");
             String year = mPreferences.getString(Constants.KEY_EXPIRATION_YEAR, "");
             String method = mPreferences.getString(Constants.KEY_METHOD, "");
             String number = mPreferences.getString(Constants.KEY_NUMBER, "");
             String cvv = mPreferences.getString(Constants.KEY_CCVV, "");
             String type = mPreferences.getString(Constants.KEY_PAYMENT_TYPE, "");
-
-            Log.i(TAG, "Things: " + " ID: " + rideId + " value: " + value.toString() + " month: " + month + " year: " +
-                    year + " method: " + method + " number: " + number + " cvv: " + cvv + " type: " + type);
 
             mServerHandler.generatePayment(rideId, value, month, year, method, number, cvv, type,
                     payRideResponseListener, payRideResponseErrorListener);

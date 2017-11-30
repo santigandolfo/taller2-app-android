@@ -1,7 +1,6 @@
 package com.fiuber.fiuber.server;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -12,7 +11,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.fiuber.fiuber.Constants;
-import com.fiuber.fiuber.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,16 +125,13 @@ public class ServerHandler {
         Log.d(TAG, "getValidPaymentToken");
 
         String FINAL_URL = Constants.GENERATE_PAYMENT_TOKEN_URL;
-        String client_id = Resources.getSystem().getString(R.string.client_id);
-        String client_secret = Resources.getSystem().getString(R.string.client_secret);
-
-        Log.d(TAG, "HERE1");
+        String client_id = Constants.CLIENT_ID;
+        String client_secret = Constants.CLIENT_SECRET;
         JSONObject params = new JSONObject();
+
         try {
-            Log.d(TAG, "HERE2");
             params.put("client_id", client_id);
             params.put("client_secret", client_secret);
-            Log.d(TAG, "HERE3");
             Log.d(TAG, "JsonObject: " + params.toString());
 
             Log.d(TAG, "creating JsonObjectRequest");
@@ -191,24 +186,19 @@ public class ServerHandler {
                 try {
                     payments_token = response.getString(Constants.KEY_PAYMENT_TOKEN);
 
+                    JSONObject paymentMethod = new JSONObject();
+                    paymentMethod.put(Constants.KEY_EXPIRATION_MONTH, month);
+                    paymentMethod.put(Constants.KEY_EXPIRATION_YEAR, year);
+                    paymentMethod.put(Constants.KEY_METHOD, method);
+                    paymentMethod.put(Constants.KEY_NUMBER, number);
+                    paymentMethod.put(Constants.KEY_CCVV, cvv);
+                    paymentMethod.put(Constants.KEY_PAYMENT_TYPE, type);
 
-                    HashMap<String, String> paymentMethodHash = new HashMap<>();
-                    paymentMethodHash.put(Constants.KEY_EXPIRATION_MONTH, month);
-                    paymentMethodHash.put(Constants.KEY_EXPIRATION_YEAR, year);
-                    paymentMethodHash.put(Constants.KEY_METHOD, method);
-                    paymentMethodHash.put(Constants.KEY_NUMBER, number);
-                    paymentMethodHash.put(Constants.KEY_CCVV, cvv);
-                    paymentMethodHash.put(Constants.KEY_PAYMENT_TYPE, type);
-
-                    JSONObject paymentMethod = new JSONObject(paymentMethodHash);
-
-                    JSONObject params = new JSONObject(paymentMethodHash);
+                    JSONObject params = new JSONObject();
                     params.put("transaction_id", transaction_id);
                     params.put("currency", "ARS");
                     params.put("value", value);
-                    params.put("paymentMethod", paymentMethod.toString());
-
-
+                    params.put("paymentMethod", paymentMethod);
 
                     Log.d(TAG, "creating JsonObjectRequest");
                     JsonObjectRequest req = new JsonObjectRequest(

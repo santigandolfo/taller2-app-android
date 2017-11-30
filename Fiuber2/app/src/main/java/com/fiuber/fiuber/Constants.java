@@ -6,6 +6,8 @@ public class Constants {
     //misc
     public static final String KEY_INFO = "info";
     public static final String KEY_ESTIMATED_COST= "estimated_cost";
+    public static final String CLIENT_ID = "3dcd05f5-8767-453e-a605-96bfb8c03995";
+    public static final  String CLIENT_SECRET = "43fac65f-4450-48ce-8260-8ba4e52c88f7";
 
     //urls
     //payment urls
