@@ -832,7 +832,7 @@ public class ServerHandler {
                 JsonObjectRequest req = new JsonObjectRequest(
                         Request.Method.GET,
                         FINAL_URL,
-                        null, defaultResponseListener, defaultResponseErrorListener) {
+                        null, responseListener, defaultResponseErrorListener) {
 
                     @Override
                     protected VolleyError parseNetworkError(VolleyError volleyError) {

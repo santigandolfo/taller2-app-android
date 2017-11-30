@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,6 +80,7 @@ import com.google.maps.android.PolyUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -218,12 +220,18 @@ public class PassengerMapsActivity extends AppCompatActivity
     };
 
     private BroadcastReceiver destinationReachedReceiver = new BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
 
             //myGeofence.stopGeoFencing();
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
+
+            Button buttonPayRide = findViewById(R.id.button_pay_ride);
+            DecimalFormat df = new DecimalFormat("#.##");
+            buttonPayRide.setText("Pay: " + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
+
             updateUI();
         }
     };
@@ -724,6 +732,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
 
                 mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                mPreferences.edit().putFloat(Constants.KEY_ESTIMATED_COST, Float.parseFloat(String.valueOf(response.getDouble("estimated_cost")))).apply();
                 //myGeofence.startGeofencing(destination);
                 updateUI();
             } catch (JSONException e) {
@@ -753,6 +762,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
         updateUI();
+        clearPassengerConstants();
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
@@ -796,6 +806,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "Payment Successful!",
                     Toast.LENGTH_SHORT).show();
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+            clearPassengerConstants();
             updateUI();
         }
     };
@@ -876,4 +887,27 @@ public class PassengerMapsActivity extends AppCompatActivity
     public void onProviderDisabled(String provider) {
 
     }
+
+    private void clearPassengerConstants() {
+        mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_USERNAME, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_MODEL, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_RIDE_ID, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, "").apply();
+        mPreferences.edit().putString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_LATITUDE_INITIAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LONGITUDE_INITIAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LATITUDE_FINAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LONGITUDE_FINAL, "0").apply();
+    }
+
 }

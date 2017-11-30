@@ -5,6 +5,7 @@ public class Constants {
 
     //misc
     public static final String KEY_INFO = "info";
+    public static final String KEY_ESTIMATED_COST= "estimated_cost";
 
     //urls
     //payment urls
@@ -33,7 +34,7 @@ public class Constants {
 
     //position info
     public static final String KEY_DRIVER_TO_PASSENGER_DIRECTIONS = "driver_to_passenger_directions";
-    public static final String KEY_PASSENGER_TO_DESTINATION_DIRECTIONS = "driver_to_passenger_directions";
+    public static final String KEY_PASSENGER_TO_DESTINATION_DIRECTIONS = "passenger_to_destination_directions";
 
     //payment info
     public static final String KEY_EXPIRATION_MONTH = "expiration_month";
@@ -90,3 +91,5 @@ public class Constants {
     //ride info
     public static final String KEY_RIDE_ID = "ride_id";
 }
+
+

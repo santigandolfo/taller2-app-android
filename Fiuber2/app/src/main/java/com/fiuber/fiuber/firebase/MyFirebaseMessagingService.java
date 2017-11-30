@@ -79,8 +79,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        //TODO: Separar los direfentes tipos de notificaciones
-
         //Check if the message contains data
         if (remoteMessage.getData().size() > 0) {
             if("trip_assigned".equals(remoteMessage.getNotification().getBody())) {
@@ -94,6 +92,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     mPreferences.edit().putString(Constants.KEY_LONGITUDE_FINAL , data.getString(Constants.KEY_LONGITUDE_FINAL)).apply();
                     mPreferences.edit().putString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, remoteMessage.getData().get("directions_to_passenger")).apply();
                     mPreferences.edit().putString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, remoteMessage.getData().get("directions_trip")).apply();
+
                     mServerHandler.getUserInformation(remoteMessage.getData().get("rider"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
                 } catch (JSONException e) {
                     e.printStackTrace();

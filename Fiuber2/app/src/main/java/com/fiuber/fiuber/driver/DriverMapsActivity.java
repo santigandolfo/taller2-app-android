@@ -220,6 +220,7 @@ public class DriverMapsActivity extends AppCompatActivity
             Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             updateUI();
+            clearPassengerConstants();
         }
     };
 
@@ -238,7 +239,6 @@ public class DriverMapsActivity extends AppCompatActivity
 
             if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 mPreferences.edit().putString(Constants.KEY_STATE, "request_start_trip").apply();
-                myGeofence.stopGeoFencing();
 
             } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 myGeofence.stopGeoFencing();
@@ -264,15 +264,11 @@ public class DriverMapsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "RECEIVED FIREBASE NOTIFICATION",
                     Toast.LENGTH_SHORT).show();
 
-
-            //TODO: Uncomment this
             passengerLocation = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_INITIAL, "0")),
                     Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_INITIAL, "0")));
-            Log.d(TAG, "Passenger location: " + passengerLocation.toString());
             destination = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_FINAL, "0")),
                     Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_FINAL, "0")));
-            Log.d(TAG, "Destination location: " + destination.toString());
-            drawDirections(mPreferences.getString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, ""), mPreferences.getString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, ""));
+            drawDirections();
 
             TextView mNameField = findViewById(R.id.text_passenger_name);
             String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
@@ -420,6 +416,7 @@ public class DriverMapsActivity extends AppCompatActivity
         mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), false, setDriverAsNotOnDutyResponseListener);
         if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             cancelRide(logoutCancelRideResponseListener, logoutCancelRideResponseErrorListener);
+            myGeofence.stopGeoFencing();
         } else {
             mPreferences.edit().clear().apply();
             Log.d(TAG, "Change activity to LoginActivity");
@@ -562,12 +559,20 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
+    Response.Listener<JSONObject> logResponseResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "GONZA TEST Successful. Response: " + response.toString());
+        }
+    };
+
     @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.button_chat) {
             Log.d(TAG, "clicked chat button");
             chat();
+            mServerHandler.getHistory(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), logResponseResponseListener);
         } else if (i == R.id.button_view_profile) {
             Log.d(TAG, "clicked view_profile button");
             viewPassengersProfile();
@@ -583,12 +588,12 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     }
 
-    private void drawDirections(String passengerLocationEncodedDirections, String destinationEncodedDirections) {
+    private void drawDirections() {
         Log.i(TAG, "drawDirections");
         clearMap();
 
-        ArrayList<LatLng> passengerLocationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(passengerLocationEncodedDirections);
-        ArrayList<LatLng> destinationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(destinationEncodedDirections);
+        ArrayList<LatLng> passengerLocationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(mPreferences.getString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, ""));
+        ArrayList<LatLng> destinationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(mPreferences.getString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, ""));
 
         //Add origin marker
         currentLocationMarker = mMap.addMarker(new MarkerOptions()
@@ -629,6 +634,7 @@ public class DriverMapsActivity extends AppCompatActivity
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
         updateUI();
+        myGeofence.stopGeoFencing();
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
@@ -706,4 +712,27 @@ public class DriverMapsActivity extends AppCompatActivity
     public void onProviderDisabled(String provider) {
 
     }
+
+    private void clearPassengerConstants() {
+        mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_USERNAME, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_MODEL, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, "").apply();
+        mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_RIDE_ID, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, "").apply();
+        mPreferences.edit().putString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, "").apply();
+
+        mPreferences.edit().putString(Constants.KEY_LATITUDE_INITIAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LONGITUDE_INITIAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LATITUDE_FINAL, "0").apply();
+        mPreferences.edit().putString(Constants.KEY_LONGITUDE_FINAL, "0").apply();
+    }
+
 }
