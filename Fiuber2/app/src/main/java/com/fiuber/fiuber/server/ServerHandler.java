@@ -702,4 +702,109 @@ public class ServerHandler {
             }
         }, defaultResponseErrorListener);
     }
+
+    public void startTrip(final String username,
+                            final String password,
+                            final String requestId) {
+        Log.d(TAG, "startTrip:" + username);
+
+        getValidToken(username, password, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, "Validation Successfull. Response: " + response.toString());
+
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trips";
+
+                try {
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                HashMap<String, String> params = new HashMap<>();
+                params.put("id", requestId);
+                Log.d(TAG, "BODY: " + params.toString());
+                Log.d(TAG, "URL: " + FINAL_URL);
+
+
+                Log.d(TAG, "creating JsonObjectRequest");
+                JsonObjectRequest req = new JsonObjectRequest(
+                        Request.Method.POST,
+                        FINAL_URL,
+                        new JSONObject(params), defaultResponseListener, defaultResponseErrorListener) {
+
+                    @Override
+                    protected VolleyError parseNetworkError(VolleyError volleyError) {
+                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                        }
+
+                        return volleyError;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                        Log.d(TAG, "HEADER: " + headers.toString());
+                        return headers;
+                    }
+                };
+
+                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                addToRequestQueue(req);
+
+            }
+        }, defaultResponseErrorListener);
+    }
+
+    public void finishTrip(final String username,
+                           final String password,
+                           final String requestId) {
+        Log.d(TAG, "finishTrip:" + username);
+
+        getValidToken(username, password, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, "Validation Successfull. Response: " + response.toString());
+
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trips";
+                try {
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d(TAG, "creating JsonObjectRequest");
+                JsonObjectRequest req = new JsonObjectRequest(
+                        Request.Method.DELETE,
+                        FINAL_URL,
+                        null, defaultResponseListener, defaultResponseErrorListener) {
+
+                    @Override
+                    protected VolleyError parseNetworkError(VolleyError volleyError) {
+                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                        }
+
+                        return volleyError;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                        return headers;
+                    }
+                };
+
+                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                addToRequestQueue(req);
+
+            }
+        }, defaultResponseErrorListener);
+    }
+
 }

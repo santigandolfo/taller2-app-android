@@ -651,24 +651,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
-    private Response.ErrorListener requestRideResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "payRideResponseErrorListener Failed. Response Error: " + error.toString());
-            mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
-
-
-            NetworkResponse response = error.networkResponse;
-            if (response != null && response.data != null) {
-                Log.e(TAG, "Response statusCode: " + response.statusCode);
-                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
-            }
-            Toast.makeText(getApplicationContext(), "Couldn't make request",
-                    Toast.LENGTH_SHORT).show();
-            updateUI();
-        }
-    };
-
     Response.ErrorListener getUserInformationResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -708,6 +690,24 @@ public class PassengerMapsActivity extends AppCompatActivity
             }
 
             Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Response.ErrorListener requestRideResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "payRideResponseErrorListener Failed. Response Error: " + error.toString());
+            mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
+
+
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Response data: " + Arrays.toString(response.data));
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't make request",
+                    Toast.LENGTH_SHORT).show();
+            updateUI();
         }
     };
 

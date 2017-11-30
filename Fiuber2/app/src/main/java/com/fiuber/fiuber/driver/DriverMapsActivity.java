@@ -172,12 +172,18 @@ public class DriverMapsActivity extends AppCompatActivity
             Log.d(TAG, "destinationReached");
 
             if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
+                mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
                 myGeofence.stopGeoFencing();
                 myGeofence.startGeofencing(destination);
+                mServerHandler.startTrip(mPreferences.getString(Constants.KEY_USERNAME,""),
+                                         mPreferences.getString(Constants.KEY_USERNAME,""),
+                                         mPreferences.getString(Constants.KEY_RIDE_ID, ""));
             } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 myGeofence.stopGeoFencing();
                 mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+                mServerHandler.finishTrip(mPreferences.getString(Constants.KEY_USERNAME,""),
+                        mPreferences.getString(Constants.KEY_USERNAME,""),
+                        mPreferences.getString(Constants.KEY_RIDE_ID, ""));
             }
             updateUI();
         }
@@ -201,9 +207,8 @@ public class DriverMapsActivity extends AppCompatActivity
 
 
             //TODO: Uncomment this
-            Log.d(TAG, "Passenger location: " + passengerLocation.toString());
             passengerLocation = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_INITIAL, "0")),
-                    Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_FINAL, "0")));
+                    Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_INITIAL, "0")));
             Log.d(TAG, "Passenger location: " + passengerLocation.toString());
             destination = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_FINAL, "0")),
                     Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_FINAL, "0")));
@@ -216,7 +221,7 @@ public class DriverMapsActivity extends AppCompatActivity
 
             mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
             //TODO: Uncomment this
-            //myGeofence.startGeofencing(destination);
+            myGeofence.startGeofencing(passengerLocation);
             updateUI();
         }
     };
