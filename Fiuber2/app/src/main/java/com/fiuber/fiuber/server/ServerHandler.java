@@ -705,7 +705,8 @@ public class ServerHandler {
 
     public void startTrip(final String username,
                             final String password,
-                            final String requestId) {
+                            final String requestId,
+                            final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "startTrip:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
@@ -714,7 +715,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trips";
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trip";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
@@ -723,7 +724,7 @@ public class ServerHandler {
                 }
 
                 HashMap<String, String> params = new HashMap<>();
-                params.put("id", requestId);
+                params.put("request_id", requestId);
                 Log.d(TAG, "BODY: " + params.toString());
                 Log.d(TAG, "URL: " + FINAL_URL);
 
@@ -732,7 +733,7 @@ public class ServerHandler {
                 JsonObjectRequest req = new JsonObjectRequest(
                         Request.Method.POST,
                         FINAL_URL,
-                        new JSONObject(params), defaultResponseListener, defaultResponseErrorListener) {
+                        new JSONObject(params), responseListener, responseErrorListener) {
 
                     @Override
                     protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -761,7 +762,8 @@ public class ServerHandler {
 
     public void finishTrip(final String username,
                            final String password,
-                           final String requestId) {
+                           final String requestId,
+                           final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "finishTrip:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
@@ -770,7 +772,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trips";
+                String FINAL_URL = Constants.URL + Constants.DRIVERS + "/" + username + "/" + "trip";
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
                 } catch (JSONException e) {
@@ -780,6 +782,55 @@ public class ServerHandler {
                 Log.d(TAG, "creating JsonObjectRequest");
                 JsonObjectRequest req = new JsonObjectRequest(
                         Request.Method.DELETE,
+                        FINAL_URL,
+                        null, responseListener, responseErrorListener) {
+
+                    @Override
+                    protected VolleyError parseNetworkError(VolleyError volleyError) {
+                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                        }
+
+                        return volleyError;
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                        return headers;
+                    }
+                };
+
+                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                addToRequestQueue(req);
+
+            }
+        }, defaultResponseErrorListener);
+    }
+
+    public void getHistory(final String username,
+                           final String password,
+                           final Response.Listener<JSONObject> responseListener) {
+        Log.d(TAG, "startTrip:" + username);
+
+        getValidToken(username, password, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.d(TAG, "Validation Successfull. Response: " + response.toString());
+
+                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username + "/" + "trips";
+
+                try {
+                    auth_token = response.getString(Constants.KEY_AUTH_TOKEN);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d(TAG, "creating JsonObjectRequest");
+                JsonObjectRequest req = new JsonObjectRequest(
+                        Request.Method.GET,
                         FINAL_URL,
                         null, defaultResponseListener, defaultResponseErrorListener) {
 
@@ -796,6 +847,7 @@ public class ServerHandler {
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> headers = new HashMap<>();
                         headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + auth_token);
+                        Log.d(TAG, "HEADER: " + headers.toString());
                         return headers;
                     }
                 };

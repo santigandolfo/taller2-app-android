@@ -142,5 +142,7 @@
     <string name="valid">Valid</string>
     <string name="invalid">Invalid</string>
     <string name="title_activity_add_payment">Add Payment Method</string>
+    <string name="action_start_trip">Start Trip</string>
+    <string name="action_finish_trip">Finish Trip</string>
 
 </resources>

@@ -120,6 +120,8 @@ public class DriverMapsActivity extends AppCompatActivity
         findViewById(R.id.button_cancel).setOnClickListener(this);
         findViewById(R.id.button_chat).setOnClickListener(this);
         findViewById(R.id.button_view_profile).setOnClickListener(this);
+        findViewById(R.id.button_start_trip).setOnClickListener(this);
+        findViewById(R.id.button_finish_trip).setOnClickListener(this);
 
         mServerHandler = new ServerHandler(this.getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
@@ -168,24 +170,79 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
+    Response.ErrorListener startTripResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "startTrip Failed. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't start trip", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> startTripResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            myGeofence.startGeofencing(destination);
+            mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+            updateUI();
+        }
+    };
+
+    private void startTrip() {
+
+        mServerHandler.startTrip(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                 mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                 mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                                 startTripResponseListener, startTripResponseErrorListener);
+    }
+
+    Response.ErrorListener finishTripResponseErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.e(TAG, "startTrip Failed. Response Error: " + error.toString());
+            NetworkResponse response = error.networkResponse;
+            if (response != null && response.data != null) {
+                Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
+                Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
+            }
+            Toast.makeText(getApplicationContext(), "Couldn't start trip", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    Response.Listener<JSONObject> finishTripResponseListener = new Response.Listener<JSONObject>() {
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+            updateUI();
+        }
+    };
+
+    private void finishTrip() {
+
+        mServerHandler.finishTrip(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                  mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                  mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                                  finishTripResponseListener, finishTripResponseErrorListener);
+    }
+
     private BroadcastReceiver destinationReachedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
 
             if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                mPreferences.edit().putString(Constants.KEY_STATE, "request_start_trip").apply();
                 myGeofence.stopGeoFencing();
-                myGeofence.startGeofencing(destination);
-                mServerHandler.startTrip(mPreferences.getString(Constants.KEY_USERNAME,""),
-                                         mPreferences.getString(Constants.KEY_USERNAME,""),
-                                         mPreferences.getString(Constants.KEY_RIDE_ID, ""));
+
             } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 myGeofence.stopGeoFencing();
-                mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-                mServerHandler.finishTrip(mPreferences.getString(Constants.KEY_USERNAME,""),
-                        mPreferences.getString(Constants.KEY_USERNAME,""),
-                        mPreferences.getString(Constants.KEY_RIDE_ID, ""));
+                mPreferences.edit().putString(Constants.KEY_STATE, "request_finish_trip").apply();
             }
             updateUI();
         }
@@ -227,7 +284,6 @@ public class DriverMapsActivity extends AppCompatActivity
             updateUI();
         }
     };
-
 
 
     Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
@@ -467,19 +523,41 @@ public class DriverMapsActivity extends AppCompatActivity
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
             findViewById(R.id.button_cancel).setVisibility(View.GONE);
+            findViewById(R.id.button_start_trip).setVisibility(View.GONE);
+            findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
             clearRoute();
+        } else if ("request_start_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
+            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+            findViewById(R.id.button_chat).setVisibility(View.GONE);
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_start_trip).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_start_trip).setVisibility(View.GONE);
+            findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
             findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_start_trip).setVisibility(View.GONE);
+            findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
+        } else if ("request_finish_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
+            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+            findViewById(R.id.button_chat).setVisibility(View.GONE);
+            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_start_trip).setVisibility(View.GONE);
+            findViewById(R.id.button_finish_trip).setVisibility(View.VISIBLE);
         }
 
     }
@@ -496,6 +574,12 @@ public class DriverMapsActivity extends AppCompatActivity
         } else if (i == R.id.button_cancel) {
             Log.d(TAG, "clicked cancel button");
             cancelRide(cancelRideResponseListener, cancResponseErrorListener);
+        } else if (i == R.id.button_start_trip) {
+            Log.d(TAG, "clicked start trip");
+            startTrip();
+        } else if (i == R.id.button_finish_trip) {
+            Log.d(TAG, "clicked finish trip");
+            finishTrip();
         }
     }
 
@@ -541,7 +625,7 @@ public class DriverMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
-    private void cancelRideUpdate(){
+    private void cancelRideUpdate() {
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
         updateUI();
@@ -568,11 +652,11 @@ public class DriverMapsActivity extends AppCompatActivity
     private void cancelRide(Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
         Log.i(TAG, "cancelRide");
 
-        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))){
+        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                      mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                      mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                                      responseListener, responseErrorListener);
+                    mPreferences.getString(Constants.KEY_USERNAME, ""),
+                    mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                    responseListener, responseErrorListener);
         } else {
             cancelRideUpdate();
         }

@@ -47,7 +47,7 @@ public class Constants {
     public static final String KEY_AUTHORIZATION = "Authorization";
 
     //geofence data
-    public static final float GEOFENCE_RADIUS_IN_METERS = 200;
+    public static final float GEOFENCE_RADIUS_IN_METERS = 100;
     public static final String GEOFENCE_ID = "ID";
 
     //other user info

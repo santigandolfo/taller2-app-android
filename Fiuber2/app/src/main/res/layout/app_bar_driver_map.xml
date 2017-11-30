@@ -96,6 +96,26 @@
                     android:textStyle="bold"
                     android:visibility="gone" />
 
+                <Button
+                    android:id="@+id/button_start_trip"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/action_start_trip"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/button_finish_trip"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/action_finish_trip"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
             <RelativeLayout

@@ -63,7 +63,7 @@ public class DriverRegisterActivity extends AppCompatActivity implements
         mCarBrandField = findViewById(R.id.edit_text_car_brand);
         mCarYearField = findViewById(R.id.edit_text_car_year);
 
-        mCarYearField.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        mCarYearField.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         // Buttons
         findViewById(R.id.button_register).setOnClickListener(this);
