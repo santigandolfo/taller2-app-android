@@ -651,7 +651,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
                 Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
             }
-            Toast.makeText(getApplicationContext(), "Couldn't get drivers information", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Couldn't get drivers information", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -680,7 +680,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 e.printStackTrace();
             }
 
-            Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
         }
     };
 

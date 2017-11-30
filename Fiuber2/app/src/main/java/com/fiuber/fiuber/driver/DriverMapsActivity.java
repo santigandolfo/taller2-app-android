@@ -256,6 +256,10 @@ public class DriverMapsActivity extends AppCompatActivity
 
             if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 mPreferences.edit().putString(Constants.KEY_STATE, "request_start_trip").apply();
+                if (passengerLocationMarker != null)
+                    passengerLocationMarker.remove();
+                if (mPasengerPolyline != null)
+                    mPasengerPolyline.remove();
 
             } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                 myGeofence.stopGeoFencing();
@@ -575,20 +579,12 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
-    Response.Listener<JSONObject> logResponseResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "GONZA TEST Successful. Response: " + response.toString());
-        }
-    };
-
     @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.button_chat) {
             Log.d(TAG, "clicked chat button");
             chat();
-            mServerHandler.getHistory(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), logResponseResponseListener);
         } else if (i == R.id.button_view_profile) {
             Log.d(TAG, "clicked view_profile button");
             viewPassengersProfile();
