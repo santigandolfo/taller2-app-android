@@ -52,7 +52,6 @@ import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.OtherProfileActivity;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.chat.ChatActivity;
-import com.fiuber.fiuber.geofence.MyGeofence;
 import com.fiuber.fiuber.server.ServerHandler;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -114,8 +113,6 @@ public class PassengerMapsActivity extends AppCompatActivity
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
-    //private MyGeofence myGeofence;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,8 +122,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         checkLocationPermition();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             finish();
-
-        //myGeofence = new MyGeofence(this);
 
         // BottomSheet
         View bottomSheet = findViewById(R.id.bottom_sheet);
@@ -192,9 +187,6 @@ public class PassengerMapsActivity extends AppCompatActivity
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // example : way to access view from PlaceAutoCompleteFragment
-                        // ((EditText) autocompleteFragment.getView()
-                        // .findViewById(R.id.place_autocomplete_search_input)).setText("");
                         autocompleteFragment.setText("");
                         view.setVisibility(View.GONE);
                         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
@@ -225,7 +217,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
 
-            //myGeofence.stopGeoFencing();
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
 
             Button buttonPayRide = findViewById(R.id.button_pay_ride);
@@ -295,10 +286,10 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                             if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                                 mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                                                     mPreferences.getString(Constants.KEY_PASSWORD, ""),
-                                                                     String.valueOf(lastKnownLocation.latitude),
-                                                                     String.valueOf(lastKnownLocation.longitude),
-                                                                     updateUserCoordinatesResponseListener);
+                                        mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                        String.valueOf(lastKnownLocation.latitude),
+                                        String.valueOf(lastKnownLocation.longitude),
+                                        updateUserCoordinatesResponseListener);
                             }
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
@@ -366,7 +357,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
             return;
 
-        //myGeofence.reconnect();
         updateUI();
     }
 
@@ -507,6 +497,11 @@ public class PassengerMapsActivity extends AppCompatActivity
                         public void onDirectionSuccess(Direction direction, String rawBody) {
                             String status = direction.getStatus();
                             if (status.equals(RequestResult.OK)) {
+                                mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                                        mPreferences.getString(Constants.KEY_PASSWORD, ""),
+                                        String.valueOf(lastKnownLocation.latitude),
+                                        String.valueOf(lastKnownLocation.longitude),
+                                        updateUserCoordinatesResponseListener);
                                 mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
                             } else {
@@ -521,18 +516,6 @@ public class PassengerMapsActivity extends AppCompatActivity
                         }
                     });
         }
-
-        // mPolyline = mMap.addPolyline(new PolylineOptions().add(lastKnownLocation,place.getLatLng()).color(Color.BLUE));
-        // Format the returned place's details and display them in the TextView.
-/*        mPlaceDetailsText.setText(formatPlaceDetails(getResources(), place.getName(), place.getId(),
-                place.getAddress(), place.getPhoneNumber(), place.getWebsiteUri()));
-
-        CharSequence attributions = place.getAttributions();
-        if (!TextUtils.isEmpty(attributions)) {
-            mPlaceAttribution.setText(Html.fromHtml(attributions.toString()));
-        } else {
-            mPlaceAttribution.setText("");
-        }*/
     }
 
     private void updateUI() {
@@ -734,11 +717,12 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                     mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
                     mPreferences.edit().putFloat(Constants.KEY_ESTIMATED_COST, Float.parseFloat(String.valueOf(response.getDouble("estimated_cost")))).apply();
-                    //myGeofence.startGeofencing(destination);
                     updateUI();
                 } else {
+                    mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                     Toast.makeText(getApplicationContext(), "Couldn't make request",
                             Toast.LENGTH_SHORT).show();
+                    updateUI();
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -763,7 +747,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         updateUI();
     }
 
-    private void cancelRideUpdate(){
+    private void cancelRideUpdate() {
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
         mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
         updateUI();
@@ -795,9 +779,9 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                      mPreferences.getString(Constants.KEY_USERNAME, ""),
-                                      mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                                      responseListener, responseErrorListener);
+                    mPreferences.getString(Constants.KEY_USERNAME, ""),
+                    mPreferences.getString(Constants.KEY_RIDE_ID, ""),
+                    responseListener, responseErrorListener);
         } else {
             cancelRideUpdate();
         }

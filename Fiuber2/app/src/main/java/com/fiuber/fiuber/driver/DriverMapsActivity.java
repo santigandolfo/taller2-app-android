@@ -186,7 +186,7 @@ public class DriverMapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> startTripResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "startTripResponseListener Successful. Response: " + response.toString());
             try {
                 if (!"fail".equals(response.getString("status"))) {
                     myGeofence.startGeofencing(destination);
@@ -212,7 +212,7 @@ public class DriverMapsActivity extends AppCompatActivity
     Response.ErrorListener finishTripResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "startTrip Failed. Response Error: " + error.toString());
+            Log.e(TAG, "finishTrip Failed. Response Error: " + error.toString());
             NetworkResponse response = error.networkResponse;
             if (response != null && response.data != null) {
                 Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
@@ -225,7 +225,7 @@ public class DriverMapsActivity extends AppCompatActivity
     Response.Listener<JSONObject> finishTripResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
+            Log.d(TAG, "finishTripResponseListener Successful. Response: " + response.toString());
             try {
                 if (!"fail".equals(response.getString("status"))) {
                     mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
@@ -278,8 +278,10 @@ public class DriverMapsActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "acceptRide");
 
+/*
             Toast.makeText(getApplicationContext(), "RECEIVED FIREBASE NOTIFICATION",
                     Toast.LENGTH_SHORT).show();
+*/
 
             passengerLocation = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_INITIAL, "0")),
                     Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_INITIAL, "0")));
@@ -439,9 +441,6 @@ public class DriverMapsActivity extends AppCompatActivity
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
-/*        LoginManager.getInstance().logOut();*/
-        // mServerHandler.logoutServerUser(mPreferences.getString(KEY_AUTH_TOKEN, ""), logoutServerUserResponseListener, logoutServerUserResponseErrorListener);
-
     }
 
     Response.Listener<JSONObject> setDriverAsNotOnDutyResponseListener = new Response.Listener<JSONObject>() {
