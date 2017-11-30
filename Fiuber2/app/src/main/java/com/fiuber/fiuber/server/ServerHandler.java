@@ -820,7 +820,7 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username + "/" + "trips";
+                String FINAL_URL = Constants.URL + Constants.USERS + "/" + username + "/" + "trip";
 
                 try {
                     auth_token = response.getString(Constants.KEY_AUTH_TOKEN);

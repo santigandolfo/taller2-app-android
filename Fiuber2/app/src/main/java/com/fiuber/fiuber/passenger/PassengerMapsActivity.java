@@ -203,7 +203,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                     }
                 });
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(destinationReachedReceiver, new IntentFilter("googlegeofence"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(finishTripReceiver, new IntentFilter("finish_trip"));
         LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("cancel_ride"));
 
 
@@ -219,7 +219,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
-    private BroadcastReceiver destinationReachedReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver finishTripReceiver = new BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         @Override
         public void onReceive(Context context, Intent intent) {
