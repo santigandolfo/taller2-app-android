@@ -129,38 +129,46 @@ public class ServerHandler {
         String FINAL_URL = Constants.GENERATE_PAYMENT_TOKEN_URL;
         String client_id = Resources.getSystem().getString(R.string.client_id);
         String client_secret = Resources.getSystem().getString(R.string.client_secret);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("client_id", client_id);
-        params.put("client_secret", client_secret);
-        Log.d(TAG, "JsonObject: " + params.toString());
 
-        Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener) {
+        Log.d(TAG, "HERE1");
+        JSONObject params = new JSONObject();
+        try {
+            Log.d(TAG, "HERE2");
+            params.put("client_id", client_id);
+            params.put("client_secret", client_secret);
+            Log.d(TAG, "HERE3");
+            Log.d(TAG, "JsonObject: " + params.toString());
 
-            @Override
-            protected VolleyError parseNetworkError(VolleyError volleyError) {
-                if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
-                    volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+            Log.d(TAG, "creating JsonObjectRequest");
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, params, responseListener, responseErrorListener) {
+
+                @Override
+                protected VolleyError parseNetworkError(VolleyError volleyError) {
+                    if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                        volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                    }
+
+                    return volleyError;
                 }
 
-                return volleyError;
-            }
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    return headers;
+                }
 
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json");
-                return headers;
-            }
+            };
 
-        };
-
-        Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
-        this.addToRequestQueue(req);
+            Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+            this.addToRequestQueue(req);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void generatePayment(final String rideId,
-                                final String value,
+                                final Float value,
                                 final String month,
                                 final String year,
                                 final String method,
@@ -176,59 +184,61 @@ public class ServerHandler {
 
                 Log.d(TAG, "Validation Successfull. Response: " + response.toString());
 
-                try {
-                    payments_token = response.getString(Constants.KEY_PAYMENT_TOKEN);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
                 String FINAL_URL = Constants.PAYMENTS_URL;
 
                 String transaction_id = "fiuber-app-" + rideId;
 
-                HashMap<String, String> paymentMethodHash = new HashMap<>();
-                paymentMethodHash.put(Constants.KEY_EXPIRATION_MONTH, month);
-                paymentMethodHash.put(Constants.KEY_EXPIRATION_YEAR, year);
-                paymentMethodHash.put(Constants.KEY_METHOD, method);
-                paymentMethodHash.put(Constants.KEY_NUMBER, number);
-                paymentMethodHash.put(Constants.KEY_CCVV, cvv);
-                paymentMethodHash.put(Constants.KEY_PAYMENT_TYPE, type);
+                try {
+                    payments_token = response.getString(Constants.KEY_PAYMENT_TOKEN);
 
-                JSONObject paymentMethod = new JSONObject(paymentMethodHash);
 
-                HashMap<String, String> params = new HashMap<>();
-                params.put("transaction_id", transaction_id);
-                params.put("currency", "ARS");
-                params.put("value", value);
-                params.put("paymentMethod", paymentMethod.toString());
+                    HashMap<String, String> paymentMethodHash = new HashMap<>();
+                    paymentMethodHash.put(Constants.KEY_EXPIRATION_MONTH, month);
+                    paymentMethodHash.put(Constants.KEY_EXPIRATION_YEAR, year);
+                    paymentMethodHash.put(Constants.KEY_METHOD, method);
+                    paymentMethodHash.put(Constants.KEY_NUMBER, number);
+                    paymentMethodHash.put(Constants.KEY_CCVV, cvv);
+                    paymentMethodHash.put(Constants.KEY_PAYMENT_TYPE, type);
 
-                Log.d(TAG, "creating JsonObjectRequest");
-                JsonObjectRequest req = new JsonObjectRequest(
-                        Request.Method.POST,
-                        FINAL_URL,
-                        new JSONObject(params), responseListener, responseErrorListener) {
+                    JSONObject paymentMethod = new JSONObject(paymentMethodHash);
 
-                    @Override
-                    protected VolleyError parseNetworkError(VolleyError volleyError) {
-                        if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
-                            volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                    JSONObject params = new JSONObject(paymentMethodHash);
+                    params.put("transaction_id", transaction_id);
+                    params.put("currency", "ARS");
+                    params.put("value", value);
+                    params.put("paymentMethod", paymentMethod.toString());
+
+
+
+                    Log.d(TAG, "creating JsonObjectRequest");
+                    JsonObjectRequest req = new JsonObjectRequest(
+                            Request.Method.POST,
+                            FINAL_URL,
+                            params, responseListener, responseErrorListener) {
+
+                        @Override
+                        protected VolleyError parseNetworkError(VolleyError volleyError) {
+                            if (volleyError.networkResponse != null && volleyError.networkResponse.data != null) {
+                                volleyError = new VolleyError(new String(volleyError.networkResponse.data));
+                            }
+
+                            return volleyError;
                         }
 
-                        return volleyError;
-                    }
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Content-Type", "application/json");
+                            headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + payments_token);
+                            return headers;
+                        }
+                    };
 
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put("Content-Type", "application/json");
-                        headers.put(Constants.KEY_AUTHORIZATION, "Bearer " + payments_token);
-                        return headers;
-                    }
-                };
-
-                Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
-                addToRequestQueue(req);
-
+                    Log.d(TAG, "Adding req to mRequestQueue: " + req.toString());
+                    addToRequestQueue(req);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }, defaultResponseErrorListener);
     }
@@ -704,9 +714,9 @@ public class ServerHandler {
     }
 
     public void startTrip(final String username,
-                            final String password,
-                            final String requestId,
-                            final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
+                          final String password,
+                          final String requestId,
+                          final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "startTrip:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
