@@ -230,7 +230,7 @@ public class DriverMapsActivity extends AppCompatActivity
                 if (!"fail".equals(response.getString("status"))) {
                     mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
                     updateUI();
-                    clearPassengerConstants();
+                    clearOtherUserConstants();
                 } else {
                     Toast.makeText(getApplicationContext(), "Couldn't finish trip", Toast.LENGTH_SHORT).show();
                 }
@@ -273,7 +273,8 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "cancelRide");
-            cancelRideUpdate();
+            mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+            clearOtherUserConstants();
         }
     };
 
@@ -411,39 +412,15 @@ public class DriverMapsActivity extends AppCompatActivity
         updateUI();
     }
 
-    private Response.ErrorListener logoutCancelRideResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "logoutCancelRide Failed. Response Error: " + error.toString());
-            mPreferences.edit().clear().apply();
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
-    };
-
-    Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "logoutCancelRideResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().clear().apply();
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-        }
-    };
-
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
         mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), false, setDriverAsNotOnDutyResponseListener);
-        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            cancelRide(logoutCancelRideResponseListener, logoutCancelRideResponseErrorListener);
+            cancelRide();
             myGeofence.stopGeoFencing();
-        } else {
             mPreferences.edit().clear().apply();
             Log.d(TAG, "Change activity to LoginActivity");
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
     }
 
     Response.Listener<JSONObject> setDriverAsNotOnDutyResponseListener = new Response.Listener<JSONObject>() {
@@ -589,7 +566,7 @@ public class DriverMapsActivity extends AppCompatActivity
             viewPassengersProfile();
         } else if (i == R.id.button_cancel) {
             Log.d(TAG, "clicked cancel button");
-            cancelRide(cancelRideResponseListener, cancResponseErrorListener);
+            cancelRide();
         } else if (i == R.id.button_start_trip) {
             Log.d(TAG, "clicked start trip");
             startTrip();
@@ -641,43 +618,19 @@ public class DriverMapsActivity extends AppCompatActivity
         Log.i(TAG, "drawDirections finished");
     }
 
-    private void cancelRideUpdate() {
+    private void cancelRide() {
+        Log.i(TAG, "cancelRide");
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
+
+        mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_RIDE_ID, ""));
+        clearOtherUserConstants();
         updateUI();
         myGeofence.stopGeoFencing();
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
-    private Response.ErrorListener cancResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "cancelRide Failed. Response Error: " + error.toString());
-            cancelRideUpdate();
-        }
-    };
-
-    Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
-            cancelRideUpdate();
-        }
-    };
-
-
-    private void cancelRide(Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
-        Log.i(TAG, "cancelRide");
-
-        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                    mPreferences.getString(Constants.KEY_USERNAME, ""),
-                    mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                    responseListener, responseErrorListener);
-        } else {
-            cancelRideUpdate();
-        }
-    }
 
     private void chat() {
         Log.i(TAG, "chat");
@@ -724,7 +677,7 @@ public class DriverMapsActivity extends AppCompatActivity
 
     }
 
-    private void clearPassengerConstants() {
+    private void clearOtherUserConstants() {
         mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, "").apply();
         mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, "").apply();
         mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, "").apply();

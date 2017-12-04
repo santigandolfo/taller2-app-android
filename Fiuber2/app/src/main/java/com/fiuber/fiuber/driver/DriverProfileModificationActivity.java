@@ -75,7 +75,7 @@ public class DriverProfileModificationActivity extends AppCompatActivity {
         mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
         mCarModelField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
-        mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_MODEL, ""));
+        mCarColorField.setText(mPreferences.getString(Constants.KEY_CAR_COLOR, ""));
         mCarBrandField.setText(mPreferences.getString(Constants.KEY_CAR_BRAND, ""));
         mCarYearField.setText(mPreferences.getString(Constants.KEY_CAR_YEAR, ""));
 

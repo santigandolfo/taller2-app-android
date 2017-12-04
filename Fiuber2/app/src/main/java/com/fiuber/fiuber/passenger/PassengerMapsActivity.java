@@ -23,7 +23,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -207,7 +206,8 @@ public class PassengerMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "destinationReached");
-            cancelRideUpdate();
+            mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
+            clearOtherUserConstants();
         }
     };
 
@@ -224,6 +224,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
 
             updateUI();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
         }
     };
 
@@ -357,7 +358,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         updateUI();
     }
 
-    private Response.ErrorListener logoutCancelRideResponseErrorListener = new Response.ErrorListener() {
+/*    private Response.ErrorListener logoutCancelRideResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
             Log.e(TAG, "logoutCancelRide Failed. Response Error: " + error.toString());
@@ -377,18 +378,15 @@ public class PassengerMapsActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
 
         }
-    };
+    };*/
 
     private void logout() {
         Log.d(TAG, "logout");
         mAuth.signOut();
-        if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            cancelRide(logoutCancelRideResponseListener, logoutCancelRideResponseErrorListener);
-        } else {
-            mPreferences.edit().clear().apply();
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
+        cancelRide();
+        mPreferences.edit().clear().apply();
+        Log.d(TAG, "Change activity to LoginActivity");
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
     }
 
     @Override
@@ -461,22 +459,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             currentLocationMarker.remove();
     }
 
-    /**
-     * Callback invoked when a place has been selected from the PlaceAutocompleteFragment.
-     */
-    @Override
-    public void onPlaceSelected(final Place place) {
-        Log.i(TAG, "Place Selected: " + place.getName());
-
-        clearMap();
-
-        //Add origin marker
-        currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(lastKnownLocation)
-                .title("Current Position"));
-
-        destination = place.getLatLng();
-
+    private void zoomOutToDestination() {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(lastKnownLocation);
         builder.include(destination);
@@ -484,6 +467,14 @@ public class PassengerMapsActivity extends AppCompatActivity
         int padding = 150; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.animateCamera(cu);
+    }
+
+
+    @Override
+    public void onPlaceSelected(final Place place) {
+        Log.i(TAG, "Place Selected: " + place.getName());
+
+        destination = place.getLatLng();
 
         if (lastKnownLocation != null && destination != null) {
             GoogleDirection.withServerKey(GOOGLE_API_KEY)
@@ -501,6 +492,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                                         updateUserCoordinatesResponseListener);
                                 mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
                                 updateUI();
+                                zoomOutToDestination();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Couldn't find a route",
                                         Toast.LENGTH_SHORT).show();
@@ -595,7 +587,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         int i = v.getId();
         if (i == R.id.button_cancel) {
             Log.d(TAG, "clicked cancel button");
-            cancelRide(cancelRideResponseListener, cancelRideResponseErrorListener);
+            cancelRide();
         } else if (i == R.id.button_request_ride) {
             Log.d(TAG, "clicked request_ride button");
             requestRide();
@@ -744,45 +736,17 @@ public class PassengerMapsActivity extends AppCompatActivity
         updateUI();
     }
 
-    private void cancelRideUpdate() {
-        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-        mPreferences.edit().remove(Constants.KEY_RIDE_ID).apply();
-        updateUI();
-        clearPassengerConstants();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-    }
 
-    private Response.ErrorListener cancelRideResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "cancelRide Failed. Response Error: " + error.toString());
-            cancelRideUpdate();
-        }
-    };
-
-    Response.Listener<JSONObject> cancelRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "cancelRideResponseListener Successful. Response: " + response.toString());
-            cancelRideUpdate();
-        }
-    };
-
-    private void cancelRide(Response.Listener<JSONObject> responseListener, Response.ErrorListener responseErrorListener) {
+    private void cancelRide() {
         Log.i(TAG, "cancelRide");
-        ArrayList<String> list = new ArrayList<>();
-        list.add("free");
-        list.add("place_selected");
+        mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
 
-        if (!list.contains(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                    mPreferences.getString(Constants.KEY_USERNAME, ""),
-                    mPreferences.getString(Constants.KEY_RIDE_ID, ""),
-                    responseListener, responseErrorListener);
-        } else {
-            cancelRideUpdate();
-        }
-
+        mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_RIDE_ID, ""));
+        clearOtherUserConstants();
+        updateUI();
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
     }
 
     Response.Listener<JSONObject> payRideResponseListener = new Response.Listener<JSONObject>() {
@@ -792,8 +756,9 @@ public class PassengerMapsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), "Payment Successful!",
                     Toast.LENGTH_SHORT).show();
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
-            clearPassengerConstants();
+            clearOtherUserConstants();
             updateUI();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
         }
     };
 
@@ -877,7 +842,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     }
 
-    private void clearPassengerConstants() {
+    private void clearOtherUserConstants() {
         mPreferences.edit().putString(Constants.KEY_OTHERS_FIRSTNAME, "").apply();
         mPreferences.edit().putString(Constants.KEY_OTHERS_LASTNAME, "").apply();
         mPreferences.edit().putString(Constants.KEY_OTHERS_EMAIL, "").apply();

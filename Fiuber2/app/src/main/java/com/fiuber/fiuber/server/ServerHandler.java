@@ -598,8 +598,7 @@ public class ServerHandler {
 
     public void cancelRide(final String username,
                            final String password,
-                           final String requestId,
-                           final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
+                           final String requestId) {
         Log.d(TAG, "cancelRide:" + username);
 
         getValidToken(username, password, new Response.Listener<JSONObject>() {
@@ -620,7 +619,7 @@ public class ServerHandler {
                 JsonObjectRequest req = new JsonObjectRequest(
                         Request.Method.DELETE,
                         FINAL_URL,
-                        null, responseListener, responseErrorListener) {
+                        null, defaultResponseListener, defaultResponseErrorListener) {
 
                     @Override
                     protected VolleyError parseNetworkError(VolleyError volleyError) {
