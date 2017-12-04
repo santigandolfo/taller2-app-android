@@ -139,6 +139,8 @@ public class PassengerMapsActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
+        setTextForDisplay();
+
         updateUI();
 
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
@@ -197,9 +199,21 @@ public class PassengerMapsActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(finishTripReceiver, new IntentFilter("finish_trip"));
         LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("cancel_ride"));
 
-
         this.initializeLocationManager();
 
+    }
+
+    private void setTextForDisplay(){
+        if (!"".equals(mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, ""))) {
+            TextView mNameField = findViewById(R.id.text_driver_name);
+            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
+            mNameField.setText(fullName);
+        }
+        if (0 != mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)) {
+            Button buttonPayRide = findViewById(R.id.button_pay_ride);
+            DecimalFormat df = new DecimalFormat("#.##");
+            buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
+        }
     }
 
     private BroadcastReceiver cancelRideReceiver = new BroadcastReceiver() {
@@ -208,6 +222,9 @@ public class PassengerMapsActivity extends AppCompatActivity
             Log.d(TAG, "destinationReached");
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             clearOtherUserConstants();
+            updateUI();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+
         }
     };
 
@@ -222,7 +239,6 @@ public class PassengerMapsActivity extends AppCompatActivity
             Button buttonPayRide = findViewById(R.id.button_pay_ride);
             DecimalFormat df = new DecimalFormat("#.##");
             buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
-
             updateUI();
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
         }

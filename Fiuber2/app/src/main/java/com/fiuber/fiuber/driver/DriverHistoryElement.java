@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ public class DriverHistoryElement {
     public DriverHistoryElement(JSONObject object) {
         Log.i(TAG, "DriverHistoryElement");
         try {
-            this.cost = object.getString("cost");
+            DecimalFormat df = new DecimalFormat("#.##");
+            this.cost = df.format(object.getDouble("cost"));
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
                 SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");

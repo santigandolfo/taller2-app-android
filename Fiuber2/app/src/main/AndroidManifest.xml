@@ -125,14 +125,6 @@
                 android:value="com.fiuber.fiuber.passenger.PassengerMapsActivity" />
         </activity>
         <activity
-            android:name=".driver.DriverPaymentActivity"
-            android:label="@string/title_activity_payment"
-            android:parentActivityName=".driver.DriverMapsActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.fiuber.fiuber.driver.DriverMapsActivity" />
-        </activity>
-        <activity
             android:name=".passenger.PassengerHistoryActivity"
             android:label="@string/title_activity_history"
             android:parentActivityName=".passenger.PassengerMapsActivity">

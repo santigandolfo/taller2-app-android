@@ -273,6 +273,7 @@ public class DriverMapsActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "cancelRide");
+
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             clearOtherUserConstants();
             updateUI();
@@ -286,11 +287,6 @@ public class DriverMapsActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Log.d(TAG, "acceptRide");
 
-/*
-            Toast.makeText(getApplicationContext(), "RECEIVED FIREBASE NOTIFICATION",
-                    Toast.LENGTH_SHORT).show();
-*/
-
             passengerLocation = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_INITIAL, "0")),
                     Double.parseDouble(mPreferences.getString(Constants.KEY_LONGITUDE_INITIAL, "0")));
             destination = new LatLng(Double.parseDouble(mPreferences.getString(Constants.KEY_LATITUDE_FINAL, "0")),
@@ -302,7 +298,6 @@ public class DriverMapsActivity extends AppCompatActivity
             mNameField.setText(fullName);
 
             mPreferences.edit().putString(Constants.KEY_STATE, "picking_up_passenger").apply();
-            //TODO: Uncomment this
             myGeofence.startGeofencing(passengerLocation);
             updateUI();
         }
@@ -460,17 +455,10 @@ public class DriverMapsActivity extends AppCompatActivity
         if (id == R.id.profile) {
             Log.d(TAG, "change activity to DriverProfileActivity");
             startActivity(new Intent(this, DriverProfileActivity.class));
-        } else if (id == R.id.payment) {
-            Log.d(TAG, "change activity to DriverPaymentActivity");
-            startActivity(new Intent(this, DriverPaymentActivity.class));
         } else if (id == R.id.history) {
             Log.d(TAG, "change activity to DriverHistoryActivity");
             startActivity(new Intent(this, DriverHistoryActivity.class));
-        } /*else if (id == R.id.settings) {
-            Log.d(TAG, "change activity to DriverSettingsActivity");
-            startActivity(new Intent(this, DriverSettingsActivity.class));
-
-        } */else if (id == R.id.action_logout) {
+        } else if (id == R.id.action_logout) {
             logout();
         }
 

@@ -2,10 +2,13 @@ package com.fiuber.fiuber.passenger;
 
 import android.util.Log;
 
+import com.fiuber.fiuber.Constants;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +28,8 @@ public class PassengerHistoryElement {
         Log.i(TAG, "PassengerHistoryElement");
 
         try {
-            this.cost = object.getString("cost");
+            DecimalFormat df = new DecimalFormat("#.##");
+            this.cost = df.format(object.getDouble("cost"));
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
                 SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy 'at' HH:mm");
