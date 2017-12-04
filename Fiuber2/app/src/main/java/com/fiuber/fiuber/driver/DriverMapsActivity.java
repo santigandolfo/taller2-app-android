@@ -275,6 +275,9 @@ public class DriverMapsActivity extends AppCompatActivity
             Log.d(TAG, "cancelRide");
             mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
             clearOtherUserConstants();
+            updateUI();
+            myGeofence.stopGeoFencing();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
         }
     };
 
@@ -611,7 +614,7 @@ public class DriverMapsActivity extends AppCompatActivity
         builder.include(passengerLocation);
         builder.include(destination);
         LatLngBounds bounds = builder.build();
-        int padding = 150; // offset from edges of the map in pixels
+        int padding = 100; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.animateCamera(cu);
 

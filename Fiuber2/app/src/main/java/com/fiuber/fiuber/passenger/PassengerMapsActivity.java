@@ -464,7 +464,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         builder.include(lastKnownLocation);
         builder.include(destination);
         LatLngBounds bounds = builder.build();
-        int padding = 150; // offset from edges of the map in pixels
+        int padding = 100; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.animateCamera(cu);
     }
@@ -620,13 +620,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         //Start drawing route
         mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), latLngs, 5, R.color.colorPrimary);
         mPolyline = mMap.addPolyline(mLineOptions);
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(lastKnownLocation);
-        builder.include(destination);
-        LatLngBounds bounds = builder.build();
-        int padding = 150; // offset from edges of the map in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-        mMap.animateCamera(cu);
+        zoomOutToDestination();
         //Finish drawing route
         Log.i(TAG, "drawDirections finished");
     }
