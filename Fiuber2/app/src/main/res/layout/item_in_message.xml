@@ -28,4 +28,5 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/message_text"
         android:text="sdfsdfsd" />
+
 </RelativeLayout>

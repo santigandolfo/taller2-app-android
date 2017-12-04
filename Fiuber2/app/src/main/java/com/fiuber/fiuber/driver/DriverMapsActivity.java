@@ -30,10 +30,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
@@ -63,11 +61,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.maps.android.PolyUtil;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -98,8 +93,6 @@ public class DriverMapsActivity extends AppCompatActivity
     PolylineOptions mDestinationLineOptions;
     Polyline mPasengerPolyline;
     Polyline mDestinationPolyline;
-
-    String GOOGLE_API_KEY = "AIzaSyAWcT3cBWZ75CxCgC5vq51iJmoZSUKnqyA";
 
     private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
@@ -255,7 +248,6 @@ public class DriverMapsActivity extends AppCompatActivity
 
         mServerHandler.finishTrip(mPreferences.getString(Constants.KEY_USERNAME, ""),
                 mPreferences.getString(Constants.KEY_PASSWORD, ""),
-                mPreferences.getString(Constants.KEY_RIDE_ID, ""),
                 finishTripResponseListener, finishTripResponseErrorListener);
     }
 
@@ -523,7 +515,7 @@ public class DriverMapsActivity extends AppCompatActivity
             clearRoute();
         } else if ("request_start_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
             findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
@@ -539,18 +531,18 @@ public class DriverMapsActivity extends AppCompatActivity
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("request_finish_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
             findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.VISIBLE);
         }

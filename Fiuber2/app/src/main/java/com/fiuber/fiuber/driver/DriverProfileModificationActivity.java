@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.android.volley.NetworkResponse;
@@ -20,9 +19,7 @@ import com.android.volley.VolleyError;
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
-
 import org.json.JSONObject;
-
 import java.util.Arrays;
 
 public class DriverProfileModificationActivity extends AppCompatActivity {

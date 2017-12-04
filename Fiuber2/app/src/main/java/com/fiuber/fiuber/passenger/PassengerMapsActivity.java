@@ -36,7 +36,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.RequestResult;
@@ -74,10 +73,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.maps.android.PolyUtil;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -371,28 +368,6 @@ public class PassengerMapsActivity extends AppCompatActivity
 
         updateUI();
     }
-
-/*    private Response.ErrorListener logoutCancelRideResponseErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "logoutCancelRide Failed. Response Error: " + error.toString());
-            mPreferences.edit().clear().apply();
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-        }
-    };
-
-
-    Response.Listener<JSONObject> logoutCancelRideResponseListener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.d(TAG, "logoutCancelRideResponseListener Successful. Response: " + response.toString());
-            mPreferences.edit().clear().apply();
-            Log.d(TAG, "Change activity to LoginActivity");
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-        }
-    };*/
 
     private void logout() {
         Log.d(TAG, "logout");
@@ -782,7 +757,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             Log.i(TAG, "No card");
             Toast.makeText(getApplicationContext(), "No Credit Card",
                     Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getApplicationContext(), PassengerPaymentActivity.class));
+            startActivity(new Intent(getApplicationContext(), AddPaymentActivity.class));
         } else {
             String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
             Float value = mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0);

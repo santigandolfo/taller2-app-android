@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import com.braintreepayments.cardform.OnCardFormSubmitListener;
 import com.braintreepayments.cardform.utils.CardType;
 import com.braintreepayments.cardform.view.CardEditText;
@@ -17,6 +16,7 @@ import com.braintreepayments.cardform.view.SupportedCardTypesView;
 
 public class AddPaymentActivity extends AppCompatActivity implements OnCardFormSubmitListener,
         CardEditText.OnCardTypeChangedListener {
+
     private static final String TAG = "AddPaymentActivity";
 
     SharedPreferences mPreferences;
@@ -29,20 +29,6 @@ public class AddPaymentActivity extends AppCompatActivity implements OnCardFormS
     protected CardForm mCardForm;
 
     private String mCardType;
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_sign_out) {
-            onBackPressed();
-        }
-        return true;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,4 +86,19 @@ public class AddPaymentActivity extends AppCompatActivity implements OnCardFormS
             mCardType = cardType.toString();
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.chat_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_sign_out) {
+            onBackPressed();
+        }
+        return true;
+    }
+
 }

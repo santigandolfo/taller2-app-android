@@ -2,7 +2,6 @@ package com.fiuber.fiuber.server;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -11,10 +10,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.fiuber.fiuber.Constants;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +73,10 @@ public class ServerHandler {
         Log.d(TAG, "JsonObject: " + params.toString());
 
         Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener) {
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                FINAL_URL,
+                new JSONObject(params),
+                responseListener, responseErrorListener) {
 
             @Override
             protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -105,7 +105,10 @@ public class ServerHandler {
         Log.d(TAG, "JsonObject: " + params.toString());
 
         Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener) {
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                FINAL_URL,
+                new JSONObject(params),
+                responseListener, responseErrorListener) {
 
             @Override
             protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -135,7 +138,10 @@ public class ServerHandler {
             Log.d(TAG, "JsonObject: " + params.toString());
 
             Log.d(TAG, "creating JsonObjectRequest");
-            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, params, responseListener, responseErrorListener) {
+            JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                    FINAL_URL,
+                    params,
+                    responseListener, responseErrorListener) {
 
                 @Override
                 protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -195,10 +201,10 @@ public class ServerHandler {
                     paymentMethod.put(Constants.KEY_PAYMENT_TYPE, type);
 
                     JSONObject params = new JSONObject();
-                    params.put("transaction_id", transaction_id);
-                    params.put("currency", "ARS");
-                    params.put("value", value);
-                    params.put("paymentMethod", paymentMethod);
+                    params.put(Constants.KEY_TRANSACTION_ID, transaction_id);
+                    params.put(Constants.KEY_CURRENCY, "ARS");
+                    params.put(Constants.KEY_VALUE, value);
+                    params.put(Constants.KEY_PAYMENT_METHOD, paymentMethod);
 
                     Log.d(TAG, "creating JsonObjectRequest");
                     JsonObjectRequest req = new JsonObjectRequest(
@@ -246,7 +252,10 @@ public class ServerHandler {
         Log.d(TAG, "JsonObject: " + params.toString());
 
         Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, FINAL_URL, new JSONObject(params), responseListener, responseErrorListener) {
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST,
+                FINAL_URL,
+                new JSONObject(params),
+                responseListener, responseErrorListener) {
 
             @Override
             protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -270,7 +279,10 @@ public class ServerHandler {
         String FINAL_URL = Constants.URL + Constants.USERS + "/" + username;
 
         Log.d(TAG, "creating JsonObjectRequest");
-        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET, FINAL_URL, null, responseListener, responseErrorListener) {
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.GET,
+                FINAL_URL,
+                null,
+                responseListener, responseErrorListener) {
 
             @Override
             protected VolleyError parseNetworkError(VolleyError volleyError) {
@@ -761,7 +773,6 @@ public class ServerHandler {
 
     public void finishTrip(final String username,
                            final String password,
-                           final String requestId,
                            final Response.Listener<JSONObject> responseListener, final Response.ErrorListener responseErrorListener) {
         Log.d(TAG, "finishTrip:" + username);
 

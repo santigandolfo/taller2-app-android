@@ -19,7 +19,6 @@ import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.driver.DriverRegisterActivity;
 import com.fiuber.fiuber.server.ServerHandler;
 import org.json.JSONObject;
-
 import java.util.Arrays;
 
 public class PassengerRegisterActivity extends AppCompatActivity implements

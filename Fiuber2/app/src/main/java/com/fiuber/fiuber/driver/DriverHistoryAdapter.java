@@ -32,11 +32,11 @@ public class DriverHistoryAdapter extends ArrayAdapter<DriverHistoryElement> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_driver_history_element, parent, false);
         }
         // Lookup view for data population
-        TextView tv_cost = (TextView) convertView.findViewById(R.id.tv_cost);
-        TextView tv_date = (TextView) convertView.findViewById(R.id.tv_date);
-        TextView tv_passenger = (TextView) convertView.findViewById(R.id.tv_passenger);
-        TextView tv_start_location = (TextView) convertView.findViewById(R.id.tv_start_location);
-        TextView tv_end_location = (TextView) convertView.findViewById(R.id.tv_end_location);
+        TextView tv_cost = convertView.findViewById(R.id.tv_cost);
+        TextView tv_date = convertView.findViewById(R.id.tv_date);
+        TextView tv_passenger = convertView.findViewById(R.id.tv_passenger);
+        TextView tv_start_location = convertView.findViewById(R.id.tv_start_location);
+        TextView tv_end_location = convertView.findViewById(R.id.tv_end_location);
 
         // Populate the data into the template view using the data object
         tv_cost.setText("$"+element.cost);

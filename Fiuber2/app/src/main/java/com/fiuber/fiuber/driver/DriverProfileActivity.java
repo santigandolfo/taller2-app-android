@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.TextView;
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
-import com.fiuber.fiuber.passenger.PassengerProfileModificationActivity;
 
 public class DriverProfileActivity extends AppCompatActivity {
 

@@ -13,9 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

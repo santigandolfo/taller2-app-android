@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.fiuber.fiuber.R;
-
 import java.util.ArrayList;
 
 public class PassengerHistoryAdapter extends ArrayAdapter<PassengerHistoryElement> {

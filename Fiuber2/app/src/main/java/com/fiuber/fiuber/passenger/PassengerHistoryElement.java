@@ -1,13 +1,9 @@
 package com.fiuber.fiuber.passenger;
 
 import android.util.Log;
-
-import com.fiuber.fiuber.Constants;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -59,24 +55,5 @@ public class PassengerHistoryElement {
         }
         return elements;
     }
-
-/*    private Date createDate(string dateString){
-        String startDateString = "06/27/2007";
-
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        sdf.get
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        "2017-11-30T13:28:57.662Z""
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        Date startDate;
-        try {
-            startDate = df.parse(startDateString);
-            String newDateString = df.format(startDate);
-            System.out.println(newDateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
 

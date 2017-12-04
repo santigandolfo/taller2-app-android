@@ -7,12 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ListView;
-
 import com.android.volley.Response;
 import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.server.ServerHandler;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 public class DriverHistoryActivity extends AppCompatActivity {
 
     private static final String TAG = "DriverHistoryActivity";
-    private ServerHandler mServerHandler;
     SharedPreferences mPreferences;
 
     @Override
@@ -32,7 +29,7 @@ public class DriverHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mServerHandler = new ServerHandler(this.getApplicationContext());
+        ServerHandler mServerHandler = new ServerHandler(this.getApplicationContext());
         mPreferences = getSharedPreferences(Constants.KEY_MY_PREFERENCES, Context.MODE_PRIVATE);
 
         mServerHandler.getHistory(mPreferences.getString(Constants.KEY_USERNAME, ""),
@@ -47,14 +44,14 @@ public class DriverHistoryActivity extends AppCompatActivity {
         public void onResponse(JSONObject response) {
             Log.d(TAG, "getHistory Successful. Response: " + response.toString());
             // Construct the data source
-            ArrayList<DriverHistoryElement> arrayOfUsers = new ArrayList<DriverHistoryElement>();
+            ArrayList<DriverHistoryElement> arrayOfUsers = new ArrayList<>();
             // Create the adapter to convert the array to views
             DriverHistoryAdapter adapter = new DriverHistoryAdapter(getApplicationContext(), arrayOfUsers);
             // Attach the adapter to a ListView
-            ListView listView = (ListView) findViewById(R.id.lvItems);
+            ListView listView = findViewById(R.id.lvItems);
             listView.setAdapter(adapter);
 
-            JSONArray jsonArray = null;
+            JSONArray jsonArray;
             try {
                 jsonArray = response.getJSONArray("trips");
                 ArrayList<DriverHistoryElement> newUsers = DriverHistoryElement.fromJson(jsonArray);

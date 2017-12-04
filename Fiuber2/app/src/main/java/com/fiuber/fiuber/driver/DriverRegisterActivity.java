@@ -18,9 +18,7 @@ import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.fiuber.fiuber.LoginActivity;
 import com.fiuber.fiuber.server.ServerHandler;
-
 import org.json.JSONObject;
-
 import java.util.Arrays;
 
 public class DriverRegisterActivity extends AppCompatActivity implements

@@ -2,7 +2,6 @@ package com.fiuber.fiuber;
 
 public class Constants {
 
-
     //misc
     public static final String KEY_INFO = "info";
     public static final String KEY_ESTIMATED_COST= "estimated_cost";
@@ -45,7 +44,10 @@ public class Constants {
     public static final String KEY_NUMBER = "number";
     public static final String KEY_CCVV = "ccvv";
     public static final String KEY_PAYMENT_TYPE = "type";
+    public static final String KEY_TRANSACTION_ID = "transaction_id";
+    public static final String KEY_CURRENCY = "currency";
     public static final String KEY_VALUE = "value";
+    public static final String KEY_PAYMENT_METHOD = "paymentMethod";
 
     public static final String KEY_AUTHORIZATION = "Authorization";
 

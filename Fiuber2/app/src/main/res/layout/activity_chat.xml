@@ -42,4 +42,5 @@
         android:dividerHeight="16dp"
         android:stackFromBottom="true"
         android:transcriptMode="alwaysScroll" />
+
 </RelativeLayout>

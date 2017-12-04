@@ -16,14 +16,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Arrays;
 
-
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
     SharedPreferences mPreferences;
-
-    private ServerHandler mServerHandler;
 
 
     Response.ErrorListener getUserInformationResponseErrorListener = new Response.ErrorListener() {
@@ -65,7 +62,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "onMessageReceived");
 
-        mServerHandler = new ServerHandler(this.getApplicationContext());
+        ServerHandler mServerHandler = new ServerHandler(this.getApplicationContext());
 
         Log.d(TAG, "FROM:" + remoteMessage.getFrom());
         Log.d(TAG, "Notification Body:" + remoteMessage.getNotification().getTitle());
