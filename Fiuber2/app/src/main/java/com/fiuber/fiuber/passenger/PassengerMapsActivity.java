@@ -271,7 +271,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                            Log.d(TAG, "getLastLocation:all OK!");
+
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
                             if (currentLocationMarker == null) {
@@ -281,7 +281,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                             }
                             currentLocationMarker.setPosition(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
-
+                            Log.d(TAG, "getLastLocation:All OK!");
                             if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                                 mServerHandler.updateUserCoordinates(mPreferences.getString(Constants.KEY_USERNAME, ""),
                                         mPreferences.getString(Constants.KEY_PASSWORD, ""),
@@ -776,6 +776,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             Log.i(TAG, "No card");
             Toast.makeText(getApplicationContext(), "No Credit Card",
                     Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getApplicationContext(), PassengerPaymentActivity.class));
         } else {
             String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
             Float value = mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0);
