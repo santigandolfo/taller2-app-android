@@ -577,7 +577,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 } else if ("paying".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
                     findViewById(R.id.text_driver_name).setVisibility(View.VISIBLE);
-                    findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.button_cancel).setVisibility(View.GONE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_chat).setVisibility(View.GONE);
