@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.fiuber.fiuber.Constants;
 import com.fiuber.fiuber.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -24,6 +25,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class ChatActivity extends AppCompatActivity {
+    private FirebaseListAdapter<ChatMessage> adapter;
+    private static final String TAG = "ChatActivity";
+
     private ListView listView;
     private String loggedInUserName = "";
 
@@ -44,10 +48,10 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        final String TAG = "PassengerMapsActivity";
         mAuth = FirebaseAuth.getInstance();
         mPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
@@ -62,6 +66,7 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser == null) {
+            Log.d(TAG, "currentUser == null");
             mAuth.signInAnonymously()
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -89,7 +94,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (input.getText().toString().trim().equals("")) {
                     Toast.makeText(ChatActivity.this, "Please enter some texts!", Toast.LENGTH_SHORT).show();
                 } else {
-
+                    Log.d(TAG, "sending text");
                     FirebaseDatabase.getInstance()
                             .getReferenceFromUrl(FINAL_FIREBASE_URL)
                             .push()
@@ -119,15 +124,17 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void showAllOldMessages() {
+        Log.d(TAG, "showAllOldMessages");
         loggedInUserName = mPreferences.getString(KEY_USERNAME, "");
         Log.d("Chat", "user id: " + loggedInUserName);
 
-        FirebaseListAdapter<ChatMessage> adapter = new MessageAdapter(this, ChatMessage.class, R.layout.item_in_message,
+        adapter = new MessageAdapter(this, ChatMessage.class, R.layout.item_in_message,
                 FirebaseDatabase.getInstance().getReferenceFromUrl(FINAL_FIREBASE_URL));
         listView.setAdapter(adapter);
     }
 
     public String getLoggedInUserName() {
+        Log.d(TAG, "getLoggedInUserName");
         return loggedInUserName;
     }
 }

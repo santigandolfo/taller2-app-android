@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +67,7 @@ import com.google.maps.android.PolyUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -168,6 +170,14 @@ public class DriverMapsActivity extends AppCompatActivity
 
         this.initializeLocationManager();
 
+    }
+
+    private void setTextForDisplay(){
+        if (!"".equals(mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, ""))) {
+            TextView mNameField = findViewById(R.id.text_passenger_name);
+            String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
+            mNameField.setText(fullName);
+        }
     }
 
     Response.ErrorListener startTripResponseErrorListener = new Response.ErrorListener() {
@@ -497,49 +507,50 @@ public class DriverMapsActivity extends AppCompatActivity
 
     private void updateUI() {
         Log.i(TAG, "updateUI");
+        setTextForDisplay();
 
-        mBottomSheetBehavior.setPeekHeight(50);
+        mBottomSheetBehavior.setPeekHeight(38);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         if ("free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.VISIBLE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
-            findViewById(R.id.button_cancel).setVisibility(View.GONE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
             clearRoute();
         } else if ("request_start_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
-            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
-            findViewById(R.id.button_chat).setVisibility(View.GONE);
-            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
             findViewById(R.id.button_start_trip).setVisibility(View.VISIBLE);
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("picking_up_passenger".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.VISIBLE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
             findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
-            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.GONE);
         } else if ("request_finish_trip".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-            findViewById(R.id.text_waiting_for_passenger).setVisibility(View.GONE);
-            findViewById(R.id.text_passenger_name).setVisibility(View.GONE);
-            findViewById(R.id.button_view_profile).setVisibility(View.GONE);
-            findViewById(R.id.button_chat).setVisibility(View.GONE);
-            findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_text_waiting_for_passenger).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_passenger_name).setVisibility(View.GONE);
+            findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
+            findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
             findViewById(R.id.button_start_trip).setVisibility(View.GONE);
             findViewById(R.id.button_finish_trip).setVisibility(View.VISIBLE);
         }

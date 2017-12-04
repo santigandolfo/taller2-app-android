@@ -139,8 +139,6 @@ public class PassengerMapsActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mDrawer = findViewById(R.id.drawer_layout);
 
-        setTextForDisplay();
-
         updateUI();
 
         findViewById(R.id.iv_menu_icon).setOnClickListener(new View.OnClickListener() {
@@ -525,6 +523,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void updateUI() {
         Log.i(TAG, "updateUI");
+        setTextForDisplay();
         if ("free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
 
             findViewById(R.id.search_bar).setVisibility(View.VISIBLE);
@@ -532,24 +531,24 @@ public class PassengerMapsActivity extends AppCompatActivity
             mBottomSheetBehavior.setPeekHeight(0);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
-            findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
-            findViewById(R.id.text_driver_name).setVisibility(View.GONE);
-            findViewById(R.id.button_cancel).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
+            findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
+            findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_request_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
             findViewById(R.id.button_chat).setVisibility(View.GONE);
             findViewById(R.id.button_view_profile).setVisibility(View.GONE);
             clearRoute();
         } else {
-            mBottomSheetBehavior.setPeekHeight(50);
+            mBottomSheetBehavior.setPeekHeight(38);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             if ("place_selected".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
 
                 findViewById(R.id.search_bar).setVisibility(View.VISIBLE);
 
-                findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
-                findViewById(R.id.text_driver_name).setVisibility(View.GONE);
-                findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+                findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
+                findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
+                findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_request_ride).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                 findViewById(R.id.button_chat).setVisibility(View.GONE);
@@ -559,25 +558,25 @@ public class PassengerMapsActivity extends AppCompatActivity
                 findViewById(R.id.search_bar).setVisibility(View.GONE);
 
                 if ("requesting_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                    findViewById(R.id.text_waiting_for_driver).setVisibility(View.VISIBLE);
-                    findViewById(R.id.text_driver_name).setVisibility(View.GONE);
-                    findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
+                    findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_chat).setVisibility(View.GONE);
                     findViewById(R.id.button_view_profile).setVisibility(View.GONE);
                 } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                    findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
-                    findViewById(R.id.text_driver_name).setVisibility(View.VISIBLE);
-                    findViewById(R.id.button_cancel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
+                    findViewById(R.id.rl_text_driver_name).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
                 } else if ("paying".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                    findViewById(R.id.text_waiting_for_driver).setVisibility(View.GONE);
-                    findViewById(R.id.text_driver_name).setVisibility(View.VISIBLE);
-                    findViewById(R.id.button_cancel).setVisibility(View.GONE);
+                    findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
+                    findViewById(R.id.rl_text_driver_name).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_chat).setVisibility(View.GONE);
@@ -650,7 +649,6 @@ public class PassengerMapsActivity extends AppCompatActivity
                 Log.e(TAG, "Getting user information Failed. Response statusCode: " + response.statusCode);
                 Log.e(TAG, "Getting user information Failed. Response data: " + Arrays.toString(response.data));
             }
-            //Toast.makeText(getApplicationContext(), "Couldn't get drivers information", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -669,17 +667,9 @@ public class PassengerMapsActivity extends AppCompatActivity
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_COLOR)).apply();
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_YEAR)).apply();
 
-
-                TextView mNameField = findViewById(R.id.text_driver_name);
-                String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
-                mNameField.setText(fullName);
-
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            //Toast.makeText(getApplicationContext(), "Got drivers information!", Toast.LENGTH_SHORT).show();
         }
     };
 

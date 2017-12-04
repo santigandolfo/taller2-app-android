@@ -8,7 +8,9 @@
     <dimen name="search_view_inset">16dp</dimen>
     <dimen name="search_view_padding_start">38dp</dimen>
     <dimen name="search_view_padding_end">8dp</dimen>
+    <dimen name="margin_large">38dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
 
 
 </resources>

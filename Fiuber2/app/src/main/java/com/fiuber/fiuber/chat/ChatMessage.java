@@ -8,18 +8,19 @@ public class ChatMessage {
     private String messageUserId;
     private long messageTime;
 
-    ChatMessage(String messageText, String messageUser, String messageUserId) {
+    public ChatMessage(String messageText, String messageUser, String messageUserId) {
         this.messageText = messageText;
         this.messageUser = messageUser;
-        messageTime = new Date().getTime();
         this.messageUserId = messageUserId;
-    }
-
-    public ChatMessage() {
+        this.messageTime = new Date().getTime();
 
     }
 
-    String getMessageUserId() {
+    public ChatMessage(){
+
+    }
+
+    public String getMessageUserId() {
         return messageUserId;
     }
 
@@ -27,7 +28,7 @@ public class ChatMessage {
         this.messageUserId = messageUserId;
     }
 
-    String getMessageText() {
+    public String getMessageText() {
         return messageText;
     }
 
@@ -35,7 +36,7 @@ public class ChatMessage {
         this.messageText = messageText;
     }
 
-    String getMessageUser() {
+    public String getMessageUser() {
         return messageUser;
     }
 
@@ -43,7 +44,7 @@ public class ChatMessage {
         this.messageUser = messageUser;
     }
 
-    long getMessageTime() {
+    public long getMessageTime() {
         return messageTime;
     }
 

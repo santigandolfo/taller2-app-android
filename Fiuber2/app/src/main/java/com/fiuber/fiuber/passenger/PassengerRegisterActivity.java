@@ -96,8 +96,6 @@ public class PassengerRegisterActivity extends AppCompatActivity implements
             mPreferences.edit().putString(Constants.KEY_PASSWORD, mPasswordField.getText().toString().trim()).apply();
             mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
-            Toast.makeText(getApplicationContext(), "Creating Passenger Successfull!", Toast.LENGTH_SHORT).show();
-
             Log.d(TAG, "Change activity to PassengerMapsActivity");
             startActivity(new Intent(getApplicationContext(), PassengerMapsActivity.class));
         }

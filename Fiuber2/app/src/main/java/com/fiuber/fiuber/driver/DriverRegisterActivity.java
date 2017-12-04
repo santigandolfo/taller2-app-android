@@ -112,8 +112,6 @@ public class DriverRegisterActivity extends AppCompatActivity implements
             mPreferences.edit().putString(Constants.KEY_CAR_YEAR, mCarYearField.getText().toString().trim()).apply();
             mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
 
-            Toast.makeText(getApplicationContext(), "Creating Driver Successfull!", Toast.LENGTH_SHORT).show();
-
             mServerHandler.setDriversDuty(mPreferences.getString(Constants.KEY_USERNAME, ""), mPreferences.getString(Constants.KEY_PASSWORD, ""), true, setDriverAsAvailableResponseListener);
         }
     };

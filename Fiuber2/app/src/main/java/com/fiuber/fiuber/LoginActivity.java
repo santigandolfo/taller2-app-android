@@ -114,7 +114,6 @@ public class LoginActivity extends AppCompatActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(getApplicationContext(), "Login Successful!", Toast.LENGTH_SHORT).show();
 
             getUserInfo();
 
@@ -172,8 +171,6 @@ public class LoginActivity extends AppCompatActivity implements
                 e.printStackTrace();
             }
             mPreferences.edit().putBoolean(Constants.KEY_LOGIN, true).apply();
-
-            Toast.makeText(getApplicationContext(), "Got user information!", Toast.LENGTH_SHORT).show();
 
             startMapActivity(mPreferences.getString(Constants.KEY_TYPE, ""));
         }

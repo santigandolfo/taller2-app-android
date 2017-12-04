@@ -54,7 +54,7 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="147dp"
         android:layout_below="@id/fab"
         android:background="@android:color/white"
         android:clipToPadding="true"
@@ -67,44 +67,43 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-
             <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:gravity="center"
-                android:padding="@dimen/activity_horizontal_margin">
-
-
-                <TextView
-                    android:id="@+id/text_waiting_for_driver"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:text="Waiting for driver ..."
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:visibility="gone" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
+                android:id="@+id/rl_text_waiting_for_driver"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:gravity="start"
-                android:padding="@dimen/activity_horizontal_margin">
+                android:padding="@dimen/margin_small"
+                android:visibility="gone">
+
+
+                <TextView
+                    android:id="@+id/text_waiting_for_driver"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Waiting for driver ..."
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_text_driver_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:gravity="start"
+                android:padding="@dimen/margin_small"
+                android:visibility="gone">
 
 
                 <TextView
                     android:id="@+id/text_driver_name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:text=""
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:visibility="gone" />
+                    android:text="Name Surname"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             </RelativeLayout>
 
@@ -135,35 +134,37 @@
                     android:textStyle="bold"
                     android:visibility="gone" />
 
+                <Button
+                    android:id="@+id/button_request_ride"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_request_ride"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/button_pay_ride"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/action_pay_ride"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
             </LinearLayout>
 
-            <Button
-                android:id="@+id/button_request_ride"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:text="@string/action_request_ride"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
-            <Button
-                android:id="@+id/button_pay_ride"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:text="@string/action_pay_ride"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:id="@+id/rl_button_cancel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="bottom"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/button_cancel"
@@ -171,21 +172,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_marginTop="16dp"
+                    android:layout_alignParentTop="true"
                     android:text="@string/action_cancel"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
+                    android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/button_refresh"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/action_refresh"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
             </RelativeLayout>
 
         </LinearLayout>
