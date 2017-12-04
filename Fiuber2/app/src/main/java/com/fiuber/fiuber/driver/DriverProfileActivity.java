@@ -57,6 +57,7 @@ public class DriverProfileActivity extends AppCompatActivity {
         mUsernameField.setText(mPreferences.getString(Constants.KEY_USERNAME, ""));
         mEmailField.setText(mPreferences.getString(Constants.KEY_EMAIL, ""));
 
+        findViewById(R.id.text_car).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
         findViewById(R.id.layout_car_brand).setVisibility(View.VISIBLE);

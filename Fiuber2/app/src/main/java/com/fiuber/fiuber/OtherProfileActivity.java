@@ -45,6 +45,7 @@ public class OtherProfileActivity extends AppCompatActivity {
 
         Log.d(TAG, "Type: " + mPreferences.getString(Constants.KEY_OTHERS_TYPE, ""));
         if ("driver".equals(mPreferences.getString(Constants.KEY_OTHERS_TYPE, ""))) {
+            findViewById(R.id.text_car).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_model).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_color).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_car_brand).setVisibility(View.VISIBLE);
