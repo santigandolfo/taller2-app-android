@@ -2,8 +2,8 @@ package com.fiuber.fiuber.driver;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -14,7 +14,6 @@ import com.fiuber.fiuber.server.ServerHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 public class DriverHistoryActivity extends AppCompatActivity {

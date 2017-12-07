@@ -62,6 +62,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -191,6 +192,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                     }
                 });
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(startTripReceiver, new IntentFilter("start_trip"));
         LocalBroadcastManager.getInstance(this).registerReceiver(finishTripReceiver, new IntentFilter("finish_trip"));
         LocalBroadcastManager.getInstance(this).registerReceiver(cancelRideReceiver, new IntentFilter("cancel_ride"));
 
@@ -204,10 +206,16 @@ public class PassengerMapsActivity extends AppCompatActivity
             String fullName = mPreferences.getString(Constants.KEY_OTHERS_FIRSTNAME, "") + " " + mPreferences.getString(Constants.KEY_OTHERS_LASTNAME, "");
             mNameField.setText(fullName);
         }
+
         if (0 != mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)) {
+            TextView textEstimatedCost = findViewById(R.id.text_estimated_cost);
+            DecimalFormat df = new DecimalFormat("#.##");
+            textEstimatedCost.setText("~$" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
+        }
+        if (0 != mPreferences.getFloat(Constants.KEY_COST, 0)) {
             Button buttonPayRide = findViewById(R.id.button_pay_ride);
             DecimalFormat df = new DecimalFormat("#.##");
-            buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
+            buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_COST, 0)));
         }
     }
 
@@ -223,6 +231,20 @@ public class PassengerMapsActivity extends AppCompatActivity
         }
     };
 
+    private BroadcastReceiver startTripReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "tripStarted");
+
+            mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+            updateUI();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
+
+        }
+    };
+
+
+
     private BroadcastReceiver finishTripReceiver = new BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         @Override
@@ -231,38 +253,10 @@ public class PassengerMapsActivity extends AppCompatActivity
 
             mPreferences.edit().putString(Constants.KEY_STATE, "paying").apply();
 
-            Button buttonPayRide = findViewById(R.id.button_pay_ride);
-            DecimalFormat df = new DecimalFormat("#.##");
-            buttonPayRide.setText("Pay: $" + df.format(mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0)));
             updateUI();
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
         }
     };
-
-    public void sendNotification(View view, String title, String text, Class to) {
-        Log.d(TAG, "sendNotification");
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this);
-
-//Create the intent that’ll fire when the user taps the notification//
-
-        Intent intent = new Intent(this, to);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        mBuilder.setContentIntent(pendingIntent);
-
-        mBuilder.setSmallIcon(R.drawable.notification_icon);
-        mBuilder.setContentTitle(title);
-        mBuilder.setContentText(text);
-
-        NotificationManager mNotificationManager =
-
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (mNotificationManager != null) {
-            mNotificationManager.notify(001, mBuilder.build());
-        }
-    }
 
     Response.Listener<JSONObject> updateUserCoordinatesResponseListener = new Response.Listener<JSONObject>() {
         @Override
@@ -272,6 +266,22 @@ public class PassengerMapsActivity extends AppCompatActivity
             mPreferences.edit().putString(Constants.KEY_LONGITUDE, String.valueOf(lastKnownLocation.latitude)).apply();
         }
     };
+
+    private void drawCurrentLocationMarker(LatLng location){
+        if (currentLocationMarker == null) {
+            currentLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location));
+        }
+        currentLocationMarker.setPosition(location);
+    }
+
+    private void drawDestinationLocationMarker(LatLng location){
+        if (destinationLocationMarker == null) {
+            destinationLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location));
+        }
+        destinationLocationMarker.setPosition(location);
+    }
 
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
@@ -285,12 +295,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                             lastLocation = task.getResult();
                             lastKnownLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-                            if (currentLocationMarker == null) {
-                                currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                                        .position(lastKnownLocation)
-                                        .title("Current Position"));
-                            }
-                            currentLocationMarker.setPosition(lastKnownLocation);
+                            drawCurrentLocationMarker(lastKnownLocation);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLocation, 15));
                             Log.d(TAG, "getLastLocation:All OK!");
                             if (!"free".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
@@ -436,16 +441,14 @@ public class PassengerMapsActivity extends AppCompatActivity
     }
 
     private void clearRoute() {
-        if (mPolyline != null)
+        if (mPolyline != null) {
             mPolyline.remove();
-        if (destinationLocationMarker != null)
+            mPolyline = null;
+        }
+        if (destinationLocationMarker != null) {
             destinationLocationMarker.remove();
-    }
-
-    private void clearMap() {
-        clearRoute();
-        if (currentLocationMarker != null)
-            currentLocationMarker.remove();
+            destinationLocationMarker = null;
+        }
     }
 
     private void zoomOutToDestination() {
@@ -508,6 +511,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
             findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
             findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
+            findViewById(R.id.text_estimated_cost).setVisibility(View.GONE);
             findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
             findViewById(R.id.button_request_ride).setVisibility(View.GONE);
             findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
@@ -523,6 +527,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                 findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
                 findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
+                findViewById(R.id.text_estimated_cost).setVisibility(View.GONE);
                 findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_request_ride).setVisibility(View.VISIBLE);
                 findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
@@ -532,18 +537,20 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                 findViewById(R.id.search_bar).setVisibility(View.GONE);
 
-                if ("requesting_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
-                    findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.VISIBLE);
-                    findViewById(R.id.rl_text_driver_name).setVisibility(View.GONE);
-                    findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
+                if ("waiting_for_driver".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
+                    findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
+                    findViewById(R.id.rl_text_driver_name).setVisibility(View.VISIBLE);
+                    findViewById(R.id.text_estimated_cost).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
-                    findViewById(R.id.button_chat).setVisibility(View.GONE);
-                    findViewById(R.id.button_view_profile).setVisibility(View.GONE);
+                    findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
+                    findViewById(R.id.button_view_profile).setVisibility(View.VISIBLE);
                 } else if ("on_ride".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
                     findViewById(R.id.rl_text_driver_name).setVisibility(View.VISIBLE);
-                    findViewById(R.id.rl_button_cancel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.text_estimated_cost).setVisibility(View.VISIBLE);
+                    findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_chat).setVisibility(View.VISIBLE);
@@ -551,6 +558,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 } else if ("paying".equals(mPreferences.getString(Constants.KEY_STATE, "free"))) {
                     findViewById(R.id.rl_text_waiting_for_driver).setVisibility(View.GONE);
                     findViewById(R.id.rl_text_driver_name).setVisibility(View.VISIBLE);
+                    findViewById(R.id.text_estimated_cost).setVisibility(View.GONE);
                     findViewById(R.id.rl_button_cancel).setVisibility(View.GONE);
                     findViewById(R.id.button_request_ride).setVisibility(View.GONE);
                     findViewById(R.id.button_pay_ride).setVisibility(View.VISIBLE);
@@ -595,17 +603,12 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void drawDirections(String encodedDirections) {
         Log.i(TAG, "drawDirections");
-        clearMap();
+        clearRoute();
 
         ArrayList<LatLng> latLngs = (ArrayList<LatLng>) PolyUtil.decode(encodedDirections);
 
-        //Add origin marker
-        currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(lastKnownLocation));
-
-        //Add destination marker
-        destinationLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(destination));
+        drawCurrentLocationMarker(lastKnownLocation);
+        drawDestinationLocationMarker(destination);
 
         //Start drawing route
         mLineOptions = DirectionConverter.createPolyline(getApplicationContext(), latLngs, 5, R.color.colorPrimary);
@@ -641,7 +644,7 @@ public class PassengerMapsActivity extends AppCompatActivity
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_BRAND, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_BRAND)).apply();
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_COLOR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_COLOR)).apply();
                 mPreferences.edit().putString(Constants.KEY_OTHERS_CAR_YEAR, response.getJSONObject(Constants.KEY_INFO).getJSONArray("cars").getJSONObject(0).getString(Constants.KEY_CAR_YEAR)).apply();
-
+                updateUI();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -651,7 +654,7 @@ public class PassengerMapsActivity extends AppCompatActivity
     private Response.ErrorListener requestRideResponseErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(TAG, "payRideResponseErrorListener Failed. Response Error: " + error.toString());
+            Log.e(TAG, "requestRideResponseErrorListener Failed. Response Error: " + error.toString());
             mPreferences.edit().putString(Constants.KEY_STATE, "place_selected").apply();
 
 
@@ -677,9 +680,7 @@ public class PassengerMapsActivity extends AppCompatActivity
 
                     mServerHandler.getUserInformation(response.getString("driver"), getUserInformationResponseListener, getUserInformationResponseErrorListener);
 
-                    sendNotification(getCurrentFocus(), "Ride", "Your ride request has been made", PassengerMapsActivity.class);
-
-                    mPreferences.edit().putString(Constants.KEY_STATE, "on_ride").apply();
+                    mPreferences.edit().putString(Constants.KEY_STATE, "waiting_for_driver").apply();
                     mPreferences.edit().putFloat(Constants.KEY_ESTIMATED_COST, Float.parseFloat(String.valueOf(response.getDouble("estimated_cost")))).apply();
                     updateUI();
                 } else {
@@ -698,7 +699,6 @@ public class PassengerMapsActivity extends AppCompatActivity
 
     private void requestRide() {
         Log.i(TAG, "requestRide");
-        mPreferences.edit().putString(Constants.KEY_STATE, "requesting_ride").apply();
 
         String username = mPreferences.getString(Constants.KEY_USERNAME, "");
         String password = mPreferences.getString(Constants.KEY_PASSWORD, "");
@@ -717,7 +717,7 @@ public class PassengerMapsActivity extends AppCompatActivity
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
 
         mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_PASSWORD, ""),
                 mPreferences.getString(Constants.KEY_RIDE_ID, ""));
         clearOtherUserConstants();
         updateUI();
@@ -760,7 +760,7 @@ public class PassengerMapsActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), AddPaymentActivity.class));
         } else {
             String rideId = mPreferences.getString(Constants.KEY_RIDE_ID, "");
-            Float value = mPreferences.getFloat(Constants.KEY_ESTIMATED_COST, 0);
+            Float value = mPreferences.getFloat(Constants.KEY_COST, 0);
             String month = mPreferences.getString(Constants.KEY_EXPIRATION_MONTH, "");
             String year = mPreferences.getString(Constants.KEY_EXPIRATION_YEAR, "");
             String method = mPreferences.getString(Constants.KEY_METHOD, "");

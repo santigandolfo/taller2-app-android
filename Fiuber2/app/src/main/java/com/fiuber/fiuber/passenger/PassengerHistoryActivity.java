@@ -33,15 +33,15 @@ public class PassengerHistoryActivity extends AppCompatActivity {
 
         mServerHandler.getHistory(mPreferences.getString(Constants.KEY_USERNAME, ""),
                 mPreferences.getString(Constants.KEY_PASSWORD, ""),
-                logResponseResponseListener);
+                getHistoryResponseListener);
 
 
     }
 
-    Response.Listener<JSONObject> logResponseResponseListener = new Response.Listener<JSONObject>() {
+    Response.Listener<JSONObject> getHistoryResponseListener = new Response.Listener<JSONObject>() {
         @Override
         public void onResponse(JSONObject response) {
-            Log.d(TAG, "GONZA TEST Successful. Response: " + response.toString());
+            Log.d(TAG, "getHistory Successful. Response: " + response.toString());
             // Construct the data source
             ArrayList<PassengerHistoryElement> arrayOfUsers = new ArrayList<>();
             // Create the adapter to convert the array to views

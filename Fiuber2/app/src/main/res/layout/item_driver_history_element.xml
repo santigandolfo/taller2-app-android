@@ -3,113 +3,75 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v7.widget.CardView
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+
+        android:visibility="visible">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Date:  "
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="#212121" />
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date" />
-    </LinearLayout>
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Cost:  "
+            android:layout_alignParentStart="true"
+            android:paddingStart="@dimen/margin_small"
+            android:paddingBottom="@dimen/margin_small"
+            android:layout_alignParentTop="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="#212121" />
+            android:text="Date" />
 
         <TextView
             android:id="@+id/tv_cost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:paddingEnd="@dimen/margin_small"
+            android:layout_alignParentTop="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:text="Cost" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:orientation="horizontal">
 
-        <TextView
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Passenger:  "
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="#212121" />
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/margin_small"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_passenger"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Passenger" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_passenger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Passenger" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+            <TextView
+                android:id="@+id/tv_start_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Location" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="StartLocation:  "
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="#212121" />
+            <TextView
+                android:id="@+id/tv_end_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End Location" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_start_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Location" />
+    </RelativeLayout>
 
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="End Location:  "
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="#212121" />
-
-        <TextView
-            android:id="@+id/tv_end_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="End Location" />
-    </LinearLayout>
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

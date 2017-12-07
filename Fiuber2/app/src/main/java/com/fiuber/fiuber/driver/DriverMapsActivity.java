@@ -50,10 +50,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -65,6 +69,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class DriverMapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, View.OnClickListener, LocationListener {
@@ -481,20 +486,22 @@ public class DriverMapsActivity extends AppCompatActivity
     }
 
     private void clearRoute() {
-        if (mPasengerPolyline != null)
+        if (mPasengerPolyline != null) {
             mPasengerPolyline.remove();
-        if (mDestinationPolyline != null)
+            mPasengerPolyline = null;
+        }
+        if (mDestinationPolyline != null){
             mDestinationPolyline.remove();
-        if (destinationLocationMarker != null)
+            mDestinationPolyline = null;
+        }
+        if (destinationLocationMarker != null){
             destinationLocationMarker.remove();
-        if (passengerLocationMarker != null)
+            destinationLocationMarker = null;
+        }
+        if (passengerLocationMarker != null){
             passengerLocationMarker.remove();
-    }
-
-    private void clearMap() {
-        clearRoute();
-        if (currentLocationMarker != null)
-            currentLocationMarker.remove();
+            passengerLocationMarker = null;
+        }
     }
 
     private void updateUI() {
@@ -570,28 +577,48 @@ public class DriverMapsActivity extends AppCompatActivity
         }
     }
 
+    private void drawCurrentLocationMarker(LatLng location){
+        if (currentLocationMarker == null) {
+            currentLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.circle)));
+        }
+        currentLocationMarker.setPosition(location);
+    }
+
+    private void drawPassengerLocationMarker(LatLng location){
+        if (passengerLocationMarker == null) {
+            passengerLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location));
+        }
+        passengerLocationMarker.setPosition(location);
+    }
+
+    private void drawDestinationLocationMarker(LatLng location){
+        if (destinationLocationMarker == null) {
+            destinationLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(location));
+        }
+        destinationLocationMarker.setPosition(location);
+    }
+
     private void drawDirections() {
         Log.i(TAG, "drawDirections");
-        clearMap();
+        clearRoute();
 
         ArrayList<LatLng> passengerLocationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(mPreferences.getString(Constants.KEY_DRIVER_TO_PASSENGER_DIRECTIONS, ""));
         ArrayList<LatLng> destinationWaypoints = (ArrayList<LatLng>) PolyUtil.decode(mPreferences.getString(Constants.KEY_PASSENGER_TO_DESTINATION_DIRECTIONS, ""));
 
-        //Add origin marker
-        currentLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(lastKnownLocation));
+        drawCurrentLocationMarker(lastKnownLocation);
+        drawPassengerLocationMarker(passengerLocation);
+        drawDestinationLocationMarker(destination);
 
-        //Add destination marker
-        passengerLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(passengerLocation));
 
-        //Add destination marker
-        destinationLocationMarker = mMap.addMarker(new MarkerOptions()
-                .position(destination));
-
+        List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
         //Start drawing route
         mPasengerLineOptions = DirectionConverter.createPolyline(getApplicationContext(), passengerLocationWaypoints, 5, R.color.colorPrimary);
         mPasengerPolyline = mMap.addPolyline(mPasengerLineOptions);
+        mPasengerPolyline.setPattern(pattern);
         //Finish drawing route
 
         //Start drawing route
@@ -617,7 +644,7 @@ public class DriverMapsActivity extends AppCompatActivity
         mPreferences.edit().putString(Constants.KEY_STATE, "free").apply();
 
         mServerHandler.cancelRide(mPreferences.getString(Constants.KEY_USERNAME, ""),
-                mPreferences.getString(Constants.KEY_USERNAME, ""),
+                mPreferences.getString(Constants.KEY_PASSWORD, ""),
                 mPreferences.getString(Constants.KEY_RIDE_ID, ""));
         clearOtherUserConstants();
         updateUI();

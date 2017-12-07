@@ -34,9 +34,9 @@ public class PassengerHistoryElement {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            this.driver = String.valueOf(object.getInt("driver_id"));
-            this.startLocation = object.getJSONArray("start_location").toString();
-            this.endLocation = object.getJSONArray("end_location").toString();
+            this.driver = object.getString("driver_username");
+            this.startLocation = "From: " + object.getJSONArray("start_location").toString();
+            this.endLocation = "To: " + object.getJSONArray("end_location").toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }

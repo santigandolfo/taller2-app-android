@@ -35,9 +35,9 @@ public class DriverHistoryElement {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            this.passenger = object.getString("passenger_id");
-            this.startLocation = object.getJSONArray("start_location").toString();
-            this.endLocation = object.getJSONArray("end_location").toString();
+            this.passenger = object.getString("passenger_username");
+            this.startLocation = "From: " + object.getJSONArray("start_location").toString();
+            this.endLocation = "To: " + object.getJSONArray("end_location").toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }

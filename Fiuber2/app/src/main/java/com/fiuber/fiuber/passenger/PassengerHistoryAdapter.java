@@ -30,11 +30,11 @@ public class PassengerHistoryAdapter extends ArrayAdapter<PassengerHistoryElemen
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_passenger_history_element, parent, false);
         }
         // Lookup view for data population
-        TextView tv_cost = (TextView) convertView.findViewById(R.id.tv_cost);
-        TextView tv_date = (TextView) convertView.findViewById(R.id.tv_date);
-        TextView tv_driver = (TextView) convertView.findViewById(R.id.tv_driver);
-        TextView tv_start_location = (TextView) convertView.findViewById(R.id.tv_start_location);
-        TextView tv_end_location = (TextView) convertView.findViewById(R.id.tv_end_location);
+        TextView tv_cost = convertView.findViewById(R.id.tv_cost);
+        TextView tv_date = convertView.findViewById(R.id.tv_date);
+        TextView tv_driver = convertView.findViewById(R.id.tv_driver);
+        TextView tv_start_location = convertView.findViewById(R.id.tv_start_location);
+        TextView tv_end_location = convertView.findViewById(R.id.tv_end_location);
         tv_cost.setText("$"+element.cost);
         tv_date.setText(element.date);
         tv_driver.setText(element.driver);
